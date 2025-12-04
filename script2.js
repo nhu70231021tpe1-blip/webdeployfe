@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Check if data is loaded
-    if (typeof flowchartData === 'undefined' || typeof xmttData === 'undefined') {
+    if (typeof flowchartData === 'undefined') {
         console.error("Flowchart data not loaded. Make sure flowchart-data.js is included and correct.");
         return;
     }
@@ -14,13 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.getElementById("main-content");
     const body = document.body;
     const logoBtnElement = document.getElementById("logo-btn");
-    const notificationToast = document.getElementById("notification-toast");
-    const toastMessage = document.getElementById("toast-message");
-    const toastClose = document.getElementById("toast-close");
+    const toastContainer = document.getElementById("toast-container");
+
+    const FOLDER_MAP = {
+        '1': 'THONG_TIN_CHUNG',
+        '2': 'THONG_TIN_SAN_PHAM',
+        '3': 'DANG_KY_VAY',
+        '4': 'GIAI_NGAN',
+        '5': 'KENH_THANH_TOAN',
+        '6': 'THANH_TOAN_CIC'
+    };
+
+    const overlay = document.getElementById("overlay");
 
     let lastScrollY = 0;
     let isHeaderHidden = false;
-    let toastTimeout = null;
 
     // --- INITIALIZATION ---
     function initialize() {
@@ -42,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const label = document.createElement("label");
         label.className = "filter-label";
-        label.textContent = getLabelForLevel(level, dataNode);
+        label.textContent = `Chọn điều kiện cấp ${level}:`;
         
         const select = document.createElement("select");
         select.className = "filter-select";
@@ -52,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options.forEach(optionText => {
             const option = document.createElement("option");
             option.value = optionText;
-            option.textContent = optionText.replace(/^\d+\.\s*/, '');
+            option.textContent = optionText;
             select.appendChild(option);
         });
 
@@ -62,86 +70,134 @@ document.addEventListener("DOMContentLoaded", () => {
         filterGroup.appendChild(select);
         dynamicFiltersContainer.appendChild(filterGroup);
     }
-    
-    function getLabelForLevel(level, dataNode) {
-        // Find a key in the dataNode that is an object, and return that key
-        for (const key in dataNode) {
-            if (typeof dataNode[key] === 'object' && dataNode[key] !== null) {
-                 // A bit of a hack to get the title of the next level dropdown
-                 const nextNodeKeys = Object.keys(dataNode[key]);
-                 if(nextNodeKeys.length > 0 && typeof dataNode[key][nextNodeKeys[0]] === 'object') {
-                    const potentialLabel = Object.keys(dataNode[key][nextNodeKeys[0]])[0];
-                    if(potentialLabel && potentialLabel.includes('?')){
-                        return potentialLabel;
-                    }
-                 }
-            }
-        }
-        return `Chọn điều kiện cấp ${level}:`;
-    }
-
 
     // --- EVENT HANDLING ---
     function handleSelection(event, level, parentDataNode) {
-        const selectedValue = event.target.value;
+        const selectedKey = event.target.value;
         
         removeDropdowns(level + 1);
         resetResults();
 
-        if (!selectedValue) return;
+        if (!selectedKey) return;
 
-        let nextNode = parentDataNode[selectedValue];
+        const selectedValue = parentDataNode[selectedKey];
 
-        if (nextNode === "deep") {
-            const mainParentKey = "6. THANH TOÁN + CIC";
-            const deepStructureParent = flowchartData[mainParentKey];
-            nextNode = deepStructureParent["Lịch Trả Nợ"]; 
-        }
-
-        if (typeof nextNode === 'string') {
-            displayResult(nextNode, selectedValue);
-        } else if (typeof nextNode === 'object' && nextNode !== null) {
-            const nextOptions = Object.keys(nextNode);
-            createDropdown(nextOptions, level + 1, nextNode);
+        if (typeof selectedValue === 'object' && selectedValue !== null) {
+            if (selectedValue.pdf !== undefined) {
+                displayResult(selectedValue, selectedKey);
+            } else {
+                const nextOptions = Object.keys(selectedValue);
+                createDropdown(nextOptions, level + 1, selectedValue);
+            }
+        } else if (typeof selectedValue === 'string') {
+            displayResult({ note: "Chức năng đang phát triển" }, selectedKey);
         }
     }
     
     function setupEventListeners() {
         sidebarToggle.addEventListener("click", () => {
-            // Toggle sidebar for both desktop and mobile
             body.classList.toggle("sidebar-collapsed");
         });
 
         logoBtnElement && logoBtnElement.addEventListener("click", () => location.reload());
-        
-        toastClose.addEventListener("click", () => {
-            notificationToast.classList.remove("show");
-            if (toastTimeout) clearTimeout(toastTimeout);
-        });
 
         mainContent.addEventListener("scroll", handleHeaderScroll);
+
+        // Event listeners for expand buttons
+        const expandBtns = document.querySelectorAll(".expand-btn");
+        expandBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const targetBox = document.getElementById(btn.dataset.target);
+                if (targetBox) {
+                    const isExpanded = targetBox.classList.toggle("expanded");
+                    overlay.classList.toggle("show", isExpanded);
+                    btn.textContent = isExpanded ? "✖" : "⤢";
+                }
+            });
+        });
+
+        // Event listener for overlay to close expanded boxes
+        overlay.addEventListener("click", () => {
+            const expandedBox = document.querySelector(".sub-header-box.expanded");
+            if (expandedBox) {
+                expandedBox.classList.remove("expanded");
+                overlay.classList.remove("show");
+                // Reset the button text
+                const expandBtn = expandedBox.querySelector(".expand-btn");
+                if (expandBtn) {
+                    expandBtn.textContent = "⤢";
+                }
+            }
+        });
     }
 
     // --- UI UPDATES ---
-    function displayResult(resultKey, selectionText) {
-        const xmttValue = xmttData[resultKey] || "Không cần XMTT";
-        xmttResult.innerHTML = `<p><strong>${xmttValue}</strong></p>`;
-
-        if (resultKey.toLowerCase().startsWith("xem slide")) {
-            notesResult.innerHTML = `<p><b>${selectionText}:</b> ${resultKey}</p>`;
-            pdfViewer.src = "";
-        } else if (resultKey.toLowerCase().endsWith('.pdf')) {
-            const pdfPath = `./pdfile/${resultKey}`;
+    function displayResult(resultObject, selectionText) {
+        xmttResult.innerHTML = resultObject.xmtt ? `<p>${resultObject.xmtt}</p>` : "<p>Không yêu cầu XMTT.</p>";
+        notesResult.innerHTML = resultObject.note ? `<p>${resultObject.note}</p>` : "<p>Không có lưu ý.</p>";
+        
+        if (resultObject.pdf) {
+            let pdfPath;
+            // If pdf value contains a '/', treat it as a full path
+            if (resultObject.pdf.includes('/')) {
+                pdfPath = resultObject.pdf;
+            } else {
+                // Otherwise, construct path dynamically based on category
+                const categoryIndex = selectionText.charAt(0);
+                const folderName = FOLDER_MAP[categoryIndex];
+                if (folderName) {
+                    pdfPath = `./pdfile/${folderName}/${resultObject.pdf}`;
+                } else {
+                    // Fallback to root pdfile directory if no folder is mapped
+                    pdfPath = `./pdfile/${resultObject.pdf}`;
+                }
+            }
             pdfViewer.src = pdfPath;
-            notesResult.innerHTML = `<p>Hiển thị file: <b>${resultKey}</b></p>`;
         } else {
-            notesResult.innerHTML = `<p><b>Kết quả:</b> ${resultKey}</p>`;
             pdfViewer.src = "";
         }
 
-        if (resultKey === "THANH TOÁN TRỰC TUYẾN.pdf") {
-            showNotification("Thanh toán chuyển khoản qua VPbank được hoàn 5.000vnd vào tháng tiếp theo");
+        // Handle single or multiple alerts
+        if (resultObject.alert) {
+            if (Array.isArray(resultObject.alert)) {
+                resultObject.alert.forEach(msg => showNotification(msg));
+            }
+            else {
+                showNotification(resultObject.alert);
+            }
         }
+    }
+    
+    function showNotification(message) {
+        if (!toastContainer) return;
+
+        const toast = document.createElement("div");
+        toast.className = "notification-toast";
+
+        const toastMessage = document.createElement("p");
+        toastMessage.textContent = message;
+
+        const toastClose = document.createElement("button");
+        toastClose.className = "toast-close";
+        toastClose.innerHTML = "✕";
+        toastClose.onclick = () => {
+            toast.classList.remove("show");
+            // Optional: remove the element after transition
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 400);
+        };
+
+        toast.appendChild(toastMessage);
+        toast.appendChild(toastClose);
+        toastContainer.appendChild(toast);
+
+        // Trigger the show animation
+        setTimeout(() => {
+            toast.classList.add("show");
+        }, 10); // Short delay to allow CSS transition
     }
 
     function resetResults() {
@@ -158,13 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 dropdown.remove();
             }
         });
-    }
-
-    function showNotification(message) {
-        toastMessage.textContent = message;
-        notificationToast.classList.add("show");
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => notificationToast.classList.remove("show"), 5000);
     }
     
     function handleHeaderScroll() {

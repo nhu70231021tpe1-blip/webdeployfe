@@ -60,6 +60,7 @@
         <div class="sub-header-box" id="xmtt-box">
           <div class="box-header">
             <label class="box-title"><b>XMTT</b></label>
+            <button class="expand-btn" data-target="xmtt-box">⤢</button>
           </div>
           <div id="xmtt-result" class="box-content">
             <p>Chọn điều kiện để xem kết quả</p>
@@ -68,6 +69,7 @@
         <div class="sub-header-box" id="notes-box">
           <div class="box-header">
             <label class="box-title"><b>LƯU Ý</b></label>
+            <button class="expand-btn" data-target="notes-box">⤢</button>
           </div>
           <div id="notes-result" class="box-content">
             <p>Thông báo và lưu ý sẽ hiển thị ở đây</p>
@@ -85,11 +87,8 @@
       </div>
     </main>
 
-    <!-- Toast Notification -->
-    <div id="notification-toast" class="notification-toast">
-      <p id="toast-message"></p>
-      <button class="toast-close" id="toast-close">✕</button>
-    </div>
+    <div id="overlay"></div>
+    <div id="toast-container"></div>
     <script src="flowchart-data.js"></script>
     <script src="script2.js"></script>
   </body>

@@ -136,3 +136,19 @@ graph TD
     P_Chat_Login -.-> X4
     P_IB_Correct -.-> X4
     P_IB_Wrong -.-> X4
+
+
+
+        1. Không cần XMTT
+        2. CMND/CCCD
+        3. CCCD/CMND/SHD
+        4. Đúng SĐT + CMND/CCCD + 1A
+        5. Đúng SĐT + CMND + Sai 1A
+        6. Đúng SĐT + CMND + 1A + 1B
+        7. Đúng SĐT update + CMND + 2A + 1B
+        8. Sai SĐT
+          a. còn dùng SDT cũ: dùng đúng SDT gọi lại
+          b. Không còn dùng SDT:
+           - HĐ Closed hết: CMND/CCCD + 1A
+           - HĐ còn mở: CMND/CCCD + 2A  đồng thời hướng dẫn cập nhật SDT.
+        9. Sai SĐT + CMND + 1A
