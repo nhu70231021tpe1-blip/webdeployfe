@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Điều Kiện</title>
+    <link rel="stylesheet" href="style2.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header id="main-header">
+      <div class="header-container">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="logo-container">
+          <img
+            src="./logo/logo-fecredit.svg"
+            alt="FECredit"
+            class="logo"
+            id="logo-btn"
+          />
+        </div>
+        <div class="header-tabs">
+          <button class="tab-btn active" data-tab="loan">LOAN</button>
+          <button class="tab-btn" data-tab="card">CARD</button>
+          <button class="tab-btn" data-tab="xmtt">XMTT</button>
+          <button class="tab-btn" data-tab="quy-dinh">QUY ĐỊNH CHUNG</button>
+          <button class="tab-btn" data-tab="khuyen-mai">KHUYẾN MÃI</button>
+          <button class="tab-btn" data-tab="change-log">CHANGE LOG</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h5>Điều Kiện</h5>
+      </div>
+      <div class="sidebar-content">
+        <div class="filter-group">
+          <label class="filter-label">Chọn điều kiện cấp 1:</label>
+          <select id="filter-level1" class="filter-select">
+            <option value="">-- Chọn --</option>
+            <option value="1">1 THÔNG TIN CHUNG</option>
+            <option value="2">2 THÔNG TIN SẢN PHẨM</option>
+            <option value="3">3 ĐĂNG KÝ VAY</option>
+            <option value="4">4 GIẢI NGÂN</option>
+            <option value="5">5 KÊNH THANH TOÁN</option>
+          </select>
+        </div>
+
+        <div class="filter-group" id="level2-group" style="display: none">
+          <label class="filter-label">Chọn điều kiện cấp 2:</label>
+          <select id="filter-level2" class="filter-select">
+            <option value="">-- Chọn --</option>
+          </select>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Sub Header -->
+      <div id="sub-header">
+        <div class="sub-header-box" id="xmtt-box">
+          <div class="box-header">
+            <label class="box-title"><b>XMTT</b></label>
+          </div>
+          <div id="xmtt-result" class="box-content">
+            <p>Chọn điều kiện để xem kết quả</p>
+          </div>
+        </div>
+        <div class="sub-header-box" id="notes-box">
+          <div class="box-header">
+            <label class="box-title"><b>LƯU Ý</b></label>
+          </div>
+          <div id="notes-result" class="box-content">
+            <p>Thông báo và lưu ý sẽ hiển thị ở đây</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body Content (PDF Viewer) -->
+      <div id="body-proper">
+        <iframe
+          id="pdf-viewer"
+          src=""
+          style="width: 100%; height: 100%; border: none"
+        ></iframe>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="notification-toast" class="notification-toast">
+      <p id="toast-message"></p>
+      <button class="toast-close" id="toast-close">✕</button>
+    </div>
+
+    <script src="script2.js"></script>
+  </body>
+</html>
