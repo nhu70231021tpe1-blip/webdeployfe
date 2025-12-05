@@ -85,26 +85,86 @@ document.addEventListener("DOMContentLoaded", () => {
     dynamicFiltersContainer.appendChild(filterGroup);
   }
 
+  function isObject(value) {
+    return typeof value === "object" && value !== null;
+  }
+
+  function isLeaf(node) {
+    return node.pdf !== undefined;
+  }
+
   // --- EVENT HANDLING ---
   function handleSelection(event, level, parentDataNode) {
     const selectedKey = event.target.value;
 
+    // --- CAPTURE FUTURE PATH (using text content) ---
+    const futureSelections = [];
+    const allSelects =
+      dynamicFiltersContainer.querySelectorAll("select");
+    allSelects.forEach((select) => {
+      const selectLevel = parseInt(select.dataset.level, 10);
+      if (selectLevel > level && select.selectedIndex > 0) {
+        futureSelections.push(select.options[select.selectedIndex].text);
+      }
+    });
+
     removeDropdowns(level + 1);
     resetResults();
 
-    if (!selectedKey) return;
+    if (!selectedKey) {
+      return;
+    }
 
-    const selectedValue = parentDataNode[selectedKey];
+    let currentNode = parentDataNode[selectedKey];
+    let currentLevel = level + 1;
+    let lastKey = selectedKey;
 
-    if (typeof selectedValue === "object" && selectedValue !== null) {
-      if (selectedValue.pdf !== undefined) {
-        displayResult(selectedValue, selectedKey);
+    if (isObject(currentNode) && isLeaf(currentNode)) {
+      displayResult(currentNode, lastKey);
+      return;
+    }
+
+    if (isObject(currentNode) && !isLeaf(currentNode)) {
+      createDropdown(Object.keys(currentNode), currentLevel, currentNode);
+    } else {
+      return; // Nothing to do if it's not a valid node
+    }
+
+    // --- TRY TO REAPPLY FUTURE PATH ---
+    let reselectionSuccessful = true;
+    while (futureSelections.length > 0 && reselectionSuccessful) {
+      const conceptToTry = futureSelections.shift();
+      const nextSelect = dynamicFiltersContainer.querySelector(
+        `select[data-level="${currentLevel}"]`
+      );
+
+      if (conceptToTry && nextSelect) {
+        const matchingOption = Array.from(nextSelect.options).find(
+          (opt) => opt.text === conceptToTry
+        );
+
+        if (matchingOption) {
+          const keyToTry = matchingOption.value;
+          nextSelect.value = keyToTry;
+          lastKey = keyToTry;
+          const nextNode = currentNode[keyToTry];
+
+          if (isObject(nextNode) && isLeaf(nextNode)) {
+            displayResult(nextNode, lastKey);
+            reselectionSuccessful = false; // End the loop
+          } else if (isObject(nextNode) && !isLeaf(nextNode)) {
+            currentNode = nextNode;
+            currentLevel++;
+            createDropdown(Object.keys(currentNode), currentLevel, currentNode);
+          } else {
+            reselectionSuccessful = false;
+          }
+        } else {
+          reselectionSuccessful = false;
+        }
       } else {
-        const nextOptions = Object.keys(selectedValue);
-        createDropdown(nextOptions, level + 1, selectedValue);
+        reselectionSuccessful = false;
       }
-    } else if (typeof selectedValue === "string") {
-      displayResult({ note: "Chức năng đang phát triển" }, selectedKey);
     }
   }
 
@@ -116,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     logoBtnElement &&
       logoBtnElement.addEventListener("click", () => location.reload());
 
-    mainContent.addEventListener("scroll", handleHeaderScroll);
+
 
     // Event listeners for expand buttons
     const expandBtns = document.querySelectorAll(".expand-btn");
@@ -161,9 +221,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (resultObject.pdf.includes("/")) {
         pdfPath = resultObject.pdf;
       } else {
-        // Otherwise, construct path dynamically based on category
-        const categoryIndex = selectionText.charAt(0);
+        // Otherwise, construct path dynamically based on the TOP-LEVEL category
+        const firstLevelSelect = document.querySelector('select[data-level="1"]');
+        const firstLevelSelection = firstLevelSelect ? firstLevelSelect.value : "";
+        const categoryIndex = firstLevelSelection.charAt(0);
         const folderName = FOLDER_MAP[categoryIndex];
+        
         if (folderName) {
           pdfPath = `./pdfile/${folderName}/${resultObject.pdf}`;
         } else {
@@ -235,24 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function handleHeaderScroll() {
-    const currentScrollY = mainContent.scrollTop;
-    if (
-      currentScrollY > lastScrollY &&
-      currentScrollY > 50 &&
-      !isHeaderHidden
-    ) {
-      mainHeader.classList.add("hidden");
-      isHeaderHidden = true;
-    } else if (
-      (currentScrollY < lastScrollY || currentScrollY <= 50) &&
-      isHeaderHidden
-    ) {
-      mainHeader.classList.remove("hidden");
-      isHeaderHidden = false;
-    }
-    lastScrollY = currentScrollY;
-  }
 
   // --- START THE APP ---
   initialize();
