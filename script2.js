@@ -171,28 +171,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const headerSearch = document.getElementById("header-search");
   const searchResultsContainer = document.getElementById("search-results-container");
 
-  // Helper functions for search
   function searchFlowchartData(query) {
     const results = [];
+    if (!query) return results;
     const lowerQuery = query.toLowerCase();
 
-    // Search Level 1
     Object.keys(flowchartData).forEach(level1Key => {
+      const level1Node = flowchartData[level1Key];
+      // Search Level 1
       if (level1Key.toLowerCase().includes(lowerQuery)) {
         results.push({
           path: [level1Key],
-          display: level11Key
+          display: level1Key
         });
       }
-
-      const level1Node = flowchartData[level1Key];
+      // Search Level 2
       if (isObject(level1Node) && !isLeaf(level1Node)) {
-        // Search Level 2
         Object.keys(level1Node).forEach(level2Key => {
           if (level2Key.toLowerCase().includes(lowerQuery)) {
             results.push({
               path: [level1Key, level2Key],
-              display: `${level1Key} > ${level2Key}`
+              display: `${level1Key.split('. ')[1]} > ${level2Key}`
             });
           }
         });
@@ -212,52 +211,41 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultItem = document.createElement("div");
       resultItem.className = "search-result-item";
       resultItem.textContent = result.display;
-      resultItem.dataset.path = JSON.stringify(result.path); // Store path for click handler
+      resultItem.dataset.path = JSON.stringify(result.path);
       searchResultsContainer.appendChild(resultItem);
     });
-
     searchResultsContainer.classList.add("show");
   }
 
   function applySearchResult(path) {
-    // Clear all existing dropdowns first
-    removeDropdowns(1); // Remove all levels starting from 1
-    resetResults();
-
+    createFirstLevelDropdown(); // Reset to start
     let currentNode = flowchartData;
-    let currentLevel = 1;
-
-    path.forEach(key => {
-        // Find the select element for the current level
-        let selectElement = dynamicFiltersContainer.querySelector(`select[data-level="${currentLevel}"]`);
-
-        if (!selectElement) {
-            // If the select element doesn't exist, create it
-            const options = Object.keys(currentNode);
-            createDropdown(options, currentLevel, currentNode);
-            selectElement = dynamicFiltersContainer.querySelector(`select[data-level="${currentLevel}"]`);
-        }
+    
+    for (let i = 0; i < path.length; i++) {
+        const key = path[i];
+        const level = i + 1;
+        const select = dynamicFiltersContainer.querySelector(`select[data-level="${level}"]`);
         
-        // Select the option
-        if (selectElement) {
-            selectElement.value = key;
-            const event = new Event('change');
-            selectElement.dispatchEvent(event); // Trigger change event
+        if (select && Array.from(select.options).some(opt => opt.value === key)) {
+            select.value = key;
+            currentNode = currentNode[key];
+            
+            if (isObject(currentNode) && !isLeaf(currentNode)) {
+                createDropdown(Object.keys(currentNode), level + 1, currentNode);
+            } else if (isObject(currentNode) && isLeaf(currentNode)) {
+                displayResult(currentNode, key);
+            }
         }
-        
-        currentNode = currentNode[key];
-        currentLevel++;
-    });
-
-    // Hide search results
+    }
+    
     searchResultsContainer.classList.remove("show");
-    headerSearch.value = ""; // Clear search input
+    headerSearch.value = "";
   }
 
   function setupSearchEventListeners() {
     headerSearch.addEventListener("input", (e) => {
       const query = e.target.value;
-      if (query.length > 1) { // Only search if query is at least 2 characters
+      if (query.length > 1) {
         const results = searchFlowchartData(query);
         displaySearchResults(results);
       } else {
@@ -266,24 +254,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     headerSearch.addEventListener("focus", (e) => {
-        if (e.target.value.length > 1) {
-            searchResultsContainer.classList.add("show");
+        const query = e.target.value;
+        if (query.length > 1) {
+            const results = searchFlowchartData(query);
+            if (results.length > 0) {
+                searchResultsContainer.classList.add("show");
+            }
         }
     });
 
-    headerSearch.addEventListener("blur", () => {
-        // Delay hiding to allow click event on results to fire
-        setTimeout(() => {
-            searchResultsContainer.classList.remove("show");
-        }, 100); 
-    });
-
-    searchResultsContainer.addEventListener("click", (e) => {
+    // Use mousedown instead of click to fire before blur
+    searchResultsContainer.addEventListener("mousedown", (e) => {
         const resultItem = e.target.closest(".search-result-item");
         if (resultItem && resultItem.dataset.path) {
             const path = JSON.parse(resultItem.dataset.path);
             applySearchResult(path);
         }
+    });
+
+    headerSearch.addEventListener("blur", () => {
+      setTimeout(() => {
+        searchResultsContainer.classList.remove("show");
+      }, 150);
     });
   }
 
