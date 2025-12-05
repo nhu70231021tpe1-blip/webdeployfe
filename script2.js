@@ -168,6 +168,200 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  const headerSearch = document.getElementById("header-search");
+  const searchResultsContainer = document.getElementById("search-results-container");
+
+  // Helper functions for search
+  function searchFlowchartData(query) {
+    const results = [];
+    const lowerQuery = query.toLowerCase();
+
+    // Search Level 1
+    Object.keys(flowchartData).forEach(level1Key => {
+      if (level1Key.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          path: [level1Key],
+          display: level11Key
+        });
+      }
+
+      const level1Node = flowchartData[level1Key];
+      if (isObject(level1Node) && !isLeaf(level1Node)) {
+        // Search Level 2
+        Object.keys(level1Node).forEach(level2Key => {
+          if (level2Key.toLowerCase().includes(lowerQuery)) {
+            results.push({
+              path: [level1Key, level2Key],
+              display: `${level1Key} > ${level2Key}`
+            });
+          }
+        });
+      }
+    });
+    return results;
+  }
+
+  function displaySearchResults(results) {
+    searchResultsContainer.innerHTML = "";
+    if (results.length === 0) {
+      searchResultsContainer.classList.remove("show");
+      return;
+    }
+
+    results.forEach(result => {
+      const resultItem = document.createElement("div");
+      resultItem.className = "search-result-item";
+      resultItem.textContent = result.display;
+      resultItem.dataset.path = JSON.stringify(result.path); // Store path for click handler
+      searchResultsContainer.appendChild(resultItem);
+    });
+
+    searchResultsContainer.classList.add("show");
+  }
+
+  function applySearchResult(path) {
+    // Clear all existing dropdowns first
+    removeDropdowns(1); // Remove all levels starting from 1
+    resetResults();
+
+    let currentNode = flowchartData;
+    let currentLevel = 1;
+
+    path.forEach(key => {
+        // Find the select element for the current level
+        let selectElement = dynamicFiltersContainer.querySelector(`select[data-level="${currentLevel}"]`);
+
+        if (!selectElement) {
+            // If the select element doesn't exist, create it
+            const options = Object.keys(currentNode);
+            createDropdown(options, currentLevel, currentNode);
+            selectElement = dynamicFiltersContainer.querySelector(`select[data-level="${currentLevel}"]`);
+        }
+        
+        // Select the option
+        if (selectElement) {
+            selectElement.value = key;
+            const event = new Event('change');
+            selectElement.dispatchEvent(event); // Trigger change event
+        }
+        
+        currentNode = currentNode[key];
+        currentLevel++;
+    });
+
+    // Hide search results
+    searchResultsContainer.classList.remove("show");
+    headerSearch.value = ""; // Clear search input
+  }
+
+  function setupSearchEventListeners() {
+    headerSearch.addEventListener("input", (e) => {
+      const query = e.target.value;
+      if (query.length > 1) { // Only search if query is at least 2 characters
+        const results = searchFlowchartData(query);
+        displaySearchResults(results);
+      } else {
+        searchResultsContainer.classList.remove("show");
+      }
+    });
+
+    headerSearch.addEventListener("focus", (e) => {
+        if (e.target.value.length > 1) {
+            searchResultsContainer.classList.add("show");
+        }
+    });
+
+    headerSearch.addEventListener("blur", () => {
+        // Delay hiding to allow click event on results to fire
+        setTimeout(() => {
+            searchResultsContainer.classList.remove("show");
+        }, 100); 
+    });
+
+    searchResultsContainer.addEventListener("click", (e) => {
+        const resultItem = e.target.closest(".search-result-item");
+        if (resultItem && resultItem.dataset.path) {
+            const path = JSON.parse(resultItem.dataset.path);
+            applySearchResult(path);
+        }
+    });
+  }
+
+  // --- EVENT HANDLING ---
+  function handleSelection(event, level, parentDataNode) {
+    const selectedKey = event.target.value;
+
+    // --- CAPTURE FUTURE PATH (using text content) ---
+    const futureSelections = [];
+    const allSelects =
+      dynamicFiltersContainer.querySelectorAll("select");
+    allSelects.forEach((select) => {
+      const selectLevel = parseInt(select.dataset.level, 10);
+      if (selectLevel > level && select.selectedIndex > 0) {
+        futureSelections.push(select.options[select.selectedIndex].text);
+      }
+    });
+
+    removeDropdowns(level + 1);
+    resetResults();
+
+    if (!selectedKey) {
+      return;
+    }
+
+    let currentNode = parentDataNode[selectedKey];
+    let currentLevel = level + 1;
+    let lastKey = selectedKey;
+
+    if (isObject(currentNode) && isLeaf(currentNode)) {
+      displayResult(currentNode, lastKey);
+      return;
+    }
+
+    if (isObject(currentNode) && !isLeaf(currentNode)) {
+      createDropdown(Object.keys(currentNode), currentLevel, currentNode);
+    } else {
+      return; // Nothing to do if it's not a valid node
+    }
+
+    // --- TRY TO REAPPLY FUTURE PATH ---
+    let reselectionSuccessful = true;
+    while (futureSelections.length > 0 && reselectionSuccessful) {
+      const conceptToTry = futureSelections.shift();
+      const nextSelect = dynamicFiltersContainer.querySelector(
+        `select[data-level="${currentLevel}"]`
+      );
+
+      if (conceptToTry && nextSelect) {
+        const matchingOption = Array.from(nextSelect.options).find(
+          (opt) => opt.text === conceptToTry
+        );
+
+        if (matchingOption) {
+          const keyToTry = matchingOption.value;
+          nextSelect.value = keyToTry;
+          lastKey = keyToTry;
+          const nextNode = currentNode[keyToTry];
+
+          if (isObject(nextNode) && isLeaf(nextNode)) {
+            displayResult(nextNode, lastKey);
+            reselectionSuccessful = false; // End the loop
+          } else if (isObject(nextNode) && !isLeaf(nextNode)) {
+            currentNode = nextNode;
+            currentLevel++;
+            createDropdown(Object.keys(currentNode), currentLevel, currentNode);
+          } else {
+            reselectionSuccessful = false;
+          }
+        } else {
+          reselectionSuccessful = false;
+        }
+      } else {
+        reselectionSuccessful = false;
+      }
+    }
+  }
+
   function setupEventListeners() {
     sidebarToggle.addEventListener("click", () => {
       body.classList.toggle("sidebar-collapsed");
@@ -176,8 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
     logoBtnElement &&
       logoBtnElement.addEventListener("click", () => location.reload());
 
-
-
+    setupSearchEventListeners(); // Call search event listeners setup
     // Event listeners for expand buttons
     const expandBtns = document.querySelectorAll(".expand-btn");
     expandBtns.forEach((btn) => {
