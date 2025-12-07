@@ -54,6 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return isObject(node) && node.pdf !== undefined;
   }
 
+  function removeAccents(str) {
+    if (!str) return "";
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+  }
+
   function flattenFlowchart(node, path = [], breadcrumb = []) {
     Object.keys(node).forEach((key) => {
       const newPath = [...path, key];
@@ -61,10 +70,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const childNode = node[key];
 
       if (isLeaf(childNode)) {
+        const displayText = childNode.displayName || newBreadcrumb.join(" > ");
+        const pdfName = childNode.pdf || "";
+
         flattenedFlowchartData.push({
           path: newPath,
-          pdfName: childNode.pdf || "",
-          displayText: newBreadcrumb.join(" > "),
+          pdfName: pdfName,
+          displayText: displayText,
+          // Add pre-normalized versions for efficient searching
+          normalizedDisplayText: removeAccents(displayText.toLowerCase()),
+          normalizedPdfName: removeAccents(pdfName.toLowerCase()),
         });
       } else if (isObject(childNode)) {
         flattenFlowchart(childNode, newPath, newBreadcrumb);
@@ -107,13 +122,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- SEARCH FUNCTIONALITY ---
   function searchFlowchartData(query) {
     if (!query) return [];
-    const lowerQuery = query.toLowerCase();
+    // Normalize the user's query once
+    const normalizedQuery = removeAccents(query.toLowerCase());
 
     return flattenedFlowchartData.filter((item) => {
-      const matchesDisplayText = item.displayText
-        .toLowerCase()
-        .includes(lowerQuery);
-      const matchesPdf = item.pdfName.toLowerCase().includes(lowerQuery);
+      // Search against the pre-normalized data
+      const matchesDisplayText =
+        item.normalizedDisplayText.includes(normalizedQuery);
+      const matchesPdf = item.normalizedPdfName.includes(normalizedQuery);
       return matchesDisplayText || matchesPdf;
     });
   }
@@ -134,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     searchResultsContainer.classList.add("show");
   }
-  
+
   // Modified to prevent re-saving state when restoring
   function applySearchResult(path, shouldSaveState = true) {
     removeDropdowns(1);
@@ -211,8 +227,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resetResults();
 
     if (!selectedKey) {
-        history.pushState(null, '', window.location.pathname); // Clear URL params if selection is cleared
-        return;
+      history.pushState(null, "", window.location.pathname); // Clear URL params if selection is cleared
+      return;
     }
 
     const selectedNode = parentDataNode[selectedKey];
@@ -220,45 +236,113 @@ document.addEventListener("DOMContentLoaded", () => {
       displayResult(selectedNode, selectedKey);
       // Construct the path and save it
       const path = [];
-      document.querySelectorAll('.filter-select').forEach(select => {
-          if(select.value) {
-              path.push(select.value);
-          }
+      document.querySelectorAll(".filter-select").forEach((select) => {
+        if (select.value) {
+          path.push(select.value);
+        }
       });
       saveStateToURL(path);
-
     } else if (isObject(selectedNode)) {
       createDropdown(Object.keys(selectedNode), level + 1, selectedNode);
     }
   }
 
   // --- UI AND EVENT LISTENERS SETUP ---
+  const popup = document.getElementById("custom-popup");
+  const popupTitle = document.getElementById("popup-title");
+  const popupContent = document.getElementById("popup-content");
+  const popupCloseBtn = document.getElementById("popup-close-btn");
+  const popupIconPlaceholder = document.getElementById(
+    "popup-icon-placeholder"
+  );
+  const sidebar = document.getElementById("sidebar"); // Get sidebar reference
+
+  function repositionPopup() {
+    if (popup.classList.contains("hidden")) {
+      return; // Do nothing if the popup is not visible
+    }
+
+    const subHeaderRect = subHeader.getBoundingClientRect(); // Still used for height calculation
+    const mainHeaderHeight = mainHeader.offsetHeight;
+    const sidebarWidth = sidebar.offsetWidth;
+
+    const leftOffset = 5; // 5px from the left (relative to sidebar edge)
+    const rightOffset = 20; // 20px from the right edge of the viewport
+    const totalHorizontalMargin = leftOffset + rightOffset;
+
+    popup.style.top = mainHeaderHeight + "px";
+    popup.style.left = sidebarWidth + leftOffset + "px";
+    popup.style.width = `calc(100vw - ${sidebarWidth}px - ${totalHorizontalMargin}px)`;
+    popup.style.height = subHeaderRect.height + "px";
+  }
+
+  function openPopup(targetBoxId) {
+    const sourceBox = document.getElementById(targetBoxId);
+    const sourceTitle = sourceBox.querySelector(".box-title b");
+    const sourceContent = sourceBox.querySelector(".box-content");
+    const sourceIcon = sourceBox.querySelector(".box-header svg");
+
+    if (!sourceBox || !sourceTitle || !sourceContent) {
+      console.error("Popup source elements not found!");
+      return;
+    }
+
+    // 1. Populate content first
+    popupTitle.textContent = sourceTitle.textContent;
+    popupContent.innerHTML = "";
+    const clonedContent = sourceContent.cloneNode(true);
+    popupContent.appendChild(clonedContent);
+
+    popupIconPlaceholder.innerHTML = "";
+    if (sourceIcon) {
+      popupIconPlaceholder.appendChild(sourceIcon.cloneNode(true));
+    }
+
+    // 2. Position and show
+    popup.classList.remove("hidden");
+    repositionPopup(); // Set initial position
+  }
+
+  function closePopup() {
+    popup.classList.add("hidden");
+    setTimeout(() => {
+      popupContent.innerHTML = "";
+      popupTitle.textContent = "";
+      popupIconPlaceholder.innerHTML = "";
+    }, 300);
+  }
+
   function setupEventListeners() {
-    sidebarToggle.addEventListener("click", () =>
-      body.classList.toggle("sidebar-collapsed")
-    );
+    sidebarToggle.addEventListener("click", () => {
+      body.classList.toggle("sidebar-collapsed");
+      // Recalculate popup position after the sidebar transition finishes
+      setTimeout(repositionPopup, 300); // 300ms matches CSS --transition-speed
+    });
+
     logoBtnElement?.addEventListener("click", () => {
-        // Navigate to the base URL without reloading
-        history.pushState(null, '', window.location.pathname);
-        // Reset the view
-        removeDropdowns(1);
-        createFirstLevelDropdown();
-        resetResults();
+      history.pushState(null, "", window.location.pathname);
+      removeDropdowns(1);
+      createFirstLevelDropdown();
+      resetResults();
     });
 
     headerSearch.addEventListener("input", (e) => {
       const results = searchFlowchartData(e.target.value);
       displaySearchResults(results);
     });
+
     headerSearch.addEventListener("focus", (e) => {
       const results = searchFlowchartData(e.target.value);
       if (results.length > 0) searchResultsContainer.classList.add("show");
     });
+
     searchResultsContainer.addEventListener("mousedown", (e) => {
       const item = e.target.closest(".search-result-item");
-      if (item?.dataset.path)
-        applySearchResult(JSON.parse(item.dataset.path)); // Default to save state
+      if (item?.dataset.path) {
+        applySearchResult(JSON.parse(item.dataset.path));
+      }
     });
+
     document.addEventListener("click", (e) => {
       if (
         !headerSearch.contains(e.target) &&
@@ -268,24 +352,37 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    const changeLogBtn = document.getElementById("change-log-btn");
+    if (changeLogBtn) {
+      changeLogBtn.addEventListener("click", () => {
+        pdfViewer.src = "./pdfile/DANG_KY_VAY/Vay Sản Phẩm Vay Tiền Mặt.pdf";
+        document.getElementById("xmtt-ib-content").innerHTML = "<p>...</p>";
+        document.getElementById("xmtt-ecom-content").innerHTML = "<p>...</p>";
+        notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
+      });
+    }
+
+    const khuyenMaiBtn = document.getElementById("khuyen-mai-btn");
+    if (khuyenMaiBtn) {
+      khuyenMaiBtn.addEventListener("click", () => {
+        pdfViewer.src = "./pdfile/DANG_KY_VAY/Vay Sản Phẩm Vay Tiền Mặt.pdf";
+        document.getElementById("xmtt-ib-content").innerHTML = "<p>...</p>";
+        document.getElementById("xmtt-ecom-content").innerHTML = "<p>...</p>";
+        notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
+      });
+    }
+
+    // Popup logic
     document.querySelectorAll(".expand-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const targetBox = document.getElementById(btn.dataset.target);
-        if (targetBox) {
-          const isExpanded = targetBox.classList.toggle("expanded");
-          overlay.classList.toggle("show", isExpanded);
-          btn.textContent = isExpanded ? "✖" : "⤢";
-        }
+        openPopup(btn.dataset.target);
       });
     });
-    overlay.addEventListener("click", () => {
-      const expandedBox = document.querySelector(".sub-header-box.expanded");
-      if (expandedBox) {
-        expandedBox.classList.remove("expanded");
-        overlay.classList.remove("show");
-        expandedBox.querySelector(".expand-btn").textContent = "⤢";
-      }
-    });
+
+    popupCloseBtn.addEventListener("click", closePopup);
+
+    // Add a single, persistent resize listener
+    window.addEventListener("resize", repositionPopup);
   }
 
   // --- UI DISPLAY LOGIC ---
@@ -293,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // New logic for IB/ECOM
     const xmttIbContent = document.getElementById("xmtt-ib-content");
     const xmttEcomContent = document.getElementById("xmtt-ecom-content");
-    
+
     xmttIbContent.innerHTML = resultObject["xmtt-ib"]
       ? `<p>${resultObject["xmtt-ib"]}</p>`
       : "<p>...</p>";

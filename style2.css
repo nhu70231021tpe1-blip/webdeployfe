@@ -93,6 +93,7 @@ body.sidebar-collapsed {
 
 .header-tabs {
   display: flex;
+  align-items: center;
   margin-left: auto; /* Push tabs to the right */
   gap: 15px;
 }
@@ -453,40 +454,156 @@ body.sidebar-collapsed {
   background-color: #f0f0f0;
 }
 
-.sub-header-box.expanded {
-  position: fixed;
-  top: 20%;
-  left: 59%;
-  transform: translate(-50%, -50%);
-  width: 78vw;
-  height: 30vh;
-  z-index: 2000;
-  background-color: #fff;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid #aaa;
-}
-
-.sub-header-box.expanded .expand-btn {
-  /* Change icon to 'collapse' */
-  content: "?";
-}
-
+/* --- POPUP STYLES --- */
 #overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 1999;
-  display: none; /* Hidden by default */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 #overlay.show {
-  display: block;
-  opacity: 0;
+  /* No need to set opacity here, as we are no longer using the overlay */
+  /* This rule will effectively be ignored since JS no longer adds 'show' */
+  visibility: hidden; /* Ensure it stays hidden */
 }
 
+.popup-container {
+  position: fixed;
+  /* top, left, width, height are set by JS */
+  transform: scale(0.95);
+  transform-origin: top left; /* Animate from top-left corner */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Increased shadow for prominence */
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.popup-container:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.popup-header-new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(
+    137deg,
+    rgba(236, 250, 226, 1) 0%,
+    rgba(218, 246, 198, 1) 50%,
+    rgba(159, 232, 112, 1) 100%
+  );
+  border-radius: 8px 8px 0 0;
+}
+
+#popup-title {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #333;
+}
+
+#popup-close-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#popup-content {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* This is a general utility class */
 .hidden {
   display: none !important;
+}
+
+/* --- DROPDOWN MENU STYLES --- */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  /* Add padding to create an invisible 'bridge' for the cursor */
+  padding-bottom: 10px;
+  margin-bottom: -10px; /* Counteract the padding to not affect layout */
+}
+
+.dropdown-toggle::after {
+  content: " ▾";
+  font-size: 0.8em;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  min-width: 180px; /* Widen the menu slightly for icons */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 101;
+  border-radius: 6px;
+  overflow: hidden;
+  right: 0;
+  /* margin-top is removed to fix the hover bug */
+  background: #fff; /* User's request */
+  border-radius: 20px;
+}
+
+.dropdown-item {
+  color: #4d4d4d; /* User's request */
+  padding: 8px 16px; /* Adjust padding to account for larger icons */
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s; /* Add color transition */
+  /* Flex properties for icon alignment */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-item svg {
+  /* Make the SVG the circular container */
+  width: 32px; /* Circle size */
+  height: 32px; /* Circle size */
+  padding: 7px; /* Adjust padding to center the 18px icon path */
+  border-radius: 50%;
+  /* Default State Colors */
+  background-color: #ecfae2;
+  fill: #00994f;
+  /* Smooth transition for hover effect */
+  transition: background-color 0.2s ease, fill 0.2s ease;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.dropdown-item:hover {
+  background-color: #ecfae2; /* User's request */
+  color: #00994f; /* User's request */
+  border-radius: 72px; /* User's request */
+}
+
+/* New Hover State for SVG */
+.dropdown-item:hover svg {
+  background-color: #00994f;
+  fill: #ecfae2;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
 }

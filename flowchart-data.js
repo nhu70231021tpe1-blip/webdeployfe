@@ -88,6 +88,7 @@ const flowchartData = {
       pdf: "Vay Sản Phẩm Vay Tiền Mặt.pdf",
       note: "N/A",
       xmtt: XMTT_1,
+      displayName: "Đăng ký vay PL",
     },
   },
   "4. GIẢI NGÂN": {
