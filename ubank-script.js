@@ -99,34 +99,24 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveStateToURL(path) {
     const jsonPath = JSON.stringify(path);
     // Construct the URL with hash
-    const newUrl = window.location.pathname + "#path=" + encodeURIComponent(jsonPath);
+    const newUrl = window.location.pathname + "#" + encodeURIComponent(jsonPath);
     history.pushState({ path: path }, "", newUrl);
   }
 
   function restoreStateFromURL() {
-    let pathParam = null;
     const hash = window.location.hash;
 
-    // We expect the hash to be in the format: #path=[...]
-    // We will get everything after the '=' sign
-    if (hash && hash.startsWith("#path=")) {
-      pathParam = hash.substring(6); // Get the part after #path=
-    } else {
-      // Fallback to support old query parameter links if they still exist
-      const urlParams = new URLSearchParams(window.location.search);
-      pathParam = urlParams.get("path");
-    }
-
-    if (pathParam) {
+    if (hash && hash.length > 1) { // Check if hash exists and is not just "#"
+      const pathParam = hash.substring(1); // Remove leading "#"
       try {
-        // The hash part is URL-encoded, so we need to decode it
         const decodedParam = decodeURIComponent(pathParam);
         const path = JSON.parse(decodedParam);
         if (Array.isArray(path)) {
-          applySearchResult(path, false); // Apply without saving state again
+          applySearchResult(path, false);
         }
       } catch (e) {
-        console.error("Error parsing path from URL:", e);
+        // Could be a normal anchor link, not a JSON path. Ignore the error.
+        console.log("Hash is not a valid path, ignoring.", e);
       }
     }
   }
