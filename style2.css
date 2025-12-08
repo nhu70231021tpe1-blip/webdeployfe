@@ -521,7 +521,7 @@ body.sidebar-collapsed {
   margin-left: auto;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Adjusted for consistency */
   color: #666;
   cursor: pointer;
   line-height: 1;
@@ -562,7 +562,6 @@ body.sidebar-collapsed {
   right: 0;
   /* margin-top is removed to fix the hover bug */
   background: #fff; /* User's request */
-  border-radius: 20px;
 }
 
 .dropdown-item {
@@ -606,4 +605,64 @@ body.sidebar-collapsed {
 
 .dropdown:hover .dropdown-menu {
   display: block;
+}
+
+/* --- Styles specific to index.html (Landing Page) --- */
+body.landing-page {
+  /* Override grid display from style2.css for this page */
+  display: block;
+  padding-top: 70px;
+  overflow: hidden;
+}
+
+body.landing-page #main-header .sidebar-toggle {
+  display: none;
+}
+
+.video-background-main {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+  z-index: 0;
+}
+
+.video-background-main video {
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain; /* Changed from cover to contain */
+}
+
+/* New, cleaner header overrides using the dedicated class */
+#main-header.landing-header {
+  background: #fdffef; /* New solid color */
+  color: #4d4d4d;    /* New text color for readability */
+  border-bottom: none; /* Remove bottom border */
+}
+
+/* Ensure child elements inherit/use the new color scheme */
+.landing-header .sidebar-toggle svg {
+  stroke: #4d4d4d;
+}
+
+.landing-header .tab-btn {
+  color: #4d4d4d;
+}
+
+.landing-header .tab-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Adjusted for light background */
+}
+
+/* The PLTT dropdown button active state on landing page */
+.landing-header .dropdown-toggle,
+.landing-header .tab-btn.active {
+    background-color: rgba(0, 0, 0, 0.05);
 }
