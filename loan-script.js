@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebarToggle = document.getElementById("sidebar-toggle");
   const mainHeader = document.getElementById("main-header");
   const body = document.body;
-  const logoBtnElement = document.getElementById("logo-btn");
   const toastContainer = document.getElementById("toast-container");
   const overlay = document.getElementById("overlay");
   const headerSearch = document.getElementById("header-search");
@@ -98,10 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- STATE MANAGEMENT (URL) ---
   function saveStateToURL(path) {
-    const url = new URL(window.location);
-    url.searchParams.set("path", JSON.stringify(path));
-    // Use pushState to update the URL without reloading the page
-    history.pushState({ path: path }, "", url);
+    const jsonPath = JSON.stringify(path);
+    // Construct the URL with hash
+    const newUrl = window.location.pathname + "#path=" + encodeURIComponent(jsonPath);
+    history.pushState({ path: path }, "", newUrl);
   }
 
   function restoreStateFromURL() {
@@ -333,13 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
       body.classList.toggle("sidebar-collapsed");
       // Recalculate popup position after the sidebar transition finishes
       setTimeout(repositionPopup, 300); // 300ms matches CSS --transition-speed
-    });
-
-    logoBtnElement?.addEventListener("click", () => {
-      history.pushState(null, "", window.location.pathname);
-      removeDropdowns(1);
-      createFirstLevelDropdown();
-      resetResults();
     });
 
     headerSearch.addEventListener("input", (e) => {
