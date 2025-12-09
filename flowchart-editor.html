@@ -13,62 +13,67 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
+            color: #2d3748;
         }
 
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a202c;
             color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 24px 32px;
+            border-bottom: 1px solid #2d3748;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 1.75em;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
+            font-size: 0.9em;
+            color: #a0aec0;
+            font-weight: 400;
         }
 
         .main-content {
             display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 20px;
-            padding: 30px;
+            grid-template-columns: 380px 1fr;
+            gap: 0;
             min-height: 800px;
         }
 
         .section {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 24px;
             display: flex;
             flex-direction: column;
         }
 
+        .section:first-child {
+            background: #f7fafc;
+            border-right: 1px solid #e2e8f0;
+        }
+
         .section h2 {
-            color: #667eea;
+            color: #1a202c;
             margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
+            font-size: 1.125em;
+            font-weight: 600;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
         .file-selector {
@@ -77,26 +82,26 @@
 
         .file-selector label {
             display: block;
-            font-weight: bold;
+            font-weight: 500;
             margin-bottom: 8px;
-            color: #333;
+            color: #4a5568;
+            font-size: 0.875em;
         }
 
-        .file-selector select,
         .file-selector input[type="file"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.875em;
+            transition: all 0.2s;
+            background: white;
         }
 
-        .file-selector select:focus,
         .file-selector input[type="file"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
         }
 
         /* Variable Manager Styles */
@@ -574,14 +579,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔧 Flowchart Editor Pro</h1>
-            <p>Công cụ chỉnh sửa file flowchart.js chuyên nghiệp - Hoàn toàn Offline</p>
+            <h1>Flowchart Editor</h1>
+            <p>Professional offline flowchart editing tool</p>
         </div>
 
         <div class="main-content">
             <!-- Left Panel: Variables & File Selection -->
             <div class="section">
-                <h2>📦 Quản Lý Biến & File</h2>
+                <h2>Variables & File</h2>
 
                 <div class="file-selector">
                     <label>Tải file flowchart từ máy tính:</label>
@@ -594,31 +599,31 @@
 
                 <!-- Variable Manager -->
                 <div class="variable-manager" id="variableManager" style="display: none;">
-                    <h3>🔤 Quản lý biến XMTT</h3>
+                    <h3>XMTT Variables</h3>
                     <div id="variableGroups"></div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn btn-primary" onclick="addVariableGroup()">➕ Thêm nhóm</button>
-                        <button class="btn btn-success" onclick="addVariableToGroup()">➕ Thêm biến</button>
+                        <button class="btn btn-primary" onclick="addVariableGroup()">+ Add Group</button>
+                        <button class="btn btn-success" onclick="addVariableToGroup()">+ Add Variable</button>
                     </div>
                 </div>
             </div>
 
             <!-- Middle Panel: Tree Editor -->
             <div class="section">
-                <h2>🌳 Cấu Trúc Flowchart</h2>
+                <h2>Flowchart Structure</h2>
 
                 <div class="editor-area" id="editorArea">
                     <p style="text-align: center; color: #999; padding: 50px;">
-                        📂 Vui lòng chọn hoặc tải file flowchart để bắt đầu chỉnh sửa
+                        Please select or load a flowchart file to begin editing
                     </p>
                 </div>
 
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="addNewNode()">➕ Thêm mục gốc</button>
-                    <button class="btn btn-info" onclick="expandAll()">📂 Mở tất cả</button>
-                    <button class="btn btn-warning" onclick="collapseAll()">📁 Thu tất cả</button>
-                    <button class="btn btn-success" onclick="downloadFile()">💾 Tải xuống</button>
-                    <button class="btn btn-primary" onclick="copyToClipboard()">📋 Copy code</button>
+                    <button class="btn btn-primary" onclick="addNewNode()">+ Add Root</button>
+                    <button class="btn btn-info" onclick="expandAll()">Expand All</button>
+                    <button class="btn btn-warning" onclick="collapseAll()">Collapse All</button>
+                    <button class="btn btn-success" onclick="downloadFile()">Download</button>
+                    <button class="btn btn-primary" onclick="copyToClipboard()">Copy Code</button>
                 </div>
             </div>
 
@@ -628,7 +633,7 @@
     <!-- Rename Modal -->
     <div id="renameModal" class="modal">
         <div class="modal-content">
-            <h3>✏️ Đổi tên</h3>
+            <h3>Rename</h3>
             <input type="text" id="renameInput" placeholder="Nhập tên mới...">
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="confirmRename()">✅ Xác nhận</button>
@@ -677,7 +682,8 @@
                     .replace(/\\r/g, '\r')
                     .replace(/\\t/g, '\t')
                     .replace(/\\"/g, '"')
-                    .replace(/\\\\/g, '\\');
+                    .replace(/\\\\/g, '\\')
+                    .replace(/<br>/g, '\n');  // Convert <br> back to newlines
                 variableGroups['Default'][match[1]] = value;
             }
 
@@ -753,9 +759,9 @@
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'variable-group-title';
                 titleDiv.innerHTML = `
-                    <span class="variable-group-toggle">🔽</span>
+                    <span class="variable-group-toggle">▼</span>
                     <span>${groupName}</span>
-                    <span style="color: #adb5bd; font-size: 0.9em;">(${Object.keys(variableGroups[groupName]).length} biến)</span>
+                    <span style="color: #adb5bd; font-size: 0.9em;">(${Object.keys(variableGroups[groupName]).length} vars)</span>
                 `;
                 titleDiv.onclick = function () {
                     toggleVariableGroup(headerDiv);
@@ -766,8 +772,8 @@
                 actionsDiv.style.gap = '8px';
                 if (groupName !== 'Default') {
                     actionsDiv.innerHTML = `
-                        <button class="btn btn-info btn-sm" onclick="renameGroupPrompt('${groupName}')">✏️</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupName}')">🗑️</button>
+                        <button class="btn btn-info btn-sm" onclick="renameGroupPrompt('${groupName}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupName}')">Delete</button>
                     `;
                 }
 
@@ -795,8 +801,8 @@
                     itemActions.style.gap = '5px';
                     itemActions.style.marginLeft = 'auto';
                     itemActions.innerHTML = `
-                        <button class="btn btn-info btn-sm" onclick="renameVariable('${groupName}', '${varName}')">✏️</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteVariable('${groupName}', '${varName}')">🗑️</button>
+                        <button class="btn btn-info btn-sm" onclick="renameVariable('${groupName}', '${varName}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteVariable('${groupName}', '${varName}')">Delete</button>
                     `;
 
                     itemHeader.appendChild(nameDiv);
@@ -886,7 +892,12 @@
             const groupNames = Object.keys(variableGroups);
             let groupName = groupNames.length === 1 ? groupNames[0] : prompt(`Nhập tên nhóm (${groupNames.join(', ')}):`, groupNames[0]);
 
-            if (groupName && variableGroups[groupName]) {
+            if (groupName) {
+                // Create group if it doesn't exist
+                if (!variableGroups[groupName]) {
+                    variableGroups[groupName] = {};
+                }
+
                 const varNum = Object.keys(variableGroups[groupName]).length + 1;
                 const varName = `XMTT_${varNum}`;
                 variableGroups[groupName][varName] = `${varNum}. Nội dung mới`;
@@ -922,13 +933,13 @@
 
                 if (isLeaf) {
                     headerDiv.innerHTML = `
-                        <button class="btn btn-icon btn-sm" onclick="toggleNode(this)">📄</button>
+                        <button class="btn btn-icon btn-sm" onclick="toggleNode(this)">▼</button>
                         <span class="node-name" onclick="toggleNode(this.previousElementSibling)">${key}</span>
                         <div class="node-actions">
-                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); addChildToLeafNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})" title="Thêm điều kiện con">➕ Con</button>
-                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); addSiblingNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})" title="Thêm cùng cấp">➕ Cấp</button>
-                            <button class="btn btn-info btn-sm" onclick="renameNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">✏️</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">🗑️</button>
+                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); addChildToLeafNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})" title="Add child">+ Child</button>
+                            <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); addSiblingNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})" title="Add sibling">+ Sibling</button>
+                            <button class="btn btn-info btn-sm" onclick="renameNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">Delete</button>
                         </div>
                     `;
 
@@ -939,7 +950,6 @@
                         { label: 'Display Name', key: 'displayName', type: 'editable' },
                         { label: 'PDF', key: 'pdf', type: 'editable' },
                         { label: 'Note', key: 'note', type: 'editable' },
-                        { label: 'XMTT', key: 'xmtt', type: 'select' },
                         { label: 'XMTT IB (tùy chọn)', key: 'xmttib', type: 'editable' },
                         { label: 'XMTT ECOM (tùy chọn)', key: 'xmttecom', type: 'editable' },
                         { label: 'Alert (tùy chọn)', key: 'alert', type: 'editable' }
@@ -985,12 +995,12 @@
                     nodeDiv.appendChild(contentDiv);
                 } else {
                     headerDiv.innerHTML = `
-                        <button class="btn btn-icon btn-sm" onclick="toggleNode(this)">📁</button>
+                        <button class="btn btn-icon btn-sm" onclick="toggleNode(this)">▶</button>
                         <span class="node-name" onclick="toggleNode(this.previousElementSibling)">${key}</span>
                         <div class="node-actions">
-                            <button class="btn btn-success btn-sm" onclick="addChildNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">➕</button>
-                            <button class="btn btn-info btn-sm" onclick="renameNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">✏️</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">🗑️</button>
+                            <button class="btn btn-success btn-sm" onclick="addChildNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">+ Add</button>
+                            <button class="btn btn-info btn-sm" onclick="renameNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteNode(${JSON.stringify(currentPath).replace(/"/g, '&quot;')})">Delete</button>
                         </div>
                     `;
 
@@ -1256,12 +1266,15 @@
             code += '// --- KHAI BÁO CÁC LOẠI XMTT DÙNG CHUNG ---\n';
 
             for (let groupName in variableGroups) {
-                if (Object.keys(variableGroups[groupName]).length > 0) {
-                    code += `\n// ${groupName}\n`;
-                    for (let varName in variableGroups[groupName]) {
-                        const value = variableGroups[groupName][varName].replace(/\n/g, '<br>');
+                code += `\n// ${groupName}\n`;
+                const variables = variableGroups[groupName];
+                if (Object.keys(variables).length > 0) {
+                    for (let varName in variables) {
+                        const value = variables[varName].replace(/\n/g, '<br>');
                         code += `const ${varName} = "${value}";\n`;
                     }
+                } else {
+                    code += `// (Nhóm trống)\n`;
                 }
             }
 
