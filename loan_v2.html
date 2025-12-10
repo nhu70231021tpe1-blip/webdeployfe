@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PLTT LOAN v2</title>
     <link rel="stylesheet" href="style2.css" />
-
   </head>
 
   <body>
@@ -110,7 +109,9 @@
     <!-- Sidebar -->
     <nav id="sidebar">
       <div class="sidebar-header" id="sidebar-tabs">
-        <button class="sidebar-tab-btn active" data-source="truyvan">TRUY VẤN</button>
+        <button class="sidebar-tab-btn active" data-source="truyvan">
+          TRUY VẤN
+        </button>
         <button class="sidebar-tab-btn" data-source="feedback">FEEDBACK</button>
       </div>
       <div class="sidebar-content">
@@ -166,26 +167,35 @@
     <div id="toast-container"></div>
 
     <script src="loan-flowchart.js" defer></script>
-    <script src="loan-fb-flowchart.js" defer></script>
+
     <script>
       // Embedded main script
       document.addEventListener("DOMContentLoaded", () => {
         // Now that scripts are deferred, this check runs after they have loaded.
-        if (typeof window.flowchartData === "undefined" || typeof window.flowchartDataFeedback === "undefined") {
-          alert("Lỗi: Không thể tải dữ liệu điều kiện. Vui lòng kiểm tra các file .js và thử lại.");
+        if (
+          typeof window.flowchartData === "undefined" ||
+          typeof window.flowchartDataFeedback === "undefined"
+        ) {
+          alert(
+            "Lỗi: Không thể tải dữ liệu điều kiện. Vui lòng kiểm tra các file .js và thử lại."
+          );
           console.error("Flowchart data objects not found on window object.");
           return;
         }
 
         // --- DOM ELEMENT REFERENCES ---
-        const dynamicFiltersContainer = document.getElementById("dynamic-filters-container");
+        const dynamicFiltersContainer = document.getElementById(
+          "dynamic-filters-container"
+        );
         const notesResult = document.getElementById("notes-result");
         const pdfViewer = document.getElementById("pdf-viewer");
         const sidebarToggle = document.getElementById("sidebar-toggle");
         const mainHeader = document.getElementById("main-header");
         const body = document.body;
         const headerSearch = document.getElementById("header-search");
-        const searchResultsContainer = document.getElementById("search-results-container");
+        const searchResultsContainer = document.getElementById(
+          "search-results-container"
+        );
         const subHeader = document.getElementById("sub-header");
         const toastContainer = document.getElementById("toast-container");
         const popup = document.getElementById("custom-popup");
@@ -206,7 +216,7 @@
           feedback: {
             1: "GOP_Y_TICH_CUC",
             2: "GOP_Y_TIEU_CUC",
-          }
+          },
         };
         const LEVEL_LABELS = {
           truyvan: {
@@ -219,18 +229,18 @@
           feedback: {
             1: "Chọn loại góp ý:",
             2: "Chọn chi tiết:",
-          }
+          },
         };
-        
+
         const state = {
-            activeData: null,
-            flattenedData: [],
-            activeSourceName: 'truyvan',
+          activeData: null,
+          flattenedData: [],
+          activeSourceName: "truyvan",
         };
 
         const dataSources = {
-            truyvan: window.flowchartData,
-            feedback: window.flowchartDataFeedback,
+          truyvan: window.flowchartData,
+          feedback: window.flowchartDataFeedback,
         };
 
         // --- UTILITY FUNCTIONS ---
@@ -238,7 +248,11 @@
         const isLeaf = (node) => isObject(node) && node.pdf !== undefined;
         const removeAccents = (str) => {
           if (!str) return "";
-          return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+          return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D");
         };
 
         function flattenFlowchart(node, path = [], breadcrumb = []) {
@@ -248,80 +262,92 @@
             const childNode = node[key];
 
             if (isLeaf(childNode)) {
-              const displayText = childNode.displayName || newBreadcrumb.join(" > ");
+              const displayText =
+                childNode.displayName || newBreadcrumb.join(" > ");
               state.flattenedData.push({
                 path: newPath,
                 pdfName: childNode.pdf || "",
                 displayText: displayText,
                 normalizedDisplayText: removeAccents(displayText.toLowerCase()),
-                normalizedPdfName: removeAccents((childNode.pdf || "").toLowerCase()),
+                normalizedPdfName: removeAccents(
+                  (childNode.pdf || "").toLowerCase()
+                ),
               });
             } else if (isObject(childNode)) {
               flattenFlowchart(childNode, newPath, newBreadcrumb);
             }
           });
         }
-        
+
         function switchDataSource(sourceName) {
-            if (!dataSources[sourceName]) {
-                console.error(`Data source "${sourceName}" not found.`);
-                return;
-            }
+          if (!dataSources[sourceName]) {
+            console.error(`Data source "${sourceName}" not found.`);
+            return;
+          }
 
-            state.activeSourceName = sourceName;
-            state.activeData = dataSources[sourceName];
-            
-            document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.source === sourceName);
-            });
+          state.activeSourceName = sourceName;
+          state.activeData = dataSources[sourceName];
 
-            state.flattenedData = [];
-            flattenFlowchart(state.activeData);
-            createFirstLevelDropdown();
-            resetResults();
-            history.pushState({ source: sourceName }, "", `${window.location.pathname}?source=${sourceName}`);
+          document.querySelectorAll(".sidebar-tab-btn").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.source === sourceName);
+          });
+
+          state.flattenedData = [];
+          flattenFlowchart(state.activeData);
+          createFirstLevelDropdown();
+          resetResults();
+          history.pushState(
+            { source: sourceName },
+            "",
+            `${window.location.pathname}?source=${sourceName}`
+          );
         }
 
         // --- INITIALIZATION ---
         function initialize() {
           setupEventListeners();
           const urlParams = new URLSearchParams(window.location.search);
-          const sourceParam = urlParams.get('source') || 'truyvan';
+          const sourceParam = urlParams.get("source") || "truyvan";
           switchDataSource(sourceParam);
           restoreStateFromURL();
         }
 
         // --- URL STATE MANAGEMENT ---
         function saveStateToURL(path) {
-            const jsonPath = JSON.stringify(path);
-            const encodedPath = btoa(encodeURIComponent(jsonPath));
-            const newUrl = `${window.location.pathname}?source=${state.activeSourceName}#${encodedPath}`;
-            history.pushState({ path: path, source: state.activeSourceName }, "", newUrl);
+          const jsonPath = JSON.stringify(path);
+          const encodedPath = btoa(encodeURIComponent(jsonPath));
+          const newUrl = `${window.location.pathname}?source=${state.activeSourceName}#${encodedPath}`;
+          history.pushState(
+            { path: path, source: state.activeSourceName },
+            "",
+            newUrl
+          );
         }
 
         function restoreStateFromURL() {
-            const hash = window.location.hash;
-            if (hash && hash.length > 1) {
-                const encodedPath = hash.substring(1);
-                try {
-                    const jsonPath = decodeURIComponent(atob(encodedPath));
-                    const path = JSON.parse(jsonPath);
-                    if (Array.isArray(path)) {
-                        applySearchResult(path, false);
-                    }
-                } catch (e) {
-                    console.error("Failed to parse state from hash.", e);
-                }
+          const hash = window.location.hash;
+          if (hash && hash.length > 1) {
+            const encodedPath = hash.substring(1);
+            try {
+              const jsonPath = decodeURIComponent(atob(encodedPath));
+              const path = JSON.parse(jsonPath);
+              if (Array.isArray(path)) {
+                applySearchResult(path, false);
+              }
+            } catch (e) {
+              console.error("Failed to parse state from hash.", e);
             }
+          }
         }
 
         // --- SEARCH ---
         function searchFlowchartData(query) {
           if (!query) return [];
           const normalizedQuery = removeAccents(query.toLowerCase());
-          return state.flattenedData.filter(item => 
-            item.normalizedDisplayText.includes(normalizedQuery) || 
-            item.normalizedPdfName.includes(normalizedQuery)
+          return state.flattenedData.filter(
+            (item) =>
+              item.normalizedDisplayText.includes(normalizedQuery) ||
+              item.normalizedPdfName.includes(normalizedQuery)
           );
         }
 
@@ -349,7 +375,9 @@
             const level = index + 1;
             const options = Object.keys(currentDataNode);
             createDropdown(options, level, currentDataNode);
-            const select = dynamicFiltersContainer.querySelector(`select[data-level="${level}"]`);
+            const select = dynamicFiltersContainer.querySelector(
+              `select[data-level="${level}"]`
+            );
             if (select) {
               select.value = key;
               currentDataNode = currentDataNode[key];
@@ -376,7 +404,8 @@
           filterGroup.className = "filter-group";
           const label = document.createElement("label");
           label.className = "filter-label";
-          label.textContent = LEVEL_LABELS[state.activeSourceName][level] || `Cấp ${level}:`;
+          label.textContent =
+            LEVEL_LABELS[state.activeSourceName][level] || `Cấp ${level}:`;
           filterGroup.appendChild(label);
 
           const select = document.createElement("select");
@@ -389,7 +418,9 @@
             option.textContent = text;
             select.appendChild(option);
           });
-          select.addEventListener("change", (e) => handleSelection(e, level, dataNode));
+          select.addEventListener("change", (e) =>
+            handleSelection(e, level, dataNode)
+          );
           filterGroup.appendChild(select);
           dynamicFiltersContainer.appendChild(filterGroup);
         }
@@ -399,15 +430,19 @@
           removeDropdowns(level + 1);
           resetResults();
           if (!selectedKey) {
-            history.pushState({source: state.activeSourceName}, "", `${window.location.pathname}?source=${state.activeSourceName}`);
+            history.pushState(
+              { source: state.activeSourceName },
+              "",
+              `${window.location.pathname}?source=${state.activeSourceName}`
+            );
             return;
           }
           const selectedNode = parentDataNode[selectedKey];
           if (isLeaf(selectedNode)) {
             displayResult(selectedNode);
             const path = Array.from(document.querySelectorAll(".filter-select"))
-                             .map(s => s.value)
-                             .filter(Boolean);
+              .map((s) => s.value)
+              .filter(Boolean);
             saveStateToURL(path);
           } else if (isObject(selectedNode)) {
             createDropdown(Object.keys(selectedNode), level + 1, selectedNode);
@@ -453,28 +488,37 @@
 
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
-          document.getElementById('sidebar-tabs').addEventListener('click', (e) => {
-            if (e.target.matches('.sidebar-tab-btn')) {
+          document
+            .getElementById("sidebar-tabs")
+            .addEventListener("click", (e) => {
+              if (e.target.matches(".sidebar-tab-btn")) {
                 const source = e.target.dataset.source;
                 if (source !== state.activeSourceName) switchDataSource(source);
-            }
-          });
+              }
+            });
 
           sidebarToggle.addEventListener("click", () => {
             body.classList.toggle("sidebar-collapsed");
             setTimeout(repositionPopup, 300);
           });
 
-          headerSearch.addEventListener("input", (e) => displaySearchResults(searchFlowchartData(e.target.value)));
+          headerSearch.addEventListener("input", (e) =>
+            displaySearchResults(searchFlowchartData(e.target.value))
+          );
           headerSearch.addEventListener("focus", (e) => {
-            if(e.target.value) displaySearchResults(searchFlowchartData(e.target.value));
+            if (e.target.value)
+              displaySearchResults(searchFlowchartData(e.target.value));
           });
           searchResultsContainer.addEventListener("mousedown", (e) => {
             const item = e.target.closest(".search-result-item");
-            if (item?.dataset.path) applySearchResult(JSON.parse(item.dataset.path));
+            if (item?.dataset.path)
+              applySearchResult(JSON.parse(item.dataset.path));
           });
           document.addEventListener("click", (e) => {
-            if (!headerSearch.contains(e.target) && !searchResultsContainer.contains(e.target)) {
+            if (
+              !headerSearch.contains(e.target) &&
+              !searchResultsContainer.contains(e.target)
+            ) {
               searchResultsContainer.classList.remove("show");
             }
           });
@@ -495,21 +539,38 @@
         function displayResult(resultObject) {
           const xmttIbContent = document.getElementById("xmtt-ib-content");
           const xmttEcomContent = document.getElementById("xmtt-ecom-content");
-          xmttIbContent.innerHTML = resultObject.xmttib ? `<p>${resultObject.xmttib}</p>` : "<p>...</p>";
-          if(xmttEcomContent) xmttEcomContent.innerHTML = resultObject.xmttecom ? `<p>${resultObject.xmttecom}</p>` : "<p>...</p>";
-          if (resultObject.xmtt) { // Backward compatibility
+          xmttIbContent.innerHTML = resultObject.xmttib
+            ? `<p>${resultObject.xmttib}</p>`
+            : "<p>...</p>";
+          if (xmttEcomContent)
+            xmttEcomContent.innerHTML = resultObject.xmttecom
+              ? `<p>${resultObject.xmttecom}</p>`
+              : "<p>...</p>";
+          if (resultObject.xmtt) {
+            // Backward compatibility
             xmttIbContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
-            if(xmttEcomContent) xmttEcomContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
+            if (xmttEcomContent)
+              xmttEcomContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
           }
-          notesResult.innerHTML = resultObject.note ? `<p>${resultObject.note}</p>` : "<p>Không có lưu ý.</p>";
+          notesResult.innerHTML = resultObject.note
+            ? `<p>${resultObject.note}</p>`
+            : "<p>Không có lưu ý.</p>";
 
           if (resultObject.pdf) {
-            const firstLevelSelect = dynamicFiltersContainer.querySelector('select[data-level="1"]');
+            const firstLevelSelect = dynamicFiltersContainer.querySelector(
+              'select[data-level="1"]'
+            );
             const categoryIndexMatch = firstLevelSelect?.value.match(/^(\d+)/);
             const folderMap = FOLDER_MAPS[state.activeSourceName];
-            const folderName = (categoryIndexMatch && folderMap) ? folderMap[categoryIndexMatch[1]] : null;
-            const baseFolder = state.activeSourceName === 'feedback' ? 'pdfile-loan-fb' : 'pdfile-loan';
-            
+            const folderName =
+              categoryIndexMatch && folderMap
+                ? folderMap[categoryIndexMatch[1]]
+                : null;
+            const baseFolder =
+              state.activeSourceName === "feedback"
+                ? "pdfile-loan-fb"
+                : "pdfile-loan";
+
             if (folderName) {
               pdfViewer.src = `./${baseFolder}/${folderName}/${resultObject.pdf}`;
             } else {
@@ -520,8 +581,10 @@
             pdfViewer.src = "";
           }
           if (resultObject.alert) {
-            (Array.isArray(resultObject.alert) ? resultObject.alert : [resultObject.alert])
-              .forEach((msg) => showNotification(msg));
+            (Array.isArray(resultObject.alert)
+              ? resultObject.alert
+              : [resultObject.alert]
+            ).forEach((msg) => showNotification(msg));
           }
         }
 
@@ -540,16 +603,18 @@
         function resetResults() {
           document.getElementById("xmtt-ib-content").innerHTML = "<p>...</p>";
           const ecomContent = document.getElementById("xmtt-ecom-content");
-          if(ecomContent) ecomContent.innerHTML = "<p>...</p>";
+          if (ecomContent) ecomContent.innerHTML = "<p>...</p>";
           notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
           pdfViewer.src = "";
         }
 
         function removeDropdowns(startLevel) {
-          dynamicFiltersContainer.querySelectorAll(".filter-group").forEach((group) => {
-            const select = group.querySelector("select");
-            if (parseInt(select.dataset.level) >= startLevel) group.remove();
-          });
+          dynamicFiltersContainer
+            .querySelectorAll(".filter-group")
+            .forEach((group) => {
+              const select = group.querySelector("select");
+              if (parseInt(select.dataset.level) >= startLevel) group.remove();
+            });
         }
 
         // --- START THE APP ---

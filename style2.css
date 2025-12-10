@@ -239,6 +239,7 @@ body.sidebar-collapsed {
   flex: 1 1 50%;
   padding: 15px;
   box-sizing: border-box;
+  min-width: 0; /* Add this to allow flex item to shrink */
 }
 
 .xmtt-column h5 {
@@ -264,6 +265,8 @@ body.sidebar-collapsed {
   margin: 0;
   padding: 0;
   white-space: normal; /* Ensure line breaks are respected */
+  overflow-wrap: break-word; /* Prevents overflow of long words */
+  word-break: break-all; /* Add this for more aggressive breaking */
 }
 
 /* Notes Result - block layout, full width */
@@ -277,6 +280,7 @@ body.sidebar-collapsed {
   color: #555;
   box-sizing: border-box;
   width: 100%;
+  overflow-wrap: break-word; /* Prevents overflow of long words */
 }
 
 

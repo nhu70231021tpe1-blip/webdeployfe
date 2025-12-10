@@ -28,9 +28,11 @@
       white-space: pre-wrap;
       font-family: monospace;
       background: #f8fafc;
-      padding: 4px;
+      padding: 8px;
       border-radius: 4px;
       border: 1px solid #e2e8f0;
+      max-height: 150px;
+      overflow-y: auto;
     }
 
     .code-input {
@@ -358,21 +360,61 @@
           setOriginalFileContent(content); // Save original content
 
           try {
-            // Step 1: Find constants (flexible declaration)
+            // --- NEW GROUP-AWARE PARSING ---
+
+            // 1. Find all group comments and their line indexes
+            const groupRegex = /\/\/\s*---\s*GROUP:\s*(.+?)\s*---/g;
+            const groupsFound = [];
+            let gMatch;
+            while ((gMatch = groupRegex.exec(content)) !== null) {
+              groupsFound.push({ name: gMatch[1].trim(), index: gMatch.index });
+            }
+
+            // 2. Find all constants and their line indexes
             const constRegex = /(?:(?:const|let|var)\s+(\w+)|window\.(\w+))\s*=\s*(?:"([\s\S]*?)"|`([\s\S]*?)`);/g;
-            const flatConstants = {};
+            const constsFound = [];
             let cMatch;
             while ((cMatch = constRegex.exec(content)) !== null) {
               const key = cMatch[1] || cMatch[2];
               let value = (cMatch[3] !== undefined) ? cMatch[3] : (cMatch[4] || "");
+              let unescapedValue;
                try {
-                  const unescapedValue = new Function(`return "${value.replace(/"/g, '\\"')}"`)();
-                  flatConstants[key] = unescapedValue.replace(/<br>/gi, "\n");
+                  unescapedValue = JSON.parse(`"${value.replace(/"/g, '\\"')}"`);
                } catch(e) {
-                   // Fallback for complex template literals
-                   flatConstants[key] = value;
+                   unescapedValue = value; // Fallback
                }
+              constsFound.push({ key, value: unescapedValue, index: cMatch.index });
             }
+
+            // 3. Assign constants to groups
+            const newGroupedConstants = { "Chưa phân loại": {} };
+            groupsFound.forEach(g => {
+              if (!newGroupedConstants[g.name]) {
+                newGroupedConstants[g.name] = {};
+              }
+            });
+
+            constsFound.forEach(c => {
+              let targetGroup = "Chưa phân loại";
+              let maxGroupIndex = -1;
+              for (const g of groupsFound) {
+                if (g.index < c.index && g.index > maxGroupIndex) {
+                  maxGroupIndex = g.index;
+                  targetGroup = g.name;
+                }
+              }
+              newGroupedConstants[targetGroup][c.key] = c.value;
+            });
+            
+            // This is the main fix: update state with the structured groups
+            setGroupedConstants(newGroupedConstants);
+
+            // Re-create flatConstants for eval, from the newly grouped constants
+            const flatConstants = {};
+            Object.values(newGroupedConstants).forEach(group => Object.assign(flatConstants, group));
+
+            // --- END OF NEW GROUP-AWARE PARSING ---
+
 
             // Step 2: Find the main data object (flexible)
             const dataRegex = /((?:const|let|var|window\.)\s*\w+\s*=\s*)(\{[\s\S]+?\});?\s*$/;
@@ -407,35 +449,64 @@
       };
 
       const handleDownload = () => {
-        if (!originalFileContent || !dataObjectInfo) {
-          alert("Lỗi: Không có nội dung file gốc để lưu. Vui lòng tải file lên trước.");
+        if (!dataObjectInfo) {
+          alert("Lỗi: Không có thông tin file gốc. Vui lòng tải file lên trước để xác định cấu trúc.");
           return;
         }
 
         try {
-          // Re-evaluate constants from the editor state, not the original file
+          // 1. Build the constants block, respecting quote types
+          let constantsContent = "";
           const flatConstants = {};
-          Object.values(groupedConstants).forEach(group => Object.assign(flatConstants, group));
+          Object.entries(groupedConstants).forEach(([groupName, items]) => {
+            if (Object.keys(items).length > 0) {
+              constantsContent += `\n// --- GROUP: ${groupName} ---\n`;
+              Object.entries(items).forEach(([key, value]) => {
+                flatConstants[key] = value;
+    
+                const quoteType = varQuoteTypes[key] || '`'; // Default to backtick
+                let constantLine = `const ${key} = `;
 
-          // Generate new data string from the current state
-          let newJsonString = JSON.stringify(data, null, 2);
-
-          // Replace values with constant names
-          const sortedConsts = Object.entries(flatConstants).sort((a, b) => b[1].length - a[1].length);
-          sortedConsts.forEach(([key, value]) => {
-            if (typeof value === 'string' && value.trim() !== '') {
-              const jsonVal = JSON.stringify(value).slice(1, -1);
-              const regex = new RegExp(`"${jsonVal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`, "g");
-              newJsonString = newJsonString.replace(regex, key);
+                if (quoteType === 'var') {
+                    constantLine += `${value};\n`; // Use value directly as a variable
+                } else if (quoteType === '`') {
+                    // Escape for backticks: \, `, ${
+                    const finalValue = value.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+                    constantLine += `\`${finalValue}\`;\n`;
+                } else { // quoteType is '"'
+                    // Escape for double quotes: \, ", and newlines
+                    const finalValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+                    constantLine += `"${finalValue}";\n`;
+                }
+                constantsContent += constantLine;
+              });
             }
           });
 
-          // Re-create final content by replacing only the data object part
-          const beforeData = originalFileContent.substring(0, dataObjectInfo.startIndex);
-          const afterData = originalFileContent.substring(dataObjectInfo.endIndex);
-          const finalContent = beforeData + newJsonString + afterData;
+          // 2. Build the data object string
+          let newJsonString = JSON.stringify(data, null, 2);
 
-          // Trigger download
+          // 3. Replace string literals with constant names
+          const sortedConsts = Object.entries(flatConstants).sort((a, b) => (b[1] || '').length - (a[1] || '').length);
+          sortedConsts.forEach(([key, value]) => {
+            if (typeof value === 'string' && value.trim() !== '') {
+              const jsonEscapedValue = JSON.stringify(value);
+              newJsonString = newJsonString.split(jsonEscapedValue).join(key);
+            }
+          });
+          
+          // 4. Combine all parts, using original declaration
+          const finalContent = 
+`/**
+ * GENERATED BY FLOWCHART EDITOR
+ */
+
+// --- KHAI BÁO BIẾN DÙNG CHUNG ---${constantsContent}
+
+${dataObjectInfo.declaration}${newJsonString};
+`;
+
+          // 5. Trigger download
           const blob = new Blob([finalContent], { type: "text/javascript;charset=utf-8" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -606,7 +677,24 @@
                     {node.displayName && <div>🏷️ {node.displayName}</div>}
                     {node.pdf && <div>📄 {node.pdf}</div>}
                   </div>
-                  <HtmlDisplay content={node.note} />
+                  {node.note && (
+                    <div className="mt-2">
+                        <label className="small fw-bold text-muted">NOTE</label>
+                        <HtmlDisplay content={node.note} />
+                    </div>
+                  )}
+                  {node.xmttib && (
+                      <div className="mt-2">
+                          <label className="small fw-bold text-muted">XMTT IB</label>
+                          <HtmlDisplay content={node.xmttib} />
+                      </div>
+                  )}
+                  {node.xmttecom && (
+                      <div className="mt-2">
+                          <label className="small fw-bold text-muted">XMTT ECOM</label>
+                          <HtmlDisplay content={node.xmttecom} />
+                      </div>
+                  )}
                 </div>
                 <div className="d-flex align-items-center gap-1">
                   <button
