@@ -168,6 +168,12 @@ body.sidebar-collapsed {
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
+  overflow: hidden; /* Attempt to contain the dropdown */
+}
+
+.filter-select option {
+  white-space: normal; /* Allow text to wrap in options */
+  word-wrap: break-word;
 }
 
 /* --- MAIN CONTENT --- */
