@@ -60,7 +60,7 @@ body.sidebar-collapsed {
   color: white;
   border-bottom: 1px solid #ddd;
   /* Add border instead of shadow */
-  z-index: 100;
+  z-index: 201;
   transition: transform var(--transition-speed) ease-in-out;
 }
 
@@ -371,7 +371,6 @@ body.sidebar-collapsed {
   border-radius: 0 0 8px 8px;
   /* Rounded bottom corners */
   box-shadow: 0 4px 6px rgba(32, 33, 36, 0.28);
-  z-index: 1000;
   display: none;
   /* Hidden by default */
   list-style: none;
