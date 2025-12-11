@@ -132,7 +132,7 @@ body.sidebar-collapsed {
   grid-area: sidebar;
   background-color: #ffff;
   border-right: 1px solid #e0e0e0;
-  padding-top: 20px;
+  padding-top: 0px;
   overflow-y: auto;
   transition: width var(--transition-speed) ease;
 }
@@ -778,10 +778,40 @@ body.landing-page #main-header .sidebar-toggle {
 }
 
 .sidebar-header {
-  display: flex;
+  /* Removed display: flex; to allow stacking of title and tabs */
   padding: 0;
   border-bottom: 1px solid #dee2e6;
 }
+
+.sidebar-page-title {
+  display: flex; /* Make it a flex container */
+  align-items: center; /* Vertically align icon and text */
+  justify-content: center; /* Horizontally center icon and text */
+  gap: 10px; /* Space between icon and text */
+  font-size: 1.5em; /* Increased font size */
+  font-weight: bold;
+  color: var(--secondary-color);
+  text-align: center;
+  padding: 4px 0 8px 0; /* Adjusted padding for a balanced look */
+  margin-bottom: 0px;
+  background-color: #e6ffe6;
+  border-radius: 0 0 15px 15px; /* Increased border radius for bottom corners */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 0;
+}
+
+.sidebar-title-icon {
+  width: 24px; /* Adjust size as needed */
+  height: 24px;
+  fill: var(--secondary-color);
+}
+
+.sidebar-tabs-container {
+  display: flex; /* Ensure tabs remain horizontal */
+}
+
 .sidebar-tab-btn {
   flex: 1;
   background-color: #f8f9fa;
@@ -800,4 +830,33 @@ body.landing-page #main-header .sidebar-toggle {
   color: #539e22;
   background-color: #fff;
   border-bottom-color: #009f52;
+}
+
+/* --- SCROLL BUTTONS --- */
+.scroll-buttons {
+  position: fixed;
+  top: 50%;
+  right: 10px; /* Position on the right */
+  transform: translateY(-50%);
+  z-index: 202; /* Make sure it's above other content */
+  display: flex;
+  flex-direction: column; /* Align buttons vertically */
+  gap: 10px; /* Space between buttons */
+}
+
+.scroll-btn {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-color); /* Changed to primary color */
+  color: #fff;
+  border: none;
+  border-radius: 5px; /* Changed to square with slight round */
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.5; /* 50% opacity */
+  transition: opacity 0.2s;
+}
+
+.scroll-btn:hover {
+  opacity: 1; /* Full opacity on hover */
 }
