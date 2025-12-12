@@ -112,14 +112,18 @@
       <div class="sub-header-box" id="xmtt-box">
         <button class="expand-btn" data-target="xmtt-box">⤢</button>
         <div id="xmtt-result" class="box-content">
-          <div class="xmtt-column" id="xmtt-ib-column">
-            <h5>XMTT IB</h5>
+          <div class="xmtt-column xmtt-ib" id="xmtt-ib-column">
+            <div class="column-header">
+              <h5>XMTT IB</h5>
+            </div>
             <div id="xmtt-ib-content">
               <p>...</p>
             </div>
           </div>
-          <div class="xmtt-column" id="xmtt-ecom-column">
-            <h5>XMTT ECOM</h5>
+          <div class="xmtt-column xmtt-ecom" id="xmtt-ecom-column">
+            <div class="column-header">
+              <h5>XMTT ECOM</h5>
+            </div>
             <div id="xmtt-ecom-content">
               <p>...</p>
             </div>
@@ -134,9 +138,11 @@
       </div>
     </div>
 
-    <!-- Body Content (PDF Viewer) -->
+    <!-- Body Content (Content Viewer - supports both PDF and HTML) -->
     <div id="body-proper">
       <iframe id="pdf-viewer" src="" style="width: 100%; height: 100%; border: none"></iframe>
+      <div id="html-viewer"
+        style="width: 100%; height: 100%; overflow: auto; display: none; padding: 20px; background: white;"></div>
     </div>
   </main>
 
@@ -1463,6 +1469,7 @@
       );
       const notesResult = document.getElementById("notes-result");
       const pdfViewer = document.getElementById("pdf-viewer");
+      const htmlViewer = document.getElementById("html-viewer");
       const sidebarToggle = document.getElementById("sidebar-toggle");
       const mainHeader = document.getElementById("main-header");
       const body = document.body;
@@ -1527,7 +1534,7 @@
 
       // --- UTILITY FUNCTIONS ---
       const isObject = (value) => typeof value === "object" && value !== null;
-      const isLeaf = (node) => isObject(node) && node.pdf !== undefined;
+      const isLeaf = (node) => isObject(node) && (node.pdf !== undefined || node.contentType !== undefined || node.htmlContent !== undefined || node.htmlUrl !== undefined);
       const removeAccents = (str) => {
         if (!str) return "";
         return str
@@ -1861,7 +1868,7 @@
         popup.style.top = mainHeaderHeight + "px";
         popup.style.left = sidebarWidth + leftOffset + "px";
         popup.style.width = `calc(100vw - ${sidebarWidth}px - ${totalHorizontalMargin}px)`;
-        popup.style.height = subHeaderRect.height + "px";
+        // Let CSS control height (fit-content with max-height: 40vh)
       }
 
       function openPopup(targetBoxId) {
@@ -1883,6 +1890,37 @@
         setTimeout(() => {
           popupContent.innerHTML = "";
         }, 300);
+      }
+
+      function updatePopupIfOpen() {
+        // Check if popup is currently open
+        if (!popup.classList.contains("hidden")) {
+          // Find which box is currently displayed in popup by checking content
+          const xmttBox = document.getElementById("xmtt-box");
+          const notesBox = document.getElementById("notes-box");
+
+          // Determine which box content to clone based on what's in popup
+          // We'll detect by checking if popup has xmtt-result or notes-result
+          const popupHasXmtt = popupContent.querySelector("#xmtt-result");
+          const popupHasNotes = popupContent.querySelector("#notes-result");
+
+          let sourceBox = null;
+          if (popupHasXmtt) {
+            sourceBox = xmttBox;
+          } else if (popupHasNotes) {
+            sourceBox = notesBox;
+          }
+
+          if (sourceBox) {
+            const sourceContent = sourceBox.querySelector(".box-content");
+            if (sourceContent) {
+              // Clear and re-clone the updated content
+              popupContent.innerHTML = "";
+              const clonedContent = sourceContent.cloneNode(true);
+              popupContent.appendChild(clonedContent);
+            }
+          }
+        }
       }
 
       function setupEventListeners() {
@@ -2007,7 +2045,28 @@
           ? `<p>${resultObject.note}</p>`
           : "<p>Không có lưu ý.</p>";
 
-        if (resultObject.pdf) {
+        // Update popup content if it's currently open
+        updatePopupIfOpen();
+
+        // Determine content type: 'html', 'htmlUrl', or 'pdf' (default)
+        const contentType = resultObject.contentType || (resultObject.pdf ? 'pdf' : null);
+
+        // Reset both viewers
+        pdfViewer.style.display = 'none';
+        htmlViewer.style.display = 'none';
+        pdfViewer.src = '';
+        htmlViewer.innerHTML = '';
+
+        if (contentType === 'html' && resultObject.htmlContent) {
+          // Display inline HTML content
+          htmlViewer.innerHTML = resultObject.htmlContent;
+          htmlViewer.style.display = 'block';
+        } else if (contentType === 'htmlUrl' && resultObject.htmlUrl) {
+          // Display HTML from URL using iframe
+          pdfViewer.src = resultObject.htmlUrl;
+          pdfViewer.style.display = 'block';
+        } else if (resultObject.pdf) {
+          // Display PDF
           const firstLevelSelect = dynamicFiltersContainer.querySelector(
             'select[data-level="1"]'
           );
@@ -2028,9 +2087,9 @@
             // Fallback for items without a numbered category, or if mapping is missing
             pdfViewer.src = `./${baseFolder}/${resultObject.pdf}`;
           }
-        } else {
-          pdfViewer.src = "";
+          pdfViewer.style.display = 'block';
         }
+
         if (resultObject.alert) {
           (Array.isArray(resultObject.alert)
             ? resultObject.alert
@@ -2057,6 +2116,9 @@
         if (ecomContent) ecomContent.innerHTML = "<p>...</p>";
         notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
         pdfViewer.src = "";
+        pdfViewer.style.display = 'none';
+        htmlViewer.innerHTML = "";
+        htmlViewer.style.display = 'none';
       }
 
       function removeDropdowns(startLevel) {
