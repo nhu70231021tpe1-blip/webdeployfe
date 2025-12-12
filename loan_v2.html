@@ -102,7 +102,7 @@
         <button class="sidebar-tab-btn active" data-source="truyvan">
           TRUY VẤN
         </button>
-        <button class="sidebar-tab-btn" data-source="feedback">FEEDBACK</button>
+        <button class="sidebar-tab-btn" data-source="feedback">PHẢN ÁNH</button>
       </div>
     </div>
     <div class="sidebar-content">
@@ -1827,7 +1827,16 @@
           .addEventListener("click", (e) => {
             if (e.target.matches(".sidebar-tab-btn")) {
               const source = e.target.dataset.source;
-              if (source !== state.activeSourceName) switchDataSource(source);
+              if (source !== state.activeSourceName) {
+                // Clear state BEFORE switching to prevent cross-contamination
+                history.pushState(
+                    { source: source },
+                    "",
+                    `${window.location.pathname}?source=${source}`
+                );
+                sessionStorage.removeItem('loanFlowchartState');
+                switchDataSource(source);
+              }
             }
           });
 
