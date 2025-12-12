@@ -99,10 +99,12 @@
         <span>LOAN</span>
       </div>
       <div class="sidebar-tabs-container" id="sidebar-tabs">
-        <button class="sidebar-tab-btn active" data-source="truyvan">
-          TRUY VẤN
-        </button>
-        <button class="sidebar-tab-btn" data-source="feedback">PHẢN ÁNH</button>
+        <div class="filter-group">
+            <select id="source-switcher" class="filter-select">
+              <option value="truyvan">TRUY VẤN</option>
+              <option value="feedback">PHẢN ÁNH</option>
+            </select>
+        </div>
       </div>
     </div>
     <div class="sidebar-content">
@@ -1571,9 +1573,10 @@
         state.activeSourceName = sourceName;
         state.activeData = dataSources[sourceName];
 
-        document.querySelectorAll(".sidebar-tab-btn").forEach((btn) => {
-          btn.classList.toggle("active", btn.dataset.source === sourceName);
-        });
+        const sourceSwitcher = document.getElementById("source-switcher");
+        if (sourceSwitcher) {
+          sourceSwitcher.value = sourceName;
+        }
 
         state.flattenedData = [];
         flattenFlowchart(state.activeData);
@@ -1823,20 +1826,18 @@
       // --- EVENT LISTENERS ---
       function setupEventListeners() {
         document
-          .getElementById("sidebar-tabs")
-          .addEventListener("click", (e) => {
-            if (e.target.matches(".sidebar-tab-btn")) {
-              const source = e.target.dataset.source;
-              if (source !== state.activeSourceName) {
-                // Clear state BEFORE switching to prevent cross-contamination
-                history.pushState(
-                    { source: source },
-                    "",
-                    `${window.location.pathname}?source=${source}`
-                );
-                sessionStorage.removeItem('loanFlowchartState');
-                switchDataSource(source);
-              }
+          .getElementById("source-switcher")
+          .addEventListener("change", (e) => {
+            const source = e.target.value;
+            if (source !== state.activeSourceName) {
+              // Clear state BEFORE switching to prevent cross-contamination
+              history.pushState(
+                { source: source },
+                "",
+                `${window.location.pathname}?source=${source}`
+              );
+              sessionStorage.removeItem('loanFlowchartState');
+              switchDataSource(source);
             }
           });
 
