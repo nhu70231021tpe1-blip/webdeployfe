@@ -640,6 +640,13 @@
         document.getElementById('sidebar-tabs').addEventListener('click', (e) => {
           const source = e.target.dataset.source;
           if (e.target.matches('.sidebar-tab-btn') && source !== state.activeSourceName) {
+            // Clear state BEFORE switching to prevent cross-contamination
+            history.pushState(
+                { source: source },
+                "",
+                `${window.location.pathname}?source=${source}`
+            );
+            sessionStorage.removeItem('cardFlowchartState');
             switchDataSource(source);
           }
         });
