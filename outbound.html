@@ -869,7 +869,7 @@
         popup.style.top = mainHeaderHeight + "px";
         popup.style.left = sidebarWidth + leftOffset + "px";
         popup.style.width = `calc(100vw - ${sidebarWidth}px - ${totalHorizontalMargin}px)`;
-        popup.style.height = subHeaderRect.height + "px";
+        // Let CSS control height (fit-content with max-height: 40vh)
       }
 
       function openPopup(targetBoxId) {
@@ -896,6 +896,23 @@
         setTimeout(() => {
           popupContent.innerHTML = "";
         }, 300);
+      }
+
+      function updatePopupIfOpen() {
+        if (!popup.classList.contains("hidden")) {
+          const xmttBox = document.getElementById("xmtt-box");
+          const notesBox = document.getElementById("notes-box");
+          const popupHasXmtt = popupContent.querySelector("#xmtt-result");
+          const popupHasNotes = popupContent.querySelector("#notes-result");
+          let sourceBox = popupHasXmtt ? xmttBox : (popupHasNotes ? notesBox : null);
+          if (sourceBox) {
+            const sourceContent = sourceBox.querySelector(".box-content");
+            if (sourceContent) {
+              popupContent.innerHTML = "";
+              popupContent.appendChild(sourceContent.cloneNode(true));
+            }
+          }
+        }
       }
 
       function setupEventListeners() {
@@ -1041,6 +1058,9 @@
             : [resultObject.alert]
           ).forEach((msg) => showNotification(msg));
         }
+
+        // Update popup content if it's currently open
+        updatePopupIfOpen();
       }
 
       function showNotification(message) {

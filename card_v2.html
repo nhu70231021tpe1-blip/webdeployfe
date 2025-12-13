@@ -660,7 +660,7 @@
         popup.style.top = mainHeaderHeight + "px";
         popup.style.left = sidebarWidth + leftOffset + "px";
         popup.style.width = `calc(100vw - ${sidebarWidth}px - ${totalHorizontalMargin}px)`;
-        popup.style.height = subHeaderRect.height + "px";
+        // Let CSS control height (fit-content with max-height: 40vh)
       }
 
       function openPopup(targetBoxId) {
@@ -682,6 +682,36 @@
         setTimeout(() => {
           popupContent.innerHTML = "";
         }, 300);
+      }
+
+      function updatePopupIfOpen() {
+        // Check if popup is currently open
+        if (!popup.classList.contains("hidden")) {
+          // Find which box is currently displayed in popup
+          const xmttBox = document.getElementById("xmtt-box");
+          const notesBox = document.getElementById("notes-box");
+
+          // Determine which box content to clone
+          const popupHasXmtt = popupContent.querySelector("#xmtt-result");
+          const popupHasNotes = popupContent.querySelector("#notes-result");
+
+          let sourceBox = null;
+          if (popupHasXmtt) {
+            sourceBox = xmttBox;
+          } else if (popupHasNotes) {
+            sourceBox = notesBox;
+          }
+
+          if (sourceBox) {
+            const sourceContent = sourceBox.querySelector(".box-content");
+            if (sourceContent) {
+              // Clear and re-clone the updated content
+              popupContent.innerHTML = "";
+              const clonedContent = sourceContent.cloneNode(true);
+              popupContent.appendChild(clonedContent);
+            }
+          }
+        }
       }
 
       function handleSelection(event, level, parentDataNode) {
@@ -821,6 +851,9 @@
         } else {
           pdfViewer.src = "";
         }
+
+        // Update popup content if it's currently open
+        updatePopupIfOpen();
       }
 
       function resetResults() {
