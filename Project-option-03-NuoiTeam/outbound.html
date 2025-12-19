@@ -852,13 +852,20 @@
         createDropdown(Object.keys(flowchartData), 1, flowchartData);
       }
 
-      function createDropdown(options, level, dataNode) {
+      function createDropdown(options, level, dataNode, parentNode = null) {
         const filterGroup = document.createElement("div");
         filterGroup.className = "filter-group";
 
         const label = document.createElement("label");
         label.className = "filter-label";
-        label.textContent = levelLabels[level] || `Cấp ${level}:`;
+
+        // Check if parent node (the selected node) has tieudeflow field
+        let labelText = levelLabels[level] || `Cấp ${level}:`;
+        if (parentNode && parentNode.tieudeflow) {
+          labelText = parentNode.tieudeflow;
+        }
+
+        label.textContent = labelText;
         filterGroup.appendChild(label);
 
         const select = document.createElement("select");
@@ -893,7 +900,7 @@
         if (isLeaf(selectedNode)) {
           displayResult(selectedNode, selectedKey);
         } else if (isObject(selectedNode)) {
-          createDropdown(Object.keys(selectedNode), level + 1, selectedNode);
+          createDropdown(Object.keys(selectedNode), level + 1, selectedNode, selectedNode);
         }
 
         // Always save state to URL for any selection (not just leaf nodes)

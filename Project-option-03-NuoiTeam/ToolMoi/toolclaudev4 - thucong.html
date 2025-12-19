@@ -1059,7 +1059,7 @@ ${dataObjectsContent}
       // Helper to check if a node has any child nodes (non-content fields)
       const hasChildren = (node) => {
         if (!node || typeof node !== "object") return false;
-        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien'];
+        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
         const keys = Object.keys(node);
         // Check if there are any keys that are NOT content fields
         return keys.some(key => !contentFields.includes(key) && typeof node[key] === 'object');
@@ -1180,7 +1180,7 @@ ${dataObjectsContent}
         }
 
         // Filter keys to get only CHILD NODES (not content fields)
-        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien'];
+        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
         const allKeys = Object.keys(node || {});
         const keys = allKeys.filter(key => !contentFields.includes(key));
 
@@ -2012,11 +2012,12 @@ ${dataObjectsContent}
                     )}
                   </div>
 
-                  {["dieukien", "note", "xmttib", "xmttecom", "alert"].map((f) => {
+                  {["tieudeflow", "dieukien", "note", "xmttib", "xmttecom", "alert"].map((f) => {
                     // Unique key for this field in this node
                     const fieldKey = `${editingNode.path.join('.')}.${f}`;
                     // Friendly field names with emojis
                     const fieldLabels = {
+                      tieudeflow: "🏷️ TIÊU ĐỀ FLOW (Label)",
                       dieukien: "🎯 ĐIỀU KIỆN (Condition)",
                       note: "📝 LƯU Ý (Note)",
                       xmttib: "🔵 XMTT INBOUND",
@@ -2029,11 +2030,11 @@ ${dataObjectsContent}
                           <label className="form-label small fw-medium text-secondary mb-0">
                             {fieldLabels[f] || f} (Hỗ trợ HTML)
                           </label>
-                          {/* Dropdown chọn loại quote - MẶC ĐỊNH: note/xmttib/xmttecom=`, alert=" */}
+                          {/* Dropdown chọn loại quote - MẶC ĐỊNH: note/xmttib/xmttecom=`, alert/tieudeflow=" */}
                           <select
                             className="form-select form-select-sm"
                             style={{ width: '60px' }}
-                            value={nodeQuoteTypes[fieldKey] || (f === 'alert' ? '"' : '`')}
+                            value={nodeQuoteTypes[fieldKey] || (f === 'alert' || f === 'tieudeflow' ? '"' : '`')}
                             onChange={(e) => setNodeQuoteTypes({ ...nodeQuoteTypes, [fieldKey]: e.target.value })}
                             title="Loại quote khi export"
                           >

@@ -1800,13 +1800,21 @@
         createDropdown(Object.keys(state.activeData), 1, state.activeData);
       }
 
-      function createDropdown(options, level, dataNode) {
+      function createDropdown(options, level, dataNode, parentNode = null) {
         const filterGroup = document.createElement("div");
         filterGroup.className = "filter-group";
         const label = document.createElement("label");
         label.className = "filter-label";
-        label.textContent = (LEVEL_LABELS[state.activeSourceName]?.[level]) || `Cấp ${level}:`;
+
+        // Check if parent node (the selected node) has tieudeflow field
+        let labelText = (LEVEL_LABELS[state.activeSourceName]?.[level]) || `Cấp ${level}:`;
+        if (parentNode && parentNode.tieudeflow) {
+          labelText = parentNode.tieudeflow;
+        }
+
+        label.textContent = labelText;
         filterGroup.appendChild(label);
+
         const select = document.createElement("select");
         select.className = "filter-select";
         select.dataset.level = level;
@@ -1870,7 +1878,7 @@
         if (isLeaf(selectedNode)) {
           displayResult(selectedNode);
         } else if (isObject(selectedNode)) {
-          createDropdown(Object.keys(selectedNode), level + 1, selectedNode);
+          createDropdown(Object.keys(selectedNode), level + 1, selectedNode, selectedNode);
         }
 
         // Always save state to URL for any selection (not just leaf nodes)

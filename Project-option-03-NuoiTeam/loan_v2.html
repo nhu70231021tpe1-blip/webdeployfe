@@ -421,8 +421,11 @@
         }
       },
       "6. VẤN ĐỀ THANH TOÁN": {
+        "tieudeflow": "điều kiền 1",
         "Lịch Trả Nợ": {
+          "tieudeflow": "điều kiền 2",
           "HĐ FEC/ HĐ Bán Nợ FC/ HĐ Bán Nợ Một Phần Galaxy": {
+            "tieudeflow": "điều kiền 1",
             "displayName": "Lịch Trả Nợ HĐ FEC/ HĐ Bán Nợ FC/ HĐ Bán Nợ Một Phần Galaxy",
             "pdf": "PDF_LICH_TRA_NO_FEC.pdf",
             "note": LTNSlide4,
@@ -1066,6 +1069,7 @@
       "12. KẾT QUẢ XỬ LÝ YÊU CẦU": {},
       "13. TRA CỨU TỰ ĐỘNG": {
         "FE Online 2.0": {
+          "tieudeflow": "điều kiền 6",
           "dieukien": `KH cần đăng nhập vào app FE Online 2.0 để sử dụng các tính năng tự động. Đảm bảo KH đã cài đặt phiên bản mới nhất của ứng dụng.<br>
                        KH cần đăng nhập vào app FE Online 2.0 để sử dụng các tính năng tự động. Đảm bảo KH đã cài đặt phiên bản mới nhất của ứng dụng.<br>
                        KH cần đăng nhập vào app FE Online 2.0 để sử dụng các tính năng tự động. Đảm bảo KH đã cài đặt phiên bản mới nhất của ứng dụng.<br>
@@ -1591,11 +1595,11 @@
       };
       const LEVEL_LABELS = {
         truyvan: {
-          1: "Chọn vấn đề:",
-          2: "Chọn chi tiết vấn đề:",
-          3: "Chọn loại HĐ:",
-          4: "Chọn kênh:",
-          5: "Chọn loại đầu vào:",
+          1: "CHỌN VẤN ĐỀ:",
+          2: "CHỌN CHI TIẾT VẤN ĐỀ:",
+          3: "CHỌN LOẠI HĐ:",
+          4: "CHỌN KÊNH:",
+          5: "CHỌN LOẠI ĐẦU VÀO:",
         },
         feedback: {
           1: "Chọn loại góp ý:",
@@ -1903,13 +1907,21 @@
         createDropdown(Object.keys(state.activeData), 1, state.activeData);
       }
 
-      function createDropdown(options, level, dataNode) {
+      function createDropdown(options, level, dataNode, parentNode = null) {
         const filterGroup = document.createElement("div");
         filterGroup.className = "filter-group";
         const label = document.createElement("label");
         label.className = "filter-label";
-        label.textContent =
-          LEVEL_LABELS[state.activeSourceName][level] || `Cấp ${level}:`;
+
+        // Check if parent node (the selected node) has tieudeflow field
+        let labelText = LEVEL_LABELS[state.activeSourceName][level] || `Cấp ${level}:`;
+        if (parentNode && parentNode.tieudeflow) {
+          labelText = parentNode.tieudeflow;
+        }
+
+        console.log('createDropdown - level:', level, 'labelText:', labelText, 'parentNode:', parentNode);
+
+        label.textContent = labelText;
         filterGroup.appendChild(label);
 
         const select = document.createElement("select");
@@ -1967,14 +1979,14 @@
         }
 
         // Step 2: Check if node has child nodes (non-content properties)
-        const contentKeys = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'note', 'xmttib', 'xmttecom', 'xmtt', 'dieukien', 'displayName', 'alert'];
+        const contentKeys = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'note', 'xmttib', 'xmttecom', 'xmtt', 'dieukien', 'displayName', 'alert', 'tieudeflow'];
         const childKeys = Object.keys(selectedNode).filter(key =>
           !contentKeys.includes(key) && isObject(selectedNode[key])
         );
 
         // Step 3: Create dropdown if there are child nodes
         if (childKeys.length > 0) {
-          createDropdown(childKeys, level + 1, selectedNode);
+          createDropdown(childKeys, level + 1, selectedNode, selectedNode);
         }
 
         // Step 4: Always save state to URL for any selection (not just leaf nodes)
