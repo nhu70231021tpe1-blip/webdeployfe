@@ -56,7 +56,7 @@
 :root {
   --primary-color: #81c753;
   --secondary-color: #009f52;
-  --bg-color: #fffff7;
+  --bg-color: #f5f3f3;
   --sidebar-width: 20vw;
   --header-height: 45px;
   /* Changed to fixed height */
@@ -281,7 +281,7 @@ body.sidebar-collapsed {
   max-height: 50vh;
   /* Set a max-height instead of fixed height */
   min-height: 120px;
-  background-color: #fffff7;
+  background-color: #f5f3f3;
   border-bottom: 0 px solid #ddd;
   padding: 8px;
 }
@@ -332,8 +332,8 @@ body.sidebar-collapsed {
 .dieukien-panel {
   background: #ffffff;
   padding: 0;
-  border-radius: 16px;
-  margin-bottom: 8px;
+  border-radius: 8px;
+  margin: 8px 8px 0px 8px;
   border: 1px solid #e7e7e7;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -463,7 +463,7 @@ body.sidebar-collapsed {
   margin: 0;
   padding: 12px;
   background: rgba(255, 255, 255, 1);
-  border-radius: 12px;
+  border-radius: 8px;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -483,7 +483,7 @@ body.sidebar-collapsed {
   margin: 0;
   padding: 12px;
   background: rgba(255, 255, 255, 1);
-  border-radius: 12px;
+  border-radius: 8px;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -497,8 +497,9 @@ body.sidebar-collapsed {
 
 /* Notes content */
 #notes-result {
-  background: #f4faa1 !important;
-  border-radius: 5px !important;
+  background: #fff8bf !important;
+  border-radius: 8px !important;
+  border: 2px solid #fff178 !important;
   overflow-y: auto;
   max-height: 35vh;
   padding: 12px;
@@ -507,7 +508,7 @@ body.sidebar-collapsed {
 /* Dieukien content */
 #dieukien-result {
   background: rgba(255, 255, 255, 1);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px;
 }
 
@@ -1102,7 +1103,6 @@ body.landing-page #main-header .sidebar-toggle {
   /* Adjusted padding for a balanced look */
   margin-bottom: 0px;
   background-color: #e6ffe6;
-  border-radius: 0 0 15px 15px;
   /* Increased border radius for bottom corners */
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1289,7 +1289,7 @@ body.landing-page #main-header .sidebar-toggle {
 .popup-container {
   position: fixed;
   z-index: 1000;
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.25),
     0 4px 12px rgba(0, 0, 0, 0.15);
