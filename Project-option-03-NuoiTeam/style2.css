@@ -642,6 +642,8 @@ body.sidebar-collapsed {
 
 #body-proper {
   flex-grow: 1;
+  margin: 10px;
+
   /* Takes remaining space */
 }
 
@@ -650,6 +652,7 @@ body.sidebar-collapsed {
   min-height: 600px;
   height: auto;
   border: none;
+  border-radius: 8px;
 }
 
 /* --- Search Bar Styles (Google-like) --- */
