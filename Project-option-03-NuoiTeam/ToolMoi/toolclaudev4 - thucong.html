@@ -193,9 +193,9 @@
       let processedStr = dataStr;
       const replacements = [];
 
-      // First, detect variable references in node fields (xmttib, xmttecom, note, alert, dieukien)
+      // First, detect variable references in node fields (xmttib, xmttemail, xmttchat, note, alert, dieukien)
       // These are values without quotes that match a constant name
-      const varFields = ['xmttib', 'xmttecom', 'note', 'alert', 'dieukien'];
+      const varFields = ['xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'dieukien'];
       const detectedVarRefs = {}; // Track which field values are variable references
 
       varFields.forEach(fieldName => {
@@ -776,7 +776,7 @@
           const sortedConsts = Object.entries(flatConstants).sort((a, b) => (b[1] || '').length - (a[1] || '').length);
 
           // Content fields that are NOT child nodes
-          const contentFieldsForExport = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow', 'hideSubHeader', 'hideXmttIb', 'hideXmttEcom', 'hideNotes'];
+          const contentFieldsForExport = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
 
           Object.entries(dataSources).forEach(([name, data]) => {
             const info = allDataObjectInfo[name];
@@ -1064,7 +1064,7 @@ ${dataObjectsContent}
       // Helper to check if a node has any child nodes (non-content fields)
       const hasChildren = (node) => {
         if (!node || typeof node !== "object") return false;
-        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow', 'hideSubHeader', 'hideXmttIb', 'hideXmttEcom', 'hideNotes'];
+        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
         const keys = Object.keys(node);
         // Check if there are any keys that are NOT content fields
         return keys.some(key => !contentFields.includes(key) && typeof node[key] === 'object');
@@ -1120,10 +1120,16 @@ ${dataObjectsContent}
                       <HtmlDisplay content={node.xmttib} />
                     </div>
                   )}
-                  {node.xmttecom && (
+                  {node.xmttemail && (
                     <div className="mt-2">
-                      <label className="small fw-bold text-muted">XMTT ECOM</label>
-                      <HtmlDisplay content={node.xmttecom} />
+                      <label className="small fw-bold text-muted">XMTT EMAIL</label>
+                      <HtmlDisplay content={node.xmttemail} />
+                    </div>
+                  )}
+                  {node.xmttchat && (
+                    <div className="mt-2">
+                      <label className="small fw-bold text-muted">XMTT CHAT</label>
+                      <HtmlDisplay content={node.xmttchat} />
                     </div>
                   )}
                 </div>
@@ -2023,105 +2029,7 @@ ${dataObjectsContent}
                     )}
                   </div>
 
-                  {/* Visibility Controls Section */}
-                  <div className="row g-3 mb-3 p-3 bg-warning bg-opacity-10 rounded">
-                    <div className="col-12">
-                      <label className="form-label small fw-bold text-warning">
-                        👁️ Cài Đặt Hiển Thị (Visibility Settings)
-                      </label>
-                      <small className="d-block text-muted mb-2">Kiểm soát ẩn/hiện sub-header và các box khi chọn node này.</small>
-                    </div>
-                    <div className="col-md-6 col-lg-3">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="hideSubHeader"
-                          checked={editingNode.node.hideSubHeader === true}
-                          onChange={(e) =>
-                            setEditingNode({
-                              ...editingNode,
-                              node: {
-                                ...editingNode.node,
-                                hideSubHeader: e.target.checked,
-                              },
-                            })
-                          }
-                        />
-                        <label className="form-check-label small" htmlFor="hideSubHeader">
-                          🚫 Ẩn toàn bộ Sub-header
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-3">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="hideXmttIb"
-                          checked={editingNode.node.hideXmttIb === true}
-                          onChange={(e) =>
-                            setEditingNode({
-                              ...editingNode,
-                              node: {
-                                ...editingNode.node,
-                                hideXmttIb: e.target.checked,
-                              },
-                            })
-                          }
-                        />
-                        <label className="form-check-label small" htmlFor="hideXmttIb">
-                          Ẩn XMTT Inbound
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-3">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="hideXmttEcom"
-                          checked={editingNode.node.hideXmttEcom === true}
-                          onChange={(e) =>
-                            setEditingNode({
-                              ...editingNode,
-                              node: {
-                                ...editingNode.node,
-                                hideXmttEcom: e.target.checked,
-                              },
-                            })
-                          }
-                        />
-                        <label className="form-check-label small" htmlFor="hideXmttEcom">
-                          Ẩn XMTT ECOM
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-lg-3">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="hideNotes"
-                          checked={editingNode.node.hideNotes === true}
-                          onChange={(e) =>
-                            setEditingNode({
-                              ...editingNode,
-                              node: {
-                                ...editingNode.node,
-                                hideNotes: e.target.checked,
-                              },
-                            })
-                          }
-                        />
-                        <label className="form-check-label small" htmlFor="hideNotes">
-                          Ẩn Notes
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {["tieudeflow", "dieukien", "note", "xmttib", "xmttecom", "alert"].map((f) => {
+                  {["tieudeflow", "dieukien", "note", "xmttib", "xmttemail", "xmttchat", "alert"].map((f) => {
                     // Unique key for this field in this node
                     const fieldKey = `${editingNode.path.join('.')}.${f}`;
                     // Friendly field names with emojis
@@ -2130,7 +2038,8 @@ ${dataObjectsContent}
                       dieukien: "🎯 ĐIỀU KIỆN (Condition)",
                       note: "📝 LƯU Ý (Note)",
                       xmttib: "🔵 XMTT INBOUND",
-                      xmttecom: "🔵 XMTT ECOM",
+                      xmttemail: "🟢 XMTT EMAIL",
+                      xmttchat: "🟣 XMTT CHAT",
                       alert: "⚠️ THÔNG BÁO (Alert)"
                     };
                     return (

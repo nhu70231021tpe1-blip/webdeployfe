@@ -469,26 +469,18 @@ body.sidebar-collapsed {
 }
 
 #sub-header {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 8px;
   max-height: 50vh;
   /* Set a max-height instead of fixed height */
   min-height: 120px;
   background-color: #f5f3f3;
   border-bottom: 0 px solid #ddd;
-  padding: 8px;
 }
 
 /* XMTT IB Box - White card style */
 .xmtt-ib-box {
   background: #a8ec81;
-  grid-column: 1 / 2;
-  grid-row: 1;
-  min-width: 0;
-  max-width: 100%;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 100px;
   box-sizing: border-box;
   overflow: hidden;
   padding: 0;
@@ -497,14 +489,24 @@ body.sidebar-collapsed {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* XMTT ECOM Box - White card style */
-.xmtt-ecom-box {
+/* XMTT EMAIL Box - White card style */
+.xmtt-email-box {
   background: #7ae9c8;
-  grid-column: 2 / 3;
-  grid-row: 1;
-  min-width: 0;
-  max-width: 100%;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 100px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* XMTT CHAT Box - White card style */
+.xmtt-chat-box {
+  background: #a8d8f0;
+  flex: 1 1 0;
+  min-width: 100px;
   box-sizing: border-box;
   overflow: hidden;
   padding: 0;
@@ -515,8 +517,7 @@ body.sidebar-collapsed {
 
 /* Notes box - White card style */
 #notes-box {
-  grid-column: 1 / 3;
-  grid-row: 2;
+  width: 100%;
   background: #ffffff;
   padding: 0;
   border-radius: 8px;
@@ -676,7 +677,27 @@ body.sidebar-collapsed {
   transition: all 0.3s ease;
 }
 
-#xmtt-ecom-content {
+#xmtt-email-content {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #000000;
+  margin: 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 1);
+  border-radius: 8px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-height: 80px;
+  max-height: 35vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+#xmtt-chat-content {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
   line-height: 1.8;
@@ -714,7 +735,8 @@ body.sidebar-collapsed {
 }
 
 #xmtt-ib-content:hover,
-#xmtt-ecom-content:hover {
+#xmtt-email-content:hover,
+#xmtt-chat-content:hover {
   background: rgba(255, 255, 255, 1);
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.06),
@@ -722,7 +744,8 @@ body.sidebar-collapsed {
 }
 
 #xmtt-ib-content p,
-#xmtt-ecom-content p {
+#xmtt-email-content p,
+#xmtt-chat-content p {
   margin: 0;
   padding: 0;
   color: #000;
@@ -730,7 +753,8 @@ body.sidebar-collapsed {
 
 /* Placeholder style only */
 #xmtt-ib-content p:only-child:empty,
-#xmtt-ecom-content p:only-child:empty {
+#xmtt-email-content p:only-child:empty,
+#xmtt-chat-content p:only-child:empty {
   color: #94a3b8;
   font-style: normal;
   font-weight: 400;
@@ -1524,4 +1548,72 @@ body.landing-page #main-header .sidebar-toggle {
 
 #popup-close-btn:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   RESIZABLE SUB-HEADER BOXES
+   Cho phép kéo thay đổi kích thước các box
+   ============================================ */
+
+/* Container cho các box có thể resize */
+#sub-header.resizable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#sub-header.resizable .xmtt-row {
+  display: flex;
+  width: 100%;
+  gap: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Resize handle giữa các box */
+.resize-handle {
+  width: 8px;
+  min-width: 8px;
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.resize-handle:hover {
+  background: linear-gradient(90deg, transparent 2px, #81c753 2px, #81c753 4px, transparent 4px);
+}
+
+.resize-handle:active {
+  background: linear-gradient(90deg, transparent 2px, #009f52 2px, #009f52 4px, transparent 4px);
+}
+
+/* Box trong chế độ resize */
+#sub-header.resizable .xmtt-row .sub-header-box {
+  flex: 1 1 0;
+  min-width: 100px;
+  max-width: calc(100% - 16px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Khi đang resize, không có transition */
+#sub-header.resizing .sub-header-box,
+.xmtt-row.resizing .sub-header-box {
+  transition: none !important;
+}
+
+body.resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.resizing * {
+  cursor: col-resize !important;
 }

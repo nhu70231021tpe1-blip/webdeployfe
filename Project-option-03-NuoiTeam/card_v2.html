@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -148,27 +148,45 @@
     </div>
 
     <!-- Sub Header -->
-    <div id="sub-header">
-      <!-- XMTT IB Box -->
-      <div class="sub-header-box xmtt-ib-box" id="xmtt-ib-box">
-        <button class="expand-btn" data-target="xmtt-ib-box">⤢</button>
-        <div class="column-header">
-          <h5>XÁC MINH THÔNG TIN INBOUND</h5>
+    <div id="sub-header" class="resizable">
+      <!-- Row chứa 3 box XMTT có thể resize -->
+      <div class="xmtt-row" id="xmtt-row">
+        <!-- XMTT IB Box -->
+        <div class="sub-header-box xmtt-ib-box" id="xmtt-ib-box">
+          <button class="expand-btn" data-target="xmtt-ib-box">⤢</button>
+          <div class="column-header">
+            <h5>XÁC MINH THÔNG TIN INBOUND</h5>
+          </div>
+          <div id="xmtt-ib-content" class="box-content">
+            <p>...</p>
+          </div>
         </div>
-        <div id="xmtt-ib-content" class="box-content">
-          <p>...</p>
+        <!-- Resize Handle 1 -->
+        <div class="resize-handle" data-resize="1"></div>
+        <!-- XMTT EMAIL Box -->
+        <div class="sub-header-box xmtt-email-box" id="xmtt-email-box">
+          <button class="expand-btn" data-target="xmtt-email-box">⤢</button>
+          <div class="column-header">
+            <h5>XÁC MINH THÔNG TIN EMAIL</h5>
+          </div>
+          <div id="xmtt-email-content" class="box-content">
+            <p>...</p>
+          </div>
+        </div>
+        <!-- Resize Handle 2 -->
+        <div class="resize-handle" data-resize="2"></div>
+        <!-- XMTT CHAT Box -->
+        <div class="sub-header-box xmtt-chat-box" id="xmtt-chat-box">
+          <button class="expand-btn" data-target="xmtt-chat-box">⤢</button>
+          <div class="column-header">
+            <h5>XÁC MINH THÔNG TIN CHAT</h5>
+          </div>
+          <div id="xmtt-chat-content" class="box-content">
+            <p>...</p>
+          </div>
         </div>
       </div>
-      <!-- XMTT ECOM Box -->
-      <div class="sub-header-box xmtt-ecom-box" id="xmtt-ecom-box">
-        <button class="expand-btn" data-target="xmtt-ecom-box">⤢</button>
-        <div class="column-header">
-          <h5>XÁC MINH THÔNG TIN ECOM</h5>
-        </div>
-        <div id="xmtt-ecom-content" class="box-content">
-          <p>...</p>
-        </div>
-      </div>
+      <!-- Notes Box -->
       <div class="sub-header-box" id="notes-box">
         <button class="expand-btn" data-target="notes-box">⤢</button>
         <div id="notes-result" class="box-content">
@@ -274,14 +292,14 @@
           "pdf": "",
           "note": "",
           "xmttib": "",
-          "xmttecom": ""
+          "xmttemail": ""
         },
         "Hủy Hồ Sơ Mở Thẻ": {
           "displayName": "Hủy Hồ Sơ Mở Thẻ",
           "pdf": "",
           "note": "",
           "xmttib": "",
-          "xmttecom": ""
+          "xmttemail": ""
         }
       },
       "3. ĐĂNG KÝ VAY": {
@@ -885,22 +903,25 @@
         if (!popup.classList.contains("hidden")) {
           // Find which box is currently displayed in popup by checking content
           const xmttIbBox = document.getElementById("xmtt-ib-box");
-          const xmttEcomBox = document.getElementById("xmtt-ecom-box");
+          const xmttEmailBox = document.getElementById("xmtt-email-box");
+          const xmttChatBox = document.getElementById("xmtt-chat-box");
           const notesBox = document.getElementById("notes-box");
           const dieukienBox = document.getElementById("dieukien-box");
 
           // Determine which box content to clone based on what's in popup
-          // We'll detect by checking if popup has xmtt-ib-content, xmtt-ecom-content, notes-result, or dieukien-result
           const popupHasXmttIb = popupContent.querySelector("#xmtt-ib-content");
-          const popupHasXmttEcom = popupContent.querySelector("#xmtt-ecom-content");
+          const popupHasXmttEmail = popupContent.querySelector("#xmtt-email-content");
+          const popupHasXmttChat = popupContent.querySelector("#xmtt-chat-content");
           const popupHasNotes = popupContent.querySelector("#notes-result");
           const popupHasDieukien = popupContent.querySelector("#dieukien-result");
 
           let sourceBox = null;
           if (popupHasXmttIb) {
             sourceBox = xmttIbBox;
-          } else if (popupHasXmttEcom) {
-            sourceBox = xmttEcomBox;
+          } else if (popupHasXmttEmail) {
+            sourceBox = xmttEmailBox;
+          } else if (popupHasXmttChat) {
+            sourceBox = xmttChatBox;
           } else if (popupHasNotes) {
             sourceBox = notesBox;
           } else if (popupHasDieukien) {
@@ -935,39 +956,11 @@
         const selectedNode = parentDataNode[selectedKey];
 
         // ============================================
-        // Xử LÝ ẨN/HIỆN SUB-HEADER
-        // Kiểm tra thuộc tính hideSubHeader, hideXmttIb, hideXmttEcom, hideNotes
-        // Áp dụng cho TẤT CẢ node (branch và leaf)
+        // XỬ LÝ ẨN/HIỆN SUB-HEADER
+        // Chỉ hiện các box khi node là leaf node có nội dung
+        // Nếu chỉ là branch node (có node con), giữ nguyên trạng thái ẩn từ resetResults
+        // Logic hiển thị chi tiết sẽ được xử lý trong displayResult()
         // ============================================
-        const subHeader = document.getElementById("sub-header");
-        const xmttIbBox = document.getElementById("xmtt-ib-box");
-        const xmttEcomBox = document.getElementById("xmtt-ecom-box");
-        const notesBox = document.getElementById("notes-box");
-
-        // Nếu hideSubHeader = true, ẩn toàn bộ sub-header
-        if (selectedNode.hideSubHeader === true) {
-          if (subHeader) subHeader.style.display = 'none';
-        } else {
-          // Hiển sub-header và kiểm tra từng box con
-          if (subHeader) subHeader.style.display = '';
-
-          // Xử lý ẩn/hiện từng box riêng lẻ
-          if (selectedNode.hideXmttIb === true) {
-            if (xmttIbBox) xmttIbBox.style.display = 'none';
-          } else {
-            if (xmttIbBox) xmttIbBox.style.display = '';
-          }
-          if (selectedNode.hideXmttEcom === true) {
-            if (xmttEcomBox) xmttEcomBox.style.display = 'none';
-          } else {
-            if (xmttEcomBox) xmttEcomBox.style.display = '';
-          }
-          if (selectedNode.hideNotes === true) {
-            if (notesBox) notesBox.style.display = 'none';
-          } else {
-            if (notesBox) notesBox.style.display = '';
-          }
-        }
 
         // Kiểm tra và hiển thị nội dung
         if (isLeaf(selectedNode)) {
@@ -1063,10 +1056,13 @@
               removeDropdowns(2); // Remove level 2 and above
 
               // Reset sub-header boxes content
-              document.getElementById("xmtt-ib-content").innerHTML = "<p>...</p>";
-              const ecomContent = document.getElementById("xmtt-ecom-content");
-              if (ecomContent) ecomContent.innerHTML = "<p>...</p>";
-              notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
+              const xmttIbContent = document.getElementById("xmtt-ib-content");
+              const xmttEmailContent = document.getElementById("xmtt-email-content");
+              const xmttChatContent = document.getElementById("xmtt-chat-content");
+              if (xmttIbContent) xmttIbContent.innerHTML = "";
+              if (xmttEmailContent) xmttEmailContent.innerHTML = "";
+              if (xmttChatContent) xmttChatContent.innerHTML = "";
+              notesResult.innerHTML = "";
               const dieukienPanel = document.getElementById("dieukien-panel");
               if (dieukienPanel) dieukienPanel.classList.add("hidden");
 
@@ -1097,15 +1093,65 @@
 
       function displayResult(resultObject) {
         const xmttIbContent = document.getElementById("xmtt-ib-content");
-        const xmttEcomContent = document.getElementById("xmtt-ecom-content");
-        xmttIbContent.innerHTML = resultObject.xmttib ? `<p>${resultObject.xmttib}</p>` : "<p>...</p>";
-        if (xmttEcomContent) xmttEcomContent.innerHTML = resultObject.xmttecom ? `<p>${resultObject.xmttecom}</p>` : "<p>...</p>";
-        if (resultObject.xmtt) {
-          xmttIbContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
-          if (xmttEcomContent) xmttEcomContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
-        }
-        notesResult.innerHTML = resultObject.note ? `<p>${resultObject.note}</p>` : "<p>Không có lưu ý.</p>";
+        const xmttEmailContent = document.getElementById("xmtt-email-content");
+        const xmttChatContent = document.getElementById("xmtt-chat-content");
+        const xmttIbBox = document.getElementById("xmtt-ib-box");
+        const xmttEmailBox = document.getElementById("xmtt-email-box");
+        const xmttChatBox = document.getElementById("xmtt-chat-box");
+        const notesBox = document.getElementById("notes-box");
+        const subHeader = document.getElementById("sub-header");
+        const xmttRow = document.getElementById("xmtt-row");
 
+        // Xử lý hiển thị XMTT theo logic mới
+        let hasXmttIb = false;
+        let hasXmttEmail = false;
+        let hasXmttChat = false;
+        let hasNotes = false;
+
+        // Nếu có xmtt chung thì áp dụng cho cả IB, Email, Chat
+        if (resultObject.xmtt && resultObject.xmtt.trim() !== "" && resultObject.xmtt !== "...") {
+          if (xmttIbContent) xmttIbContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
+          if (xmttEmailContent) xmttEmailContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
+          if (xmttChatContent) xmttChatContent.innerHTML = `<p>${resultObject.xmtt}</p>`;
+          hasXmttIb = true;
+          hasXmttEmail = true;
+          hasXmttChat = true;
+        } else {
+          // Xử lý từng loại XMTT riêng
+          if (resultObject.xmttib && resultObject.xmttib.trim() !== "" && resultObject.xmttib !== "...") {
+            if (xmttIbContent) xmttIbContent.innerHTML = `<p>${resultObject.xmttib}</p>`;
+            hasXmttIb = true;
+          }
+          if (resultObject.xmttemail && resultObject.xmttemail.trim() !== "" && resultObject.xmttemail !== "...") {
+            if (xmttEmailContent) xmttEmailContent.innerHTML = `<p>${resultObject.xmttemail}</p>`;
+            hasXmttEmail = true;
+          }
+          if (resultObject.xmttchat && resultObject.xmttchat.trim() !== "" && resultObject.xmttchat !== "...") {
+            if (xmttChatContent) xmttChatContent.innerHTML = `<p>${resultObject.xmttchat}</p>`;
+            hasXmttChat = true;
+          }
+        }
+
+        // Xử lý Notes
+        if (resultObject.note && resultObject.note.trim() !== "" && resultObject.note !== "..." && resultObject.note.toLowerCase() !== "n/a") {
+          notesResult.innerHTML = `<p>${resultObject.note}</p>`;
+          hasNotes = true;
+        }
+
+        // Ẩn/hiện các box dựa trên có content hay không
+        if (xmttIbBox) xmttIbBox.style.display = hasXmttIb ? '' : 'none';
+        if (xmttEmailBox) xmttEmailBox.style.display = hasXmttEmail ? '' : 'none';
+        if (xmttChatBox) xmttChatBox.style.display = hasXmttChat ? '' : 'none';
+        if (notesBox) notesBox.style.display = hasNotes ? '' : 'none';
+
+        // Ẩn xmtt-row nếu không có box nào hiển thị
+        const hasAnyXmtt = hasXmttIb || hasXmttEmail || hasXmttChat;
+        if (xmttRow) xmttRow.style.display = hasAnyXmtt ? '' : 'none';
+
+        // Ẩn sub-header nếu không có box nào hiển thị
+        if (subHeader) subHeader.style.display = (hasAnyXmtt || hasNotes) ? '' : 'none';
+
+        // Xử lý PDF
         if (resultObject.pdf) {
           const firstLevelSelect = dynamicFiltersContainer.querySelector('select[data-level="1"]');
           const categoryIndexMatch = firstLevelSelect?.value.match(/^(\d+)/);
@@ -1123,11 +1169,37 @@
       }
 
       function resetResults() {
-        document.getElementById("xmtt-ib-content").innerHTML = "<p>...</p>";
-        const ecomContent = document.getElementById("xmtt-ecom-content");
-        if (ecomContent) ecomContent.innerHTML = "<p>...</p>";
-        notesResult.innerHTML = "<p>Thông báo và lưu ý sẽ hiển thị ở đây</p>";
+        // Ẩn các box XMTT và Notes khi không có nội dung
+        const xmttIbBox = document.getElementById("xmtt-ib-box");
+        const xmttEmailBox = document.getElementById("xmtt-email-box");
+        const xmttChatBox = document.getElementById("xmtt-chat-box");
+        const notesBox = document.getElementById("notes-box");
+        const subHeader = document.getElementById("sub-header");
+        const xmttRow = document.getElementById("xmtt-row");
+
+        // Ẩn tất cả các box
+        if (xmttIbBox) xmttIbBox.style.display = 'none';
+        if (xmttEmailBox) xmttEmailBox.style.display = 'none';
+        if (xmttChatBox) xmttChatBox.style.display = 'none';
+        if (notesBox) notesBox.style.display = 'none';
+        if (xmttRow) xmttRow.style.display = 'none';
+
+        // Ẩn cả sub-header nếu không có nội dung
+        if (subHeader) subHeader.style.display = 'none';
+
+        // Reset nội dung
+        const xmttIbContent = document.getElementById("xmtt-ib-content");
+        const xmttEmailContent = document.getElementById("xmtt-email-content");
+        const xmttChatContent = document.getElementById("xmtt-chat-content");
+        if (xmttIbContent) xmttIbContent.innerHTML = "";
+        if (xmttEmailContent) xmttEmailContent.innerHTML = "";
+        if (xmttChatContent) xmttChatContent.innerHTML = "";
+        notesResult.innerHTML = "";
         pdfViewer.src = "";
+
+        // Ẩn panel điều kiện khi reset
+        const dieukienPanel = document.getElementById("dieukien-panel");
+        if (dieukienPanel) dieukienPanel.classList.add("hidden");
       }
 
       function removeDropdowns(startLevel) {
