@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ Thống Lọc QC SP - Offline</title>
+    <script src="xlsx.full.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #f0f2f5; padding: 20px; }
+        .container { max-width: 100%; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        
+        /* Bố cục bộ lọc */
+        .filter-grid { 
+            display: grid; 
+            grid-template-columns: 1.5fr 1fr 1fr 1fr; 
+            gap: 15px; 
+            margin-bottom: 20px; 
+            background: #f8fafc; 
+            padding: 15px; 
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .box { display: flex; flex-direction: column; background: white; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        label { font-weight: bold; color: #1a73e8; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #eee; }
+        
+        /* Danh sách checkbox */
+        .scroll-list { height: 120px; overflow-y: auto; font-size: 13px; }
+        .item { display: block; padding: 2px 0; cursor: pointer; white-space: nowrap; }
+        .item:hover { background: #e8f0fe; }
+
+        .info-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; color: #444; }
+        
+        /* Bảng dữ liệu */
+        .table-area { overflow: auto; max-height: 500px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #1a73e8; color: white; position: sticky; top: 0; padding: 10px; font-size: 13px; z-index: 5; }
+        td { border: 1px solid #eee; padding: 8px; text-align: center; font-size: 12px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .bad-qc { color: red; font-weight: bold; } /* Tô màu đỏ nếu QC khác 0 */
+        
+        .btn-reset { padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Trình Quản Lý Dữ Liệu QC</h2>
+
+    <div class="filter-grid">
+        <div class="box">
+            <label>📁 CHỌN FILE</label>
+            <input type="file" id="file-input" accept=".xlsx, .xls, .csv" />
+        </div>
+        <div class="box">
+            <label>👥 TEAM</label>
+            <div id="team-list" class="scroll-list"></div>
+        </div>
+        <div class="box">
+            <label>👤 USER</label>
+            <div id="user-list" class="scroll-list"></div>
+        </div>
+        <div class="box">
+            <label>✅ QC SP</label>
+            <div id="qc-list" class="scroll-list"></div>
+        </div>
+    </div>
+
+    <div class="info-bar">
+        <span id="stat">Vui lòng chọn file...</span>
+        <button class="btn-reset" onclick="resetAll()">Xóa lọc</button>
+    </div>
+
+    <div class="table-area">
+        <table id="data-table">
+            <thead id="h-node"></thead>
+            <tbody id="b-node"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let db = [];
+    let cols = [];
+    let sel = { Team: new Set(), USER: new Set(), "QC SP": new Set() };
+
+    document.getElementById('file-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        const rd = new FileReader();
+        rd.onload = function(ex) {
+            const data = new Uint8Array(ex.target.result);
+            const wb = XLSX.read(data, {type: 'array'});
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            db = XLSX.utils.sheet_to_json(ws, {defval: ""});
+            
+            if(db.length > 0) {
+                cols = Object.keys(db[0]);
+                resetAll();
+            }
+        };
+        rd.readAsArrayBuffer(file);
+    });
+
+    function refresh() {
+        // Lấy danh sách giá trị khả dụng dựa trên logic liên kết
+        updateList('team-list', 'Team', ['USER', 'QC SP']);
+        updateList('user-list', 'USER', ['Team', 'QC SP']);
+        updateList('qc-list', 'QC SP', ['Team', 'USER']);
+        showTable();
+    }
+
+    function updateList(id, target, others) {
+        const avail = [...new Set(db.filter(row => {
+            return others.every(key => sel[key].size === 0 || sel[key].has(String(row[key])));
+        }).map(row => String(row[target])))].sort();
+
+        const dom = document.getElementById(id);
+        dom.innerHTML = avail.map(v => `
+            <label class="item">
+                <input type="checkbox" ${sel[target].has(v)?'checked':''} onchange="toggle('${target}','${v}')"> ${v===""?"(Trống)":v}
+            </label>
+        `).join('');
+    }
+
+    function toggle(key, val) {
+        sel[key].has(val) ? sel[key].delete(val) : sel[key].add(val);
+        refresh();
+    }
+
+    function showTable() {
+        const filtered = db.filter(row => {
+            return Object.keys(sel).every(key => sel[key].size === 0 || sel[key].has(String(row[key])));
+        });
+
+        document.getElementById('stat').innerText = `Kết quả: ${filtered.length} dòng`;
+        document.getElementById('h-node').innerHTML = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+        
+        document.getElementById('b-node').innerHTML = filtered.map(row => `
+            <tr>${cols.map(c => {
+                const val = row[c];
+                const cls = (c === 'QC SP' && val != "0") ? 'class="bad-qc"' : '';
+                return `<td ${cls}>${val === 0 ? "0" : (val || "-")}</td>`;
+            }).join('')}</tr>
+        `).join('');
+    }
+
+    function resetAll() {
+        sel.Team.clear(); sel.USER.clear(); sel["QC SP"].clear();
+        refresh();
+    }
+</script>
+
+</body>
+</html>
