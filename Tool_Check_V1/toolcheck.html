@@ -872,16 +872,22 @@
             renderResultsTable();
         };
 
+        // Các cột cần loại bỏ khỏi hiển thị
+        const excludeDisplayCols = ['thỏa điều kiện', 'đếm data', 'Chấm', 'Ngày lấy data', 'Date SP1'];
+
         function renderTable() {
+            // Lọc các cột cần hiển thị
+            const displayCols = tableCols.filter(c => !excludeDisplayCols.includes(c));
+
             // Tạo header với cột "Chấm Call" ở đầu
-            const headerHTML = `<tr><th>Chấm Call</th>${tableCols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+            const headerHTML = `<tr><th>Chấm Call</th>${displayCols.map(c => `<th>${c}</th>`).join('')}</tr>`;
             document.getElementById('tc-head').innerHTML = headerHTML;
 
             // Tạo body với button "Bắt đầu" ở cột đầu
             const bodyHTML = tableData.map((row, index) => `
                 <tr>
                     <td><button class="btn-start" onclick="openChamCallModal(${index})">Bắt đầu</button></td>
-                    ${tableCols.map(c => `<td>${row[c] || "0"}</td>`).join('')}
+                    ${displayCols.map(c => `<td>${row[c] || "0"}</td>`).join('')}
                 </tr>
             `).join('');
             document.getElementById('tc-body').innerHTML = bodyHTML;
@@ -891,10 +897,13 @@
             currentRowIndex = rowIndex;
             const row = tableData[rowIndex];
 
+            // Lọc các cột cần hiển thị trong modal
+            const displayCols = tableCols.filter(c => !excludeDisplayCols.includes(c));
+
             // Hiển thị thông tin dòng dạng bảng ngang
             let headerRow = '<tr>';
             let dataRow = '<tr>';
-            tableCols.forEach(col => {
+            displayCols.forEach(col => {
                 headerRow += `<th>${col}</th>`;
                 dataRow += `<td>${row[col] || "0"}</td>`;
             });
