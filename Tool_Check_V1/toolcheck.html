@@ -7,531 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <!-- SheetJS library for Excel export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <style>
-        .container {
-            max-width: 95%;
-        }
-
-        .toolcheck-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        .toolcheck-table th {
-            background: #1a73e8;
-            color: white;
-            position: sticky;
-            top: 0;
-            padding: 12px;
-            font-size: 13px;
-            z-index: 5;
-        }
-
-        .toolcheck-table td {
-            border: 1px solid #eee;
-            padding: 10px;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .toolcheck-table tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .btn-start {
-            padding: 6px 15px;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 11px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-start:hover {
-            background: linear-gradient(135deg, #20c997, #28a745);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
-        }
-
-        .table-wrapper {
-            overflow: auto;
-            max-height: calc(100vh - 150px);
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .btn-back {
-            padding: 8px 20px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .btn-back:hover {
-            background: #5a6268;
-        }
-
-        /* Modal Chấm Call */
-        .chamcall-modal {
-            display: none;
-            position: fixed;
-            z-index: 200;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        .chamcall-modal-content {
-            background: white;
-            margin: 3% auto;
-            padding: 25px;
-            width: 400px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .chamcall-modal h3 {
-            color: #1a73e8;
-            margin-bottom: 20px;
-        }
-
-        .row-info {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            overflow-x: auto;
-        }
-
-        .row-info-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-
-        .row-info-table th {
-            background: #e9ecef;
-            padding: 6px 8px;
-            text-align: center;
-            font-weight: 600;
-            white-space: nowrap;
-            border: 1px solid #ddd;
-        }
-
-        .row-info-table td {
-            padding: 6px 8px;
-            text-align: center;
-            border: 1px solid #ddd;
-            white-space: nowrap;
-        }
-
-        .btn-modal-close {
-            padding: 10px 25px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* Scoring Modal Styles */
-        .scoring-modal {
-            width: 90%;
-            max-width: 1400px;
-            max-height: 92vh;
-            overflow-y: auto;
-        }
-
-        .scoring-table-wrapper {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .scoring-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .scoring-table th {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            color: white;
-            padding: 10px 8px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            text-align: center;
-        }
-
-        .scoring-table td {
-            border: 1px solid #e0e0e0;
-            padding: 8px;
-            vertical-align: middle;
-        }
-
-        .col-model {
-            width: 12%;
-        }
-
-        .col-tieuchi {
-            width: 18%;
-            text-align: left;
-        }
-
-        .col-diengiai {
-            width: 35%;
-            text-align: left;
-        }
-
-        .col-input {
-            width: 10%;
-            text-align: center;
-        }
-
-        .col-errors {
-            width: 25%;
-            text-align: center;
-        }
-
-        .diengiai-cell {
-            font-size: 11px;
-            color: #555;
-            text-align: left;
-        }
-
-        .error-cell {
-            text-align: left;
-        }
-
-        .error-select {
-            width: 100%;
-            min-height: 80px;
-            padding: 5px;
-            border: 2px solid #ff9800;
-            border-radius: 6px;
-            font-size: 11px;
-            background: #fff8e1;
-        }
-
-        .error-select option {
-            padding: 5px 3px;
-            cursor: pointer;
-        }
-
-        .error-select option:checked {
-            background: linear-gradient(0deg, #ff9800 0%, #ffb74d 100%);
-            color: white;
-        }
-
-        .error-hint {
-            font-size: 9px;
-            color: #ff9800;
-            font-style: italic;
-            margin-top: 3px;
-        }
-
-        .error-checkboxes {
-            display: none;
-            padding: 8px;
-            background: #fff8e1;
-            border: 2px solid #ff9800;
-            border-radius: 6px;
-            font-size: 11px;
-        }
-
-        .error-checkboxes label {
-            display: block;
-            padding: 4px 0;
-            cursor: pointer;
-        }
-
-        .error-checkboxes label:hover {
-            background: #ffe082;
-            border-radius: 4px;
-            padding-left: 5px;
-        }
-
-        .error-checkboxes input[type="checkbox"] {
-            margin-right: 6px;
-            accent-color: #ff9800;
-        }
-
-        .model-cell {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .model-name {
-            font-size: 13px;
-            color: #1a73e8;
-            margin-bottom: 3px;
-        }
-
-        .model-vn {
-            font-size: 10px;
-            color: #666;
-            font-weight: normal;
-        }
-
-        /* Model Colors */
-        .heart-touching td:first-child,
-        .heart-touching .model-cell {
-            border-left: 4px solid #e91e63;
-        }
-
-        .empathy td:first-child,
-        .empathy .model-cell {
-            border-left: 4px solid #9c27b0;
-        }
-
-        .attractive td:first-child,
-        .attractive .model-cell {
-            border-left: 4px solid #ff9800;
-        }
-
-        .reliable td:first-child,
-        .reliable .model-cell {
-            border-left: 4px solid #4caf50;
-        }
-
-        .thankful td:first-child,
-        .thankful .model-cell {
-            border-left: 4px solid #2196f3;
-        }
-
-        .score-select {
-            width: 100%;
-            padding: 6px 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .score-select:focus {
-            border-color: #1a73e8;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-        }
-
-        .score-select:hover {
-            border-color: #1a73e8;
-        }
-
-        .scoring-summary {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .summary-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .summary-row label {
-            font-weight: bold;
-            min-width: 80px;
-            padding-top: 5px;
-        }
-
-        .summary-row textarea {
-            flex: 1;
-            min-height: 60px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            resize: vertical;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn-save {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
-        }
-
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-        }
-
-        /* Bảng kết quả */
-        .results-section {
-            margin-top: 40px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .results-section h3 {
-            margin: 0 0 15px 0;
-            color: #1a73e8;
-        }
-
-        .results-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .btn-clear-results {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .btn-export {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .results-table th {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            color: white;
-            padding: 10px 8px;
-            text-align: left;
-        }
-
-        .results-table td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
-            vertical-align: top;
-        }
-
-        .results-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .results-table tr:hover {
-            background: #e9ecef;
-        }
-
-        .score-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            margin: 1px;
-        }
-
-        .score-Y {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .score-N {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .score-P1 {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .score-P2 {
-            background: #ffe5b4;
-            color: #995c00;
-        }
-
-        .score-NA {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-
-        .error-tag {
-            display: inline-block;
-            padding: 2px 6px;
-            background: #ffebee;
-            color: #c62828;
-            border-radius: 4px;
-            font-size: 10px;
-            margin: 1px;
-        }
-
-        .btn-delete-row {
-            padding: 4px 10px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .btn-delete-row:hover {
-            background: #c82333;
-        }
-
-        .no-results {
-            text-align: center;
-            color: #6c757d;
-            font-style: italic;
-            padding: 30px;
-        }
-    </style>
 </head>
 
 <body>
@@ -612,9 +87,11 @@
                                 </select></td>
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="1.1">
-                                    <label><input type="checkbox" value="khong_chao"> Không chào đúng chuẩn</label>
+                                    <label><input type="checkbox" value="khong_chao"> Không chào đúng
+                                        chuẩn</label>
                                     <label><input type="checkbox" value="giong_moi"> Giọng mệt mỏi</label>
-                                    <label><input type="checkbox" value="thieu_than_thien"> Thiếu thân thiện</label>
+                                    <label><input type="checkbox" value="thieu_than_thien"> Thiếu thân
+                                        thiện</label>
                                 </div>
                             </td>
                         </tr>
@@ -630,14 +107,16 @@
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="1.2">
                                     <label><input type="checkbox" value="cat_loi"> Cắt lời KH</label>
-                                    <label><input type="checkbox" value="khong_lang_nghe"> Không lắng nghe</label>
+                                    <label><input type="checkbox" value="khong_lang_nghe"> Không lắng
+                                        nghe</label>
                                     <label><input type="checkbox" value="hieu_sai"> Hiểu sai ý KH</label>
                                 </div>
                             </td>
                         </tr>
                         <tr class="heart-touching">
                             <td>2.1. Ngôn từ</td>
-                            <td class="diengiai-cell">Sử dụng ngôn từ tích cực, dễ hiểu, thể hiện sự kết nối</td>
+                            <td class="diengiai-cell">Sử dụng ngôn từ tích cực, dễ hiểu, thể hiện sự kết nối
+                            </td>
                             <td><select class="score-select" data-criteria="2.1" onchange="toggleErrorSelect(this)">
                                     <option value="Y" selected>Y</option>
                                     <option value="N">N</option>
@@ -646,7 +125,8 @@
                                 </select></td>
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="2.1">
-                                    <label><input type="checkbox" value="ngon_tu_tieu_cuc"> Ngôn từ tiêu cực</label>
+                                    <label><input type="checkbox" value="ngon_tu_tieu_cuc"> Ngôn từ tiêu
+                                        cực</label>
                                     <label><input type="checkbox" value="kho_hieu"> Khó hiểu</label>
                                     <label><input type="checkbox" value="chuyen_nganh"> Dùng thuật ngữ chuyên
                                         ngành</label>
@@ -679,7 +159,9 @@
                                 <div class="model-vn">Nghe từ tâm - Hiểu trọn cảm</div>
                             </td>
                             <td>2.3. Thấu hiểu</td>
-                            <td class="diengiai-cell">Nhận biết và thể hiện sự kết nối phù hợp với tình huống, cảm xúc
+                            <td class="diengiai-cell">Nhận biết và thể hiện sự kết nối phù hợp với tình huống,
+                                cảm
+                                xúc
                                 của KH</td>
                             <td><select class="score-select" data-criteria="2.3" onchange="toggleErrorSelect(this)">
                                     <option value="Y" selected>Y</option>
@@ -690,7 +172,8 @@
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="2.3">
                                     <label><input type="checkbox" value="thieu_dong_cam"> Thiếu đồng cảm</label>
-                                    <label><input type="checkbox" value="phan_hoi_may_moc"> Phản hồi máy móc</label>
+                                    <label><input type="checkbox" value="phan_hoi_may_moc"> Phản hồi máy
+                                        móc</label>
                                     <label><input type="checkbox" value="khong_thau_hieu"> Không thấu hiểu vấn
                                         đề</label>
                                 </div>
@@ -707,8 +190,10 @@
                                 </select></td>
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="2.4">
-                                    <label><input type="checkbox" value="khong_goi_ten"> Không gọi tên KH</label>
-                                    <label><input type="checkbox" value="xung_ho_sai"> Xưng hô không phù hợp</label>
+                                    <label><input type="checkbox" value="khong_goi_ten"> Không gọi tên
+                                        KH</label>
+                                    <label><input type="checkbox" value="xung_ho_sai"> Xưng hô không phù
+                                        hợp</label>
                                     <label><input type="checkbox" value="goi_sai_ten"> Gọi sai tên KH</label>
                                 </div>
                             </td>
@@ -733,13 +218,15 @@
                                     <label><input type="checkbox" value="hold_lau"> Hold quá lâu</label>
                                     <label><input type="checkbox" value="khong_thong_bao"> Không thông báo khi
                                         hold</label>
-                                    <label><input type="checkbox" value="chuyen_nhieu_lan"> Chuyển máy nhiều lần</label>
+                                    <label><input type="checkbox" value="chuyen_nhieu_lan"> Chuyển máy nhiều
+                                        lần</label>
                                 </div>
                             </td>
                         </tr>
                         <tr class="attractive">
                             <td>3.2. Nhập liệu</td>
-                            <td class="diengiai-cell">Nhập lệu không chính xác, nhập lệu trên hệ thống đúng quy định
+                            <td class="diengiai-cell">Nhập lệu không chính xác, nhập lệu trên hệ thống đúng quy
+                                định
                             </td>
                             <td><select class="score-select" data-criteria="3.2" onchange="toggleErrorSelect(this)">
                                     <option value="Y" selected>Y</option>
@@ -749,7 +236,8 @@
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="3.2">
                                     <label><input type="checkbox" value="nhap_sai"> Nhập liệu sai</label>
-                                    <label><input type="checkbox" value="thieu_thong_tin"> Thiếu thông tin</label>
+                                    <label><input type="checkbox" value="thieu_thong_tin"> Thiếu thông
+                                        tin</label>
                                     <label><input type="checkbox" value="khong_cap_nhat"> Không cập nhật hệ
                                         thống</label>
                                 </div>
@@ -772,8 +260,10 @@
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="4.1">
                                     <label><input type="checkbox" value="khong_xac_minh"> Không xác minh</label>
-                                    <label><input type="checkbox" value="xac_minh_sai"> Xác minh sai quy trình</label>
-                                    <label><input type="checkbox" value="bo_qua_buoc"> Bỏ qua bước xác minh</label>
+                                    <label><input type="checkbox" value="xac_minh_sai"> Xác minh sai quy
+                                        trình</label>
+                                    <label><input type="checkbox" value="bo_qua_buoc"> Bỏ qua bước xác
+                                        minh</label>
                                 </div>
                             </td>
                         </tr>
@@ -791,7 +281,8 @@
                                     <label><input type="checkbox" value="giai_phap_sai"> Giải pháp sai</label>
                                     <label><input type="checkbox" value="khong_ro_rang"> Không rõ ràng</label>
                                     <label><input type="checkbox" value="khong_day_du"> Không đầy đủ</label>
-                                    <label><input type="checkbox" value="tu_van_sai"> Tư vấn sai quy trình</label>
+                                    <label><input type="checkbox" value="tu_van_sai"> Tư vấn sai quy
+                                        trình</label>
                                 </div>
                             </td>
                         </tr>
@@ -812,7 +303,8 @@
                                 <div class="error-checkboxes" data-criteria="5.1">
                                     <label><input type="checkbox" value="khong_khao_sat"> Không thực hiện khảo
                                         sát</label>
-                                    <label><input type="checkbox" value="khao_sat_sai"> Khảo sát sai quy trình</label>
+                                    <label><input type="checkbox" value="khao_sat_sai"> Khảo sát sai quy
+                                        trình</label>
                                 </div>
                             </td>
                         </tr>
@@ -825,8 +317,10 @@
                                 </select></td>
                             <td class="error-cell">
                                 <div class="error-checkboxes" data-criteria="5.2">
-                                    <label><input type="checkbox" value="khong_chao_ket"> Không chào kết thúc</label>
-                                    <label><input type="checkbox" value="ket_thuc_voi"> Kết thúc vội vàng</label>
+                                    <label><input type="checkbox" value="khong_chao_ket"> Không chào kết
+                                        thúc</label>
+                                    <label><input type="checkbox" value="ket_thuc_voi"> Kết thúc vội
+                                        vàng</label>
                                     <label><input type="checkbox" value="thieu_cam_on"> Thiếu cảm ơn KH</label>
                                 </div>
                             </td>
