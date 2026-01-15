@@ -1311,7 +1311,7 @@ body:not(.sidebar-collapsed) #sidebar {
 .dropdown-menu {
   display: none;
   position: absolute;
-  min-width: 150px;
+  min-width: 200px;
   /* Widen the menu slightly for icons */
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 101;
