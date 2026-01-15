@@ -1816,7 +1816,7 @@
           const compressed = urlParams.get('s');
 
           if (compressed) {
-            loanLink.href = `loan_v2.html?s=${compressed}`;
+            loanLink.href = `loan_v2.html#s=${compressed}`;
           } else {
             loanLink.href = `loan_v2.html`;
           }
@@ -1834,7 +1834,7 @@
         // Sử dụng LZ-String để nén dữ liệu (giảm 50-70% độ dài URL)
         const compressed = LZString.compressToEncodedURIComponent(jsonPath);
         // Thêm source vào URL để có thể khôi phục chính xác
-        const newUrl = `${window.location.pathname}?source=${state.activeSourceName}&s=${compressed}`;
+        const newUrl = `${window.location.pathname}#source=${state.activeSourceName}&s=${compressed}`;
         history.pushState(
           { path: path, source: state.activeSourceName },
           "",
@@ -2199,7 +2199,7 @@
           history.pushState(
             { source: state.activeSourceName },
             "",
-            `${window.location.pathname}?source=${state.activeSourceName}`
+            `${window.location.pathname}#source=${state.activeSourceName}`
           );
           return;
         }
@@ -2389,7 +2389,7 @@
               history.pushState(
                 { source: source },
                 "",
-                `${window.location.pathname}?source=${source}`
+                `${window.location.pathname}#source=${source}`
               );
               sessionStorage.removeItem('loanFlowchartState');
               // Kích hoạt tab và hiện thị combobox
@@ -2405,7 +2405,7 @@
               history.pushState(
                 { source: source },
                 "",
-                `${window.location.pathname}?source=${source}`
+                `${window.location.pathname}#source=${source}`
               );
               sessionStorage.removeItem('loanFlowchartState');
             }
@@ -2880,10 +2880,143 @@
         // 4. Hiển thị thông tin bổ sung vào các box
         showHeaderInfo({ dieukien, note, xmttib, xmttchat, xmttemail });
 
-        // 5. Cập nhật URL để có thể share link
-        const newUrl = `${window.location.pathname}?pdf=${encodeURIComponent(pdfName)}`;
+        // 5. Cập nhật URL để có thể share link (dùng # cho PowerPoint)
+        const newUrl = `${window.location.pathname}#pdf=${encodeURIComponent(pdfName)}`;
         history.pushState({ pdf: pdfName }, '', newUrl);
       });
+
+      // ====================================================================
+      // PDF LINK STATE PRESERVATION (4-LAYER PROTECTION)
+      // ====================================================================
+
+      /**
+       * APPROACH 3 & 4: Session Storage Sync & Auto-Restore
+       * Liên tục backup state vào sessionStorage và auto-restore khi cần
+       */
+
+      // Hàm sync state hiện tại vào sessionStorage
+      function syncStateToSessionStorage() {
+        try {
+          const state = {
+            url: window.location.href,
+            search: window.location.search,
+            hash: window.location.hash,
+            timestamp: Date.now()
+          };
+          sessionStorage.setItem('appLastState', JSON.stringify(state));
+        } catch (e) {
+          console.warn('Could not sync state to sessionStorage:', e);
+        }
+      }
+
+      // Backup state trước khi navigate away (beforeunload)
+      window.addEventListener('beforeunload', () => {
+        syncStateToSessionStorage();
+      });
+
+      // Sync state mỗi khi URL thay đổi (popstate)
+      window.addEventListener('popstate', () => {
+        syncStateToSessionStorage();
+      });
+
+      // Auto-restore state khi page load từ PDF link
+      (function autoRestoreState() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const hasParams = urlParams.toString().length > 0;
+
+          // Nếu không có params nhưng có saved state gần đây (< 5 giây)
+          if (!hasParams) {
+            const savedStateStr = sessionStorage.getItem('appLastState');
+            if (savedStateStr) {
+              const savedState = JSON.parse(savedStateStr);
+              const timeDiff = Date.now() - savedState.timestamp;
+
+              // Chỉ restore nếu < 5 giây (tránh restore state cũ)
+              if (timeDiff < 5000 && savedState.search) {
+                console.log('🔄 Auto-restoring state from PDF navigation');
+                // Replace current URL với saved state
+                window.location.replace(window.location.pathname + savedState.search);
+                return; // Stop execution, page will reload
+              }
+            }
+          }
+
+          // If we have params, sync them to storage
+          if (hasParams) {
+            syncStateToSessionStorage();
+          }
+        } catch (e) {
+          console.warn('Could not auto-restore state:', e);
+        }
+      })();
+
+      /**
+       * APPROACH 2: Hash-Based State Management
+       * Sync current query params vào hash để preserve tốt hơn
+       */
+      function syncStateToHash() {
+        try {
+          const search = window.location.search;
+          if (search) {
+            // Lưu search params vào hash
+            const currentHash = window.location.hash.substring(1);
+            const newHash = `state=${encodeURIComponent(search)}`;
+
+            // Only update if different
+            if (currentHash !== newHash) {
+              history.replaceState(null, '', window.location.pathname + search + '#' + newHash);
+            }
+          }
+        } catch (e) {
+          console.warn('Could not sync state to hash:', e);
+        }
+      }
+
+      // Restore state from hash nếu có
+      function restoreStateFromHash() {
+        try {
+          const hash = window.location.hash.substring(1);
+          if (!hash) return false;
+
+          // FORMAT 1: Encoded state (#state=%3Fsource%3D...)
+          const match = hash.match(/state=([^&]+)/);
+
+          if (match) {
+            const encodedState = match[1];
+            const stateParams = decodeURIComponent(encodedState);
+
+            // Nếu URL không có search params nhưng hash có
+            if (!window.location.search && stateParams) {
+              console.log('🔄 Restoring state from encoded hash');
+              window.location.replace(window.location.pathname + stateParams);
+              return true;
+            }
+          }
+
+          // FORMAT 2: Direct hash parameters (#source=truyvan&s=...)
+          // Dùng cho PowerPoint PDF links (PowerPoint strips query params but keeps hash)
+          if (hash.includes('=') && !window.location.search) {
+            console.log('🔄 Restoring state from direct hash (PowerPoint format)');
+            // Convert hash to query params
+            window.location.replace(window.location.pathname + '?' + hash);
+            return true;
+          }
+
+        } catch (e) {
+          console.warn('Could not restore state from hash:', e);
+        }
+        return false;
+      }
+
+      // Try to restore from hash first
+      if (!restoreStateFromHash()) {
+        // If no hash restore, sync current state to hash
+        syncStateToHash();
+      }
+
+      // Sync to hash on every state change
+      window.addEventListener('popstate', syncStateToHash);
 
       // Xóa các dropdown từ một cấp cụ thể trở đi
       function removeDropdowns(startLevel) {
