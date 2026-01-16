@@ -2067,3 +2067,59 @@ body.resizing * {
   color: #999;
   font-style: italic;
 }
+
+/* PDF Viewer Responsive Fixed Height - Force Override Inline Style */
+#pdf-viewer {
+  width: 100%;
+  border: none;
+  height: 85vh !important;
+}
+
+@media screen and (min-width: 1920px) {
+  #pdf-viewer {
+    height: 115vh !important;
+  }
+}
+
+@media screen and (min-width: 2560px) {
+  #pdf-viewer {
+    height: 130vh !important;
+  }
+}
+
+/* Robust Layout for Wrapper */
+#main-content {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100%;
+  overflow: visible !important;
+  /* Allow PDF to be taller than viewport */
+}
+
+#body-proper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+/* SYNCED User Preference (Minimal Black Space) with FORCE OVERRIDE */
+#pdf-viewer {
+  width: 100%;
+  border: none;
+  height: 80vh !important;
+  display: block !important;
+}
+
+@media screen and (min-width: 1920px) {
+  #pdf-viewer {
+    height: 110vh !important;
+  }
+}
+
+@media screen and (min-width: 2560px) {
+  #pdf-viewer {
+    height: 125vh !important;
+  }
+}

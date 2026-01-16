@@ -2067,3 +2067,22 @@ body.resizing * {
   color: #999;
   font-style: italic;
 }
+
+/* PDF Viewer Responsive Fixed Height - Force Override Inline Style */
+#pdf-viewer {
+  width: 100%;
+  border: none;
+  height: 80vh !important;
+}
+
+@media screen and (min-width: 1920px) {
+  #pdf-viewer {
+    height: 110vh !important;
+  }
+}
+
+@media screen and (min-width: 2560px) {
+  #pdf-viewer {
+    height: 125vh !important;
+  }
+}
