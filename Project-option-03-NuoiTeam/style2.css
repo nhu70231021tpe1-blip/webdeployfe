@@ -181,6 +181,7 @@ body.sidebar-collapsed {
   /* Adjusted logo size */
   cursor: pointer;
   transition: transform 0.2s ease;
+  border-radius: 5px;
 }
 
 .logo:hover {

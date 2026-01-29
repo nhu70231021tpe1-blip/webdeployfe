@@ -1498,6 +1498,8 @@ ${dataObjectsContent}
 
         const deleteVar = (key) => {
           if (!confirm("Xóa biến này?")) return;
+
+          // 1. Delete from constants (existing logic)
           const newGroups = JSON.parse(JSON.stringify(tempGroups));
           if (activeSubGroup) {
             delete newGroups[activeGroup].__subgroups__[activeSubGroup][key];
@@ -1505,6 +1507,44 @@ ${dataObjectsContent}
             delete newGroups[activeGroup][key];
           }
           updateMainState(newGroups);
+
+          // 2. Cleanup references in Active Data (Reset to empty string)
+          // Look for any field that matches this variable name AND is marked as a variable reference
+          const newDataSources = JSON.parse(JSON.stringify(dataSources));
+          const newNodeQuoteTypes = { ...nodeQuoteTypes };
+          let hasChanges = false;
+
+          // Helper to recursively clean data
+          const cleanData = (obj, path = []) => {
+            if (!obj || typeof obj !== 'object') return;
+
+            Object.keys(obj).forEach(field => {
+              const val = obj[field];
+              const currentPath = [...path, field];
+              const pathStr = currentPath.join('.');
+
+              // Check if this field refers to the deleted var
+              // Must match variable name AND be marked as 'var' type (reference)
+              if (typeof val === 'string' && val === key && newNodeQuoteTypes[pathStr] === 'var') {
+                console.log(`Cleaning up deleted variable reference at ${pathStr}`);
+                obj[field] = ""; // Reset to empty string as requested
+                delete newNodeQuoteTypes[pathStr]; // Remove var reference marker
+                hasChanges = true;
+              } else if (typeof val === 'object') {
+                cleanData(val, currentPath);
+              }
+            });
+          };
+
+          // Clean all data sources
+          Object.keys(newDataSources).forEach(dsKey => {
+            cleanData(newDataSources[dsKey]);
+          });
+
+          if (hasChanges) {
+            setDataSources(newDataSources);
+            setNodeQuoteTypes(newNodeQuoteTypes);
+          }
         };
 
         const updateVar = (key, newVal) => {
