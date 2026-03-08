@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Dashboard</title>
+    <!-- Thư viện SheetJS đọc file Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Fonts cho Typography hiện đại -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-bg: #f8fafc;
+            --surface-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--surface-bg);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title::before {
+            content: '';
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background-color: #10b981;
+            border-radius: 6px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M19.5 14.5l-2.4 2.4-2.4-2.4 1-1 1.4 1.4v-4.8h1.4v4.8l1.4-1.4 1 1.4zM4.5 9.5l2.4-2.4 2.4 2.4-1 1-1.4-1.4v4.8h-1.4v-4.8l-1.4 1.4-1-1.4z"/></svg>');
+            background-size: 18px;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+
+        .import-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        .import-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px rgba(59, 130, 246, 0.4);
+        }
+
+        .import-btn:active {
+            transform: translateY(0);
+        }
+
+        .import-btn svg {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .data-card {
+            background: var(--surface-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+        }
+
+        .data-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .data-meta {
+            font-size: 0.875rem;
+            color: var(--primary-color);
+            background: #eff6ff;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            max-height: calc(100vh - 220px);
+        }
+
+        /* Tùy chỉnh thanh cuộn (Scrollbar) */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            border-bottom: 2px solid var(--border-color);
+            backdrop-filter: blur(8px);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background-color 0.15s ease;
+        }
+
+        tbody tr {
+            transition: all 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        tbody tr:hover td {
+            color: var(--primary-color);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 6rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 5rem;
+            height: 5rem;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            transition: transform 0.3s ease;
+        }
+
+        .empty-state:hover svg {
+            transform: scale(1.05);
+            color: #94a3b8;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            max-width: 450px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.5;
+        }
+
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 50;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.15);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #ef4444;
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3), 0 4px 6px -2px rgba(239, 68, 68, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-title">Excel Dashboard</div>
+        <div style="display: flex; gap: 1rem;">
+            <!-- Nút Refresh / Chart -->
+            <button class="import-btn" style="background-color: #10b981;" onclick="openAnalytics()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh & Phân tích
+            </button>
+            <!-- Input ẩn, chỉ dùng để chọn file -->
+            <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" />
+            <button class="import-btn" onclick="document.getElementById('fileInput').click()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Import Excel
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="data-card">
+            <div class="data-header">
+                <div class="data-title">Dữ liệu hiện tại</div>
+                <div class="data-meta" id="dataMeta" style="display: none;">0 dòng</div>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <div>Đang đọc và xử lý dữ liệu Excel...</div>
+            </div>
+
+            <div class="table-container" id="tableContainer">
+                <div class="empty-state" id="emptyState">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3>Chưa có dữ liệu nào</h3>
+                    <p>Hãy import một file Excel (.xlsx, .xls) hoặc .csv để xem và quản lý dữ liệu ngay trên Dashboard
+                        này. Dữ liệu sẽ được lưu tự động cho lần truy cập sau.</p>
+                    <button class="import-btn"
+                        style="background-color: var(--surface-bg); color: var(--text-main); border: 2px dashed var(--border-color); box-shadow: none;"
+                        onclick="document.getElementById('fileInput').click()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            style="color: var(--primary-color)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Chọn Browser File
+                    </button>
+                </div>
+                <table id="dataTable" style="display: none;">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Thông báo Pop-up (Toast) -->
+    <div class="toast" id="toast">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toastMsg">Import thành công!</span>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const emptyState = document.getElementById('emptyState');
+        const dataTable = document.getElementById('dataTable');
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const dataMeta = document.getElementById('dataMeta');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+
+        // Khóa lưu vào LocalStorage
+        const STORAGE_KEY = 'dashboard_excel_data';
+        const STORAGE_FILENAME_KEY = 'dashboard_excel_filename';
+
+        // Tự động Load dữ liệu đã lưu khi mở trang
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            const savedFilename = localStorage.getItem(STORAGE_FILENAME_KEY);
+
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    if (parsedData && parsedData.length > 0) {
+                        renderTable(parsedData, savedFilename || 'Dữ liệu đã lưu trước đó');
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi đọc dữ liệu từ LocalStorage", e);
+                }
+            }
+        });
+
+        // Lắng nghe sự kiện Upload File
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            showLoading();
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    // Dùng SheetJS để đọc ArrayBuffer
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // Đọc Sheet đầu tiên
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    // Chuyển Sheet sang JSON. defval: '' giúp lấy luôn cả cột rỗng
+                    const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                    if (json.length === 0) {
+                        showToast("File Excel này không chứa dữ liệu. Vui lòng kiểm tra lại!", true);
+                        hideLoading();
+                        return;
+                    }
+
+                    // Lưu vào localStorage
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+                        localStorage.setItem(STORAGE_FILENAME_KEY, file.name);
+                    } catch (storageError) {
+                        console.error('LocalStorage đầy hoặc không khả dụng', storageError);
+                        showToast("File lớn: Đã hiển thị nhưng không thể tự động lưu lại phiên cho lần sau.", true);
+                    }
+
+                    // Render bảng dữ liệu
+                    renderTable(json, file.name);
+                    showToast(`Tuyệt vời! Đã import xong file ${file.name}`);
+                } catch (error) {
+                    console.error("Lỗi parse Excel:", error);
+                    showToast("Có lỗi khi đọc file Excel này. File có thể bị hỏng.", true);
+                } finally {
+                    hideLoading();
+                    fileInput.value = ''; // Reset để có thể chọn lại file cũ
+                }
+            };
+
+            reader.onerror = function () {
+                showToast("Không thể đọc được file từ máy tính", true);
+                hideLoading();
+            };
+
+            // Tiến hành đọc file
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Hàm render dữ liệu ra Table HTML
+        function renderTable(data, filename) {
+            if (!data || data.length === 0) return;
+
+            emptyState.style.display = 'none';
+            dataTable.style.display = 'table';
+            dataMeta.style.display = 'block';
+            dataMeta.textContent = `${filename} • ${data.length.toLocaleString('vi-VN')} dòng`;
+
+            // Lấy tất cả Header Titles từ các object
+            const headers = new Set();
+            data.forEach(row => {
+                Object.keys(row).forEach(key => headers.add(key));
+            });
+            const headerArr = Array.from(headers);
+
+            // 1. Render THEAD
+            let headHTML = '<tr>';
+            headHTML += '<th style="width: 50px; text-align: center;">STT</th>';
+            headerArr.forEach(header => {
+                headHTML += `<th>${escapeHTML(header)}</th>`;
+            });
+            headHTML += '</tr>';
+            tableHead.innerHTML = headHTML;
+
+            // 2. Render TBODY (Giới hạn hiển thị 1000 dòng để mượt mà không crash browser)
+            const MAX_ROWS = 1000;
+            const fragment = document.createDocumentFragment();
+
+            const renderData = data.slice(0, MAX_ROWS);
+
+            renderData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+
+                // Cột STT
+                const tdIndex = document.createElement('td');
+                tdIndex.style.textAlign = 'center';
+                tdIndex.style.fontWeight = '600';
+                tdIndex.style.color = 'var(--text-muted)';
+                tdIndex.textContent = index + 1;
+                tr.appendChild(tdIndex);
+
+                // Các cột Data
+                headerArr.forEach(header => {
+                    const td = document.createElement('td');
+                    // Hover sẽ hiện full nội dung
+                    td.title = row[header] !== undefined ? row[header] : '';
+                    td.textContent = row[header] !== undefined ? row[header] : '';
+                    tr.appendChild(td);
+                });
+                fragment.appendChild(tr);
+            });
+
+            tableBody.innerHTML = '';
+            tableBody.appendChild(fragment);
+
+            // Nếu dữ liệu > 1000 dòng thì hiển thị thông báo ở cuối bảng
+            if (data.length > MAX_ROWS) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = headerArr.length + 1;
+                td.style.textAlign = 'center';
+                td.style.fontStyle = 'italic';
+                td.style.color = 'var(--text-muted)';
+                td.style.padding = '1.5rem';
+                td.textContent = `... Và ${(data.length - MAX_ROWS).toLocaleString('vi-VN')} dòng khác đang bị ẩn để đảm bảo hiệu suất mượt mà cho trình duyệt.`;
+                tableBody.appendChild(tr);
+            }
+        }
+
+        // Hàm Escape HTML chống XSS
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            const p = document.createElement('p');
+            p.appendChild(document.createTextNode(str));
+            return p.innerHTML;
+        }
+
+        function showLoading() {
+            loadingOverlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.remove('active');
+        }
+
+        // Hàm hiển thị Thông báo
+        let toastTimeout;
+        function showToast(message, isError = false) {
+            toastMsg.textContent = message;
+
+            if (isError) {
+                toast.classList.add('error');
+                toast.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />';
+            } else {
+                toast.classList.remove('error');
+                toast.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+            }
+
+            toast.classList.add('show');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function openAnalytics() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (!savedData || JSON.parse(savedData).length === 0) {
+                showToast("Chưa có dữ liệu để phân tích. Vui lòng Import Excel trước!", true);
+                return;
+            }
+            showToast("Đang đồng bộ dữ liệu...");
+            setTimeout(() => {
+                // Mở trang kết quả chấm call hoặc chuyển hướng
+                window.open('ket_qua_cham_call.html', '_blank');
+            }, 800);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Chấm Call - Dashboard Analytics</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-bg: #f8fafc;
+            --surface-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--surface-bg);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title::before {
+            content: '';
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background-color: #3b82f6;
+            border-radius: 6px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M3 3v18h18M9 9l3 3 3-3 5 5"/></svg>');
+            background-size: 18px;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .back-btn {
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-info h3 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .icon-blue {
+            background: #eff6ff;
+            color: var(--primary-color);
+        }
+
+        .icon-green {
+            background: #ecfdf5;
+            color: var(--success-color);
+        }
+
+        .icon-red {
+            background: #fef2f2;
+            color: var(--danger-color);
+        }
+
+        .icon-yellow {
+            background: #fffbeb;
+            color: var(--warning-color);
+        }
+
+        /* FILTERS */
+        .filters-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-bg);
+            color: var(--text-main);
+            font-size: 0.875rem;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            min-width: 150px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* CHARTS SECTION */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--surface-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            text-align: center;
+        }
+
+        .empty-state svg {
+            width: 5rem;
+            height: 5rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-title">Kết Quả Chấm Call - Analytics</div>
+        <a href="dashboard.html" class="back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20"
+                height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Quay lại Dashboard
+        </a>
+    </header>
+
+    <main id="mainContent">
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3>Không có dữ liệu</h3>
+            <p>Vui lòng Import Excel từ trang Dashboard trước khi xem phân tích.</p>
+            <a href="dashboard.html" class="back-btn"
+                style="background: var(--primary-color); color: white; display: inline-flex;">Về Dashboard</a>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+
+            <div class="filters-container" id="filtersContainer">
+                <span class="filter-label">Bộ lọc:</span>
+                <select id="teamFilter" class="filter-select" style="display: none;">
+                    <option value="">Tất cả Team</option>
+                </select>
+                <select id="userFilter" class="filter-select" style="display: none;">
+                    <option value="">Tất cả User</option>
+                </select>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Tổng số File / Cuộc gọi</h3>
+                        <div class="stat-value" id="statTotal">0</div>
+                    </div>
+                    <div class="stat-icon icon-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Điểm Trung Bình</h3>
+                        <div class="stat-value" id="statAvgScore">0.0</div>
+                    </div>
+                    <div class="stat-icon icon-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Số Cuộc Chứa Lỗi Zero</h3>
+                        <div class="stat-value" id="statAutoFail">0</div>
+                    </div>
+                    <div class="stat-icon icon-red">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Số Cuộc Wow</h3>
+                        <div class="stat-value" id="statWow">0</div>
+                    </div>
+                    <div class="stat-icon icon-yellow">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <!-- CHART 1: Phân bổ điểm số -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Phân bổ Điểm Tổng</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="scoreHistogramChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CHART 2: Timeline hoặc Theo Ngày (nếu có cột ngày) / Trạng thái lỗi -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title" id="chart2Title">Top Lỗi Mắc Phải</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="errorChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CHART 3: Hiệu năng Agent (Full width) -->
+                <div class="chart-card full-width">
+                    <div class="chart-header">
+                        <div class="chart-title">Thống kê Điểm theo User / QA</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="agentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'dashboard_excel_data';
+
+        let allData = [];
+        let teamColName = null;
+        let agentColName = null;
+
+        let scoreChartInstance = null;
+        let errorChartInstance = null;
+        let agentChartInstance = null;
+
+        // Cấu hình Chart.js chung
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) {
+                document.getElementById('emptyState').style.display = 'flex';
+                return;
+            }
+
+            try {
+                allData = JSON.parse(rawData);
+                if (!allData || allData.length === 0) {
+                    document.getElementById('emptyState').style.display = 'flex';
+                    return;
+                }
+
+                document.getElementById('dashboardContent').style.display = 'block';
+
+                initFilters(allData);
+                analyzeAndRender(allData);
+
+            } catch (e) {
+                console.error("Lỗi parse data:", e);
+                document.getElementById('emptyState').style.display = 'flex';
+            }
+        });
+
+        function initFilters(data) {
+            const keys = Object.keys(data[0] || {});
+
+            // Tìm cột Team
+            teamColName = keys.find(k => k.toLowerCase().includes('team') || k.toLowerCase().includes('nhóm') || k.toLowerCase().includes('group') || k.toLowerCase().includes('đội') || k.toLowerCase() === 'bộ phận');
+
+            // Tìm cột User / Agent
+            agentColName = keys.find(k => k.toLowerCase().includes('user') || k.toLowerCase().includes('qa') || k.toLowerCase().includes('nhân viên') || k.toLowerCase().includes('csr'));
+
+            // Tự động thêm tùy chọn vào dropdown team
+            const teamSelect = document.getElementById('teamFilter');
+            if (teamColName) {
+                teamSelect.style.display = 'block';
+                const teams = [...new Set(data.map(row => row[teamColName]).filter(v => v !== undefined && v !== ''))].sort();
+                teams.forEach(team => {
+                    const opt = document.createElement('option');
+                    opt.value = team;
+                    opt.textContent = team;
+                    teamSelect.appendChild(opt);
+                });
+                teamSelect.addEventListener('change', handleFilterChange);
+            }
+
+            // Tự động thêm tùy chọn vào dropdown user
+            const userSelect = document.getElementById('userFilter');
+            if (agentColName) {
+                userSelect.style.display = 'block';
+                const users = [...new Set(data.map(row => row[agentColName]).filter(v => v !== undefined && v !== ''))].sort();
+                users.forEach(user => {
+                    const opt = document.createElement('option');
+                    opt.value = user;
+                    opt.textContent = user;
+                    userSelect.appendChild(opt);
+                });
+                userSelect.addEventListener('change', handleFilterChange);
+            }
+        }
+
+        function handleFilterChange() {
+            const selectedTeam = document.getElementById('teamFilter').value;
+            const selectedUser = document.getElementById('userFilter').value;
+
+            let filteredData = allData;
+
+            if (selectedTeam && teamColName) {
+                filteredData = filteredData.filter(row => row[teamColName] == selectedTeam);
+            }
+            if (selectedUser && agentColName) {
+                filteredData = filteredData.filter(row => row[agentColName] == selectedUser);
+            }
+
+            analyzeAndRender(filteredData);
+        }
+
+        function analyzeAndRender(data) {
+            // Hủy chart cũ nếu đang có
+            if (scoreChartInstance) scoreChartInstance.destroy();
+            if (errorChartInstance) errorChartInstance.destroy();
+            if (agentChartInstance) agentChartInstance.destroy();
+
+            // Nếu không có data sau khi lọc
+            if (!data || data.length === 0) {
+                document.getElementById('statTotal').textContent = '0';
+                document.getElementById('statAvgScore').textContent = '0.0';
+                document.getElementById('statAutoFail').textContent = '0';
+                document.getElementById('statWow').textContent = '0';
+                return;
+            }
+
+            // 1. Phân tích các cột (Tự động nhận diện cột dựa trên keyword)
+            const keys = Object.keys(data[0] || {});
+
+            // Tìm cột Điểm
+            const scoreCol = keys.find(k => k.toLowerCase().includes('điểm') || k.toLowerCase() === 'tổng điểm' || k.toLowerCase() === 'score' || k.includes('Tổng Cộng'));
+
+            // Tìm cột Lỗi Zero / Auto Fail (Thông thường có Wow / Lỗi trong Tool_Check)
+            const autoFailCol = keys.find(k => k.toLowerCase().includes('7.0') || k.toLowerCase().includes('auto fail') || k.toLowerCase().includes('zero'));
+            const wowCol = keys.find(k => k.toLowerCase().includes('6.0') || k.toLowerCase().includes('wow'));
+
+            // Tìm cột Tên Lỗi
+            const errorReasonCol = keys.find(k => k.toLowerCase().includes('tên lỗi') || k.toLowerCase().includes('loại lỗi') || k.toLowerCase().includes('mắc lỗi'));
+
+            // Lấy agentCol (để dùng trong render biểu đồ bên dưới)
+            const agentCol = agentColName;
+
+            // --- CẬP NHẬT STATS CARD ---
+            document.getElementById('statTotal').textContent = data.length.toLocaleString('vi-VN');
+
+            let totalScore = 0;
+            let countScoredRows = 0;
+            let autoFailCount = 0;
+            let wowCount = 0;
+
+            data.forEach(row => {
+                if (scoreCol && row[scoreCol]) {
+                    const score = parseFloat(row[scoreCol]) || 0;
+                    totalScore += score;
+                    countScoredRows++;
+                }
+
+                if (autoFailCol) {
+                    const val = String(row[autoFailCol]).toUpperCase();
+                    if (val === 'Y' || val === 'YES' || val === '1' || val.includes('LỖI')) autoFailCount++;
+                }
+
+                if (wowCol) {
+                    const val = String(row[wowCol]).toUpperCase();
+                    if (val === 'Y' || val === 'YES' || val === '1') wowCount++;
+                }
+            });
+
+            if (countScoredRows > 0) {
+                const avg = (totalScore / countScoredRows).toFixed(2);
+                document.getElementById('statAvgScore').textContent = avg;
+            } else {
+                document.getElementById('statAvgScore').textContent = "N/A";
+            }
+
+            document.getElementById('statAutoFail').textContent = autoFailCount.toLocaleString('vi-VN');
+            document.getElementById('statWow').textContent = wowCount.toLocaleString('vi-VN');
+
+
+            // --- VẼ BIỂU ĐỒ 1: PHÂN BỔ ĐIỂM SỐ ---
+            if (scoreCol) {
+                const scoreRanges = { "100": 0, "90-99": 0, "70-89": 0, "50-69": 0, "0-49": 0 };
+                data.forEach(row => {
+                    const s = parseFloat(row[scoreCol]) || 0;
+                    if (s >= 100) scoreRanges["100"]++;
+                    else if (s >= 90) scoreRanges["90-99"]++;
+                    else if (s >= 70) scoreRanges["70-89"]++;
+                    else if (s >= 50) scoreRanges["50-69"]++;
+                    else scoreRanges["0-49"]++;
+                });
+
+                scoreChartInstance = new Chart(document.getElementById('scoreHistogramChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['100 Điểm', '90-99 Điểm', '70-89 Điểm', '50-69 Điểm', 'Dưới 50 Điểm'],
+                        datasets: [{
+                            data: [scoreRanges["100"], scoreRanges["90-99"], scoreRanges["70-89"], scoreRanges["50-69"], scoreRanges["0-49"]],
+                            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f97316', '#ef4444'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // --- VẼ BIỂU ĐỒ 2: LỖI MẮC PHẢI ---
+            if (errorReasonCol) {
+                const errorCounts = {};
+                data.forEach(row => {
+                    const err = row[errorReasonCol];
+                    if (err && String(err).trim() !== '') {
+                        errorCounts[err] = (errorCounts[err] || 0) + 1;
+                    }
+                });
+
+                // Sort top 5 errors
+                const sortedErrors = Object.entries(errorCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                if (sortedErrors.length > 0) {
+                    errorChartInstance = new Chart(document.getElementById('errorChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: sortedErrors.map(item => {
+                                // Truncate long labels
+                                const label = String(item[0]);
+                                return label.length > 20 ? label.substring(0, 20) + '...' : label;
+                            }),
+                            datasets: [{
+                                label: 'Số lượng lỗi',
+                                data: sortedErrors.map(item => item[1]),
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, ticks: { precision: 0 } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                } else {
+                    document.getElementById('chart2Title').textContent = "Không tìm thấy dữ liệu tên lỗi";
+                }
+            } else {
+                document.getElementById('chart2Title').textContent = "Biểu đồ Phân loại Auto Fail/Wow";
+                errorChartInstance = new Chart(document.getElementById('errorChart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['Có Auto Fail (Zero)', 'Có Wow Factor', 'Bình Thường'],
+                        datasets: [{
+                            data: [autoFailCount, wowCount, data.length - autoFailCount - wowCount],
+                            backgroundColor: ['#ef4444', '#f59e0b', '#cbd5e1']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // --- VẼ BIỂU ĐỒ 3: AGENT / QA (Trung bình điểm + Tổng file) ---
+            if (agentCol && scoreCol) {
+                const agentData = {};
+                data.forEach(row => {
+                    let agentName = row[agentCol];
+                    if (!agentName || String(agentName).trim() === '') agentName = 'Unknown';
+
+                    if (!agentData[agentName]) {
+                        agentData[agentName] = { calls: 0, totalScore: 0 };
+                    }
+                    agentData[agentName].calls++;
+                    agentData[agentName].totalScore += (parseFloat(row[scoreCol]) || 0);
+                });
+
+                // Top 10 Agents by calls
+                const sortedAgents = Object.entries(agentData)
+                    .sort((a, b) => b[1].calls - a[1].calls)
+                    .slice(0, 10);
+
+                agentChartInstance = new Chart(document.getElementById('agentChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: sortedAgents.map(item => item[0]),
+                        datasets: [
+                            {
+                                label: 'Số cuộc gọi/file',
+                                data: sortedAgents.map(item => item[1].calls),
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 4,
+                                order: 2
+                            },
+                            {
+                                label: 'Điểm trung bình',
+                                data: sortedAgents.map(item => (item[1].totalScore / item[1].calls).toFixed(1)),
+                                type: 'line',
+                                borderColor: '#10b981',
+                                backgroundColor: '#10b981',
+                                borderWidth: 3,
+                                tension: 0.3,
+                                pointBackgroundColor: '#fff',
+                                pointBorderWidth: 2,
+                                order: 1,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Số lượng' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'Điểm TB' },
+                                min: 0, max: 100
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('agentChart').parentElement.innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color: #94a3b8; font-style:italic;">Không tìm thấy đủ cột Người chấm/Agent hoặc Điểm để vẽ biểu đồ này.</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>
