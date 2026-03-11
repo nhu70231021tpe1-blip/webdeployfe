@@ -709,13 +709,31 @@
             const headerHTML = `<tr><th>Chấm Call</th>${displayCols.map(c => `<th>${c}</th>`).join('')}</tr>`;
             document.getElementById('tc-head').innerHTML = headerHTML;
 
-            // Tạo body với button "Bắt đầu" ở cột đầu
-            const bodyHTML = tableData.map((row, index) => `
+            // Lấy danh sách các rowIndex đã được chấm điểm
+            const savedScores = JSON.parse(localStorage.getItem('toolcheckScores') || '[]');
+            const scoredRowIndexes = new Set(savedScores.map(item => item.rowIndex));
+
+            // Sắp xếp: dòng chưa chấm (Bắt đầu) lên trước, dòng đã chấm (Điều Chỉnh) xuống dưới
+            const sortedIndexes = tableData.map((row, index) => index);
+            sortedIndexes.sort((a, b) => {
+                const aScored = scoredRowIndexes.has(a) ? 1 : 0;
+                const bScored = scoredRowIndexes.has(b) ? 1 : 0;
+                return aScored - bScored;
+            });
+
+            // Tạo body với button "Bắt đầu" hoặc "Điều Chỉnh" tùy theo trạng thái
+            const bodyHTML = sortedIndexes.map(index => {
+                const row = tableData[index];
+                const isScored = scoredRowIndexes.has(index);
+                const btnClass = isScored ? 'btn-adjust' : 'btn-start';
+                const btnText = isScored ? 'Điều Chỉnh' : 'Bắt đầu';
+                return `
                 <tr>
-                    <td><button class="btn-start" onclick="openChamCallModal(${index})">Bắt đầu</button></td>
+                    <td><button class="${btnClass}" onclick="openChamCallModal(${index})">${btnText}</button></td>
                     ${displayCols.map(c => `<td>${row[c] || "0"}</td>`).join('')}
                 </tr>
-            `).join('');
+            `;
+            }).join('');
             document.getElementById('tc-body').innerHTML = bodyHTML;
         }
 
@@ -1003,11 +1021,23 @@
 
             // Lưu vào localStorage
             let savedScores = JSON.parse(localStorage.getItem('toolcheckScores') || '[]');
-            savedScores.push(result);
+
+            // Tìm dòng cuối cùng có cùng rowIndex để cập nhật (Điều Chỉnh)
+            const lastIndex = savedScores.map(item => item.rowIndex).lastIndexOf(currentRowIndex);
+            if (lastIndex !== -1) {
+                // Cập nhật dòng cuối cùng đã có
+                savedScores[lastIndex] = result;
+            } else {
+                // Thêm mới
+                savedScores.push(result);
+            }
             localStorage.setItem('toolcheckScores', JSON.stringify(savedScores));
 
             // Cập nhật bảng kết quả
             renderResultsTable();
+
+            // Cập nhật lại bảng chính để đổi nút "Bắt đầu" thành "Điều Chỉnh"
+            renderTable();
 
             // Hiển thị thông báo
             alert('✅ Đã lưu điểm thành công!');

@@ -279,6 +279,304 @@
             margin-bottom: 1.5rem;
         }
 
+        /* ERROR DETAIL TABLE */
+        .error-detail-section {
+            margin-top: 2rem;
+        }
+
+        .error-detail-card {
+            background: var(--surface-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .error-detail-card .chart-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .error-detail-table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .error-detail-table-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .error-detail-table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .error-detail-table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .error-detail-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .error-detail-table th {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.85rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            border-bottom: 2px solid var(--border-color);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.15s ease;
+        }
+
+        .error-detail-table th:hover {
+            background-color: #e2e8f0;
+        }
+
+        .error-detail-table th .sort-icon {
+            opacity: 0.4;
+            margin-left: 4px;
+            font-size: 0.7rem;
+        }
+
+        .error-detail-table th.sorted .sort-icon {
+            opacity: 1;
+        }
+
+        .error-detail-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .error-detail-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .error-detail-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .error-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-name-cell {
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .error-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0 8px;
+        }
+
+        .error-count-high {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .error-count-medium {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .error-count-low {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .error-count-zero {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .error-rate-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-rate-track {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .error-rate-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        .error-rate-fill.rate-high {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .error-rate-fill.rate-medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .error-rate-fill.rate-low {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .error-rate-text {
+            font-weight: 600;
+            font-size: 0.8rem;
+            min-width: 42px;
+            text-align: right;
+        }
+
+        .error-list-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: 500px;
+        }
+
+        .error-tag-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid #fecaca;
+        }
+
+        .error-tag-mini .error-tag-count {
+            background: #fca5a5;
+            color: #7f1d1d;
+            border-radius: 999px;
+            padding: 0 5px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        .no-error-text {
+            color: var(--success-color);
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .toggle-detail-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .toggle-detail-btn:hover {
+            background: #eff6ff;
+            border-color: var(--primary-color);
+        }
+
+        .user-error-expanded {
+            display: none;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+        }
+
+        .user-error-expanded.show {
+            display: block;
+        }
+
+        .error-criteria-group {
+            margin-bottom: 6px;
+        }
+
+        .error-criteria-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .empty-error-table {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-error-table svg {
+            width: 48px;
+            height: 48px;
+            color: #cbd5e1;
+            margin-bottom: 0.75rem;
+        }
+
+        .data-source-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .data-source-tab {
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--surface-bg);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .data-source-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .data-source-tab:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
         @media (max-width: 1024px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -407,6 +705,24 @@
                     </div>
                     <div class="chart-container">
                         <canvas id="agentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BẢNG LỖI CHI TIẾT THEO USER -->
+            <div class="error-detail-section">
+                <div class="error-detail-card">
+                    <div class="chart-header">
+                        <div class="chart-title">📋 Bảng Lỗi Chi Tiết Theo User</div>
+                        <div class="data-source-tabs">
+                            <button class="data-source-tab active" data-source="excel"
+                                onclick="switchErrorSource('excel')">Dữ liệu Excel</button>
+                            <button class="data-source-tab" data-source="toolcheck"
+                                onclick="switchErrorSource('toolcheck')">Dữ liệu Chấm Call</button>
+                        </div>
+                    </div>
+                    <div class="error-detail-table-container" id="errorDetailContainer">
+                        <!-- Bảng sẽ được render bởi JS -->
                     </div>
                 </div>
             </div>
@@ -743,6 +1059,357 @@
                 document.getElementById('agentChart').parentElement.innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color: #94a3b8; font-style:italic;">Không tìm thấy đủ cột Người chấm/Agent hoặc Điểm để vẽ biểu đồ này.</div>';
             }
         }
+
+        // ===== BẢNG LỖI CHI TIẾT THEO USER =====
+        let currentErrorSource = 'excel';
+
+        function switchErrorSource(source) {
+            currentErrorSource = source;
+            document.querySelectorAll('.data-source-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.source === source);
+            });
+            renderErrorDetailTable();
+        }
+
+        function renderErrorDetailTable() {
+            const container = document.getElementById('errorDetailContainer');
+            if (!container) return;
+
+            if (currentErrorSource === 'excel') {
+                renderExcelErrorTable(container);
+            } else {
+                renderToolcheckErrorTable(container);
+            }
+        }
+
+        // Render bảng lỗi từ dữ liệu Excel (dashboard_excel_data)
+        function renderExcelErrorTable(container) {
+            const selectedTeam = document.getElementById('teamFilter').value;
+            const selectedUser = document.getElementById('userFilter').value;
+
+            let data = allData;
+            if (selectedTeam && teamColName) {
+                data = data.filter(row => row[teamColName] == selectedTeam);
+            }
+            if (selectedUser && agentColName) {
+                data = data.filter(row => row[agentColName] == selectedUser);
+            }
+
+            if (!agentColName || !data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-error-table">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0H4" />
+                        </svg>
+                        <p>Không tìm thấy dữ liệu User hoặc lỗi trong file Excel.</p>
+                    </div>`;
+                return;
+            }
+
+            const keys = Object.keys(data[0] || {});
+            const errorReasonCol = keys.find(k => k.toLowerCase().includes('tên lỗi') || k.toLowerCase().includes('loại lỗi') || k.toLowerCase().includes('mắc lỗi'));
+
+            // Tìm cột Điểm
+            const scoreCol = keys.find(k => k.toLowerCase().includes('điểm') || k.toLowerCase() === 'tổng điểm' || k.toLowerCase() === 'score' || k.includes('Tổng Cộng'));
+
+            // Tìm cột Ghi chú
+            const noteCol = keys.find(k => k.toLowerCase().includes('ghi chú') || k.toLowerCase().includes('note') || k.toLowerCase().includes('nhận xét'));
+
+            // Tổng hợp lỗi theo user
+            const userErrorMap = {};
+            data.forEach(row => {
+                const user = row[agentColName] || 'Unknown';
+                if (!userErrorMap[user]) {
+                    userErrorMap[user] = { totalCalls: 0, errors: {}, errorCallCount: 0, totalScore: 0, scoredCount: 0, notes: [] };
+                }
+                userErrorMap[user].totalCalls++;
+
+                // Tổng hợp điểm
+                if (scoreCol && row[scoreCol]) {
+                    const score = parseFloat(row[scoreCol]) || 0;
+                    userErrorMap[user].totalScore += score;
+                    userErrorMap[user].scoredCount++;
+                }
+
+                // Tổng hợp ghi chú
+                if (noteCol && row[noteCol] && String(row[noteCol]).trim() !== '') {
+                    userErrorMap[user].notes.push(String(row[noteCol]).trim());
+                }
+
+                if (errorReasonCol) {
+                    const errVal = row[errorReasonCol];
+                    if (errVal && String(errVal).trim() !== '') {
+                        // Có thể có nhiều lỗi cách nhau bởi ";" hoặc ","
+                        const errList = String(errVal).split(/[;,]/).map(e => e.trim()).filter(e => e);
+                        if (errList.length > 0) {
+                            userErrorMap[user].errorCallCount++;
+                            errList.forEach(err => {
+                                userErrorMap[user].errors[err] = (userErrorMap[user].errors[err] || 0) + 1;
+                            });
+                        }
+                    }
+                }
+            });
+
+            buildErrorTable(container, userErrorMap);
+        }
+
+        // Render bảng lỗi từ dữ liệu chấm call (toolcheckScores)
+        function renderToolcheckErrorTable(container) {
+            const savedScores = JSON.parse(localStorage.getItem('toolcheckScores') || '[]');
+            if (savedScores.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-error-table">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586" />
+                        </svg>
+                        <p>Chưa có dữ liệu chấm call. Hãy chấm điểm trên trang Tool Check trước.</p>
+                    </div>`;
+                return;
+            }
+
+            const errorLabels = {
+                'khong_chao': 'Không chào đúng chuẩn',
+                'giong_moi': 'Giọng mệt mỏi',
+                'thieu_than_thien': 'Thiếu thân thiện',
+                'cat_loi': 'Cắt lời KH',
+                'khong_lang_nghe': 'Không lắng nghe',
+                'hieu_sai': 'Hiểu sai ý KH',
+                'ngon_tu_tieu_cuc': 'Ngôn từ tiêu cực',
+                'kho_hieu': 'Khó hiểu',
+                'chuyen_nganh': 'Dùng thuật ngữ CN',
+                'noi_nhanh': 'Nói quá nhanh',
+                'noi_cham': 'Nói quá chậm',
+                'giong_buon': 'Giọng buồn/mệt',
+                'phat_am_sai': 'Phát âm không rõ',
+                'thieu_dong_cam': 'Thiếu đồng cảm',
+                'phan_hoi_may_moc': 'Phản hồi máy móc',
+                'khong_thau_hieu': 'Không thấu hiểu',
+                'khong_goi_ten': 'Không gọi tên KH',
+                'xung_ho_sai': 'Xưng hô sai',
+                'goi_sai_ten': 'Gọi sai tên',
+                'hold_lau': 'Hold quá lâu',
+                'khong_thong_bao': 'Không thông báo hold',
+                'chuyen_nhieu_lan': 'Chuyển máy nhiều lần',
+                'nhap_sai': 'Nhập liệu sai',
+                'thieu_thong_tin': 'Thiếu thông tin',
+                'khong_cap_nhat': 'Không cập nhật',
+                'khong_xac_minh': 'Không xác minh',
+                'xac_minh_sai': 'Xác minh sai',
+                'bo_qua_buoc': 'Bỏ qua xác minh',
+                'giai_phap_sai': 'Giải pháp sai',
+                'khong_ro_rang': 'Không rõ ràng',
+                'khong_day_du': 'Không đầy đủ',
+                'tu_van_sai': 'Tư vấn sai',
+                'khong_khao_sat': 'Không khảo sát',
+                'khao_sat_sai': 'Khảo sát sai',
+                'khong_chao_ket': 'Không chào kết',
+                'ket_thuc_voi': 'Kết thúc vội',
+                'thieu_cam_on': 'Thiếu cảm ơn'
+            };
+
+            // Tìm cột user trong rowData
+            const userErrorMap = {};
+            savedScores.forEach(item => {
+                const rowData = item.rowData || {};
+                const rowKeys = Object.keys(rowData);
+                const userCol = rowKeys.find(k => k.toLowerCase().includes('user') || k.toLowerCase().includes('qa') || k.toLowerCase().includes('nhân viên') || k.toLowerCase().includes('csr'));
+                const userName = userCol ? (rowData[userCol] || 'Unknown') : 'Unknown';
+
+                if (!userErrorMap[userName]) {
+                    userErrorMap[userName] = { totalCalls: 0, errors: {}, errorCallCount: 0, totalScore: 0, scoredCount: 0, notes: [] };
+                }
+                userErrorMap[userName].totalCalls++;
+
+                // Tổng hợp điểm
+                if (item.totalScore !== undefined && item.totalScore !== null) {
+                    const score = typeof item.totalScore === 'number' ? item.totalScore : (parseFloat(item.totalScore) || 0);
+                    userErrorMap[userName].totalScore += score;
+                    userErrorMap[userName].scoredCount++;
+                }
+
+                // Tổng hợp ghi chú
+                if (item.note && String(item.note).trim() !== '') {
+                    userErrorMap[userName].notes.push(String(item.note).trim());
+                }
+
+                // Tổng hợp lỗi từ item.errors
+                const itemErrors = item.errors || {};
+                let hasError = false;
+                Object.entries(itemErrors).forEach(([criteria, errArr]) => {
+                    errArr.forEach(errCode => {
+                        const label = errorLabels[errCode] || errCode;
+                        const key = `${criteria}: ${label}`;
+                        userErrorMap[userName].errors[key] = (userErrorMap[userName].errors[key] || 0) + 1;
+                        hasError = true;
+                    });
+                });
+
+                // Auto Fail factors
+                (item.autoFailFactors || []).forEach(factor => {
+                    const key = `Auto Fail: ${factor}`;
+                    userErrorMap[userName].errors[key] = (userErrorMap[userName].errors[key] || 0) + 1;
+                    hasError = true;
+                });
+
+                if (hasError) {
+                    userErrorMap[userName].errorCallCount++;
+                }
+            });
+
+            buildErrorTable(container, userErrorMap);
+        }
+
+        // Hàm chung render bảng lỗi
+        function buildErrorTable(container, userErrorMap) {
+            const userEntries = Object.entries(userErrorMap).sort((a, b) => {
+                const errCountA = Object.values(a[1].errors).reduce((s, c) => s + c, 0);
+                const errCountB = Object.values(b[1].errors).reduce((s, c) => s + c, 0);
+                return errCountB - errCountA;
+            });
+
+            if (userEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-error-table">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>Không có dữ liệu để hiển thị.</p>
+                    </div>`;
+                return;
+            }
+
+            let html = `
+                <table class="error-detail-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>User / Agent</th>
+                            <th>Tổng cuộc <span class="sort-icon">▼</span></th>
+                            <th>Điểm TB <span class="sort-icon">▼</span></th>
+                            <th>Cuộc có lỗi <span class="sort-icon">▼</span></th>
+                            <th>Tỷ lệ lỗi <span class="sort-icon">▼</span></th>
+                            <th>Tổng lỗi <span class="sort-icon">▼</span></th>
+                            <th>Chi tiết lỗi</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            userEntries.forEach(([user, info], idx) => {
+                const totalErrors = Object.values(info.errors).reduce((s, c) => s + c, 0);
+                const errorRate = info.totalCalls > 0 ? ((info.errorCallCount / info.totalCalls) * 100) : 0;
+
+                // Badge class
+                let countClass = 'error-count-zero';
+                if (totalErrors >= 10) countClass = 'error-count-high';
+                else if (totalErrors >= 5) countClass = 'error-count-medium';
+                else if (totalErrors > 0) countClass = 'error-count-low';
+
+                // Rate class
+                let rateClass = 'rate-low';
+                if (errorRate >= 50) rateClass = 'rate-high';
+                else if (errorRate >= 25) rateClass = 'rate-medium';
+
+                // Error tags
+                let errorTagsHtml = '';
+                const sortedErrors = Object.entries(info.errors).sort((a, b) => b[1] - a[1]);
+
+                if (sortedErrors.length === 0) {
+                    errorTagsHtml = '<span class="no-error-text">✅ Không có lỗi</span>';
+                } else {
+                    // Hiển thị top 5 lỗi, nếu có nhiều hơn thì có nút xem thêm
+                    const displayErrors = sortedErrors.slice(0, 5);
+                    const remaining = sortedErrors.length - 5;
+
+                    errorTagsHtml = '<div class="error-list-cell">';
+                    displayErrors.forEach(([errName, count]) => {
+                        errorTagsHtml += `<span class="error-tag-mini">${errName}<span class="error-tag-count">${count}</span></span>`;
+                    });
+
+                    if (remaining > 0) {
+                        errorTagsHtml += `<button class="toggle-detail-btn" onclick="toggleUserErrors('user-err-${idx}')">+${remaining} lỗi khác</button>`;
+                    }
+                    errorTagsHtml += '</div>';
+
+                    // Expandable full list
+                    if (remaining > 0) {
+                        errorTagsHtml += `<div class="user-error-expanded" id="user-err-${idx}">`;
+                        sortedErrors.slice(5).forEach(([errName, count]) => {
+                            errorTagsHtml += `<span class="error-tag-mini" style="margin: 2px;">${errName}<span class="error-tag-count">${count}</span></span>`;
+                        });
+                        errorTagsHtml += '</div>';
+                    }
+                }
+
+                // Tính điểm TB
+                const avgScore = info.scoredCount > 0 ? (info.totalScore / info.scoredCount) : null;
+                let avgScoreHtml = '<span style="color:#999;">-</span>';
+                if (avgScore !== null) {
+                    const scoreClass = avgScore >= 70 ? 'color:#10b981' : 'color:#ef4444';
+                    avgScoreHtml = `<span style="font-weight:700;${scoreClass}">${(Math.round(avgScore * 100) / 100).toFixed(1)}</span>`;
+                }
+
+                // Ghi chú
+                let notesHtml = '<span style="color:#999;">-</span>';
+                if (info.notes && info.notes.length > 0) {
+                    const uniqueNotes = [...new Set(info.notes)];
+                    if (uniqueNotes.length <= 2) {
+                        notesHtml = uniqueNotes.map(n => `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:2px;">${n}</div>`).join('');
+                    } else {
+                        notesHtml = uniqueNotes.slice(0, 2).map(n => `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:2px;">${n}</div>`).join('');
+                        notesHtml += `<button class="toggle-detail-btn" onclick="toggleUserErrors('user-note-${idx}')">+${uniqueNotes.length - 2} ghi chú khác</button>`;
+                        notesHtml += `<div class="user-error-expanded" id="user-note-${idx}">`;
+                        uniqueNotes.slice(2).forEach(n => {
+                            notesHtml += `<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:2px;">${n}</div>`;
+                        });
+                        notesHtml += '</div>';
+                    }
+                }
+
+                html += `
+                    <tr>
+                        <td style="text-align:center; color:var(--text-muted); font-weight:600;">${idx + 1}</td>
+                        <td class="user-name-cell">${user}</td>
+                        <td style="text-align:center;">${info.totalCalls}</td>
+                        <td style="text-align:center;">${avgScoreHtml}</td>
+                        <td style="text-align:center;"><span class="error-count-badge ${countClass}">${info.errorCallCount}</span></td>
+                        <td>
+                            <div class="error-rate-bar">
+                                <div class="error-rate-track">
+                                    <div class="error-rate-fill ${rateClass}" style="width:${Math.min(errorRate, 100)}%"></div>
+                                </div>
+                                <span class="error-rate-text">${errorRate.toFixed(1)}%</span>
+                            </div>
+                        </td>
+                        <td style="text-align:center;"><span class="error-count-badge ${countClass}">${totalErrors}</span></td>
+                        <td>${errorTagsHtml}</td>
+                        <td style="max-width:200px;">${notesHtml}</td>
+                    </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function toggleUserErrors(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('show');
+        }
+
+        // Gọi render bảng lỗi khi filter thay đổi (override analyzeAndRender)
+        const originalAnalyzeAndRender = analyzeAndRender;
+        analyzeAndRender = function (data) {
+            originalAnalyzeAndRender(data);
+            renderErrorDetailTable();
+        };
+
+        // Render bảng lỗi lần đầu khi trang load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                renderErrorDetailTable();
+            }, 500);
+        });
     </script>
 </body>
 
