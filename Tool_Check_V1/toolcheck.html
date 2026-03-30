@@ -40,8 +40,7 @@
                             <th>Thông tin cuộc gọi</th>
                             <th>Tổng điểm</th>
                             <th>Thang điểm</th>
-                            <th>Điểm chi tiết</th>
-                            <th>Lỗi vi phạm</th>
+                            <th>Note lỗi</th>
                             <th>Ghi chú</th>
                             <th>Thao tác</th>
                         </tr>
@@ -541,11 +540,11 @@
             '2.3': { Y: 10, P1: 5, P2: 0, N: 0 },    // Thấu hiểu: max 10
             '2.4': { Y: 2, P1: 0, P2: 0, N: 0 },     // Gọi tên khách hàng: max 2
             '3.1': { Y: 5, P1: 0, P2: 0, N: 0 },     // Quản lý cuộc gọi: max 5
-            '3.2': { Y: 7, P1: 0, P2: 0, N: 0 },     // Nhập liệu: max 7
-            '4.1': { Y: 5, P1: 0, P2: 0, N: 0, 'N/A': '-' },  // Xác minh thông tin: max 5
+            '3.2': { Y: 7, P1: 0, P2: 0, N: 0, 'N/A': 7 },     // Nhập liệu: max 7, N/A = full
+            '4.1': { Y: 5, P1: 0, P2: 0, N: 0, 'N/A': 5 },  // Xác minh thông tin: max 5, N/A = full
             '4.2': { Y: 30, P1: 20, P2: 15, N: 0 },  // Giải pháp: Y=30, P1=20, P2=15
-            '5.1': { Y: 3, P1: 0, P2: 0, N: 0, 'N/A': 0 },  // Tư vấn khảo sát: max 3
-            '5.2': { Y: 5, P1: 0, P2: 0, N: 0, 'N/A': 0 },     // Chào kết thúc: max 5
+            '5.1': { Y: 3, P1: 0, P2: 0, N: 0, 'N/A': 3 },  // Tư vấn khảo sát: max 3, N/A = full
+            '5.2': { Y: 5, P1: 0, P2: 0, N: 0, 'N/A': 5 },     // Chào kết thúc: max 5, N/A = full
             '6.0': { Y: 3, N: 0, 'N/A': 0 },       // Wow: 3 điểm
             '7.0': { Y: 'FAIL', N: '-', 'N/A': '-' } // Auto Fail
         };
@@ -592,80 +591,29 @@
             '6.0': 3
         };
 
-        // Tính tổng điểm với logic phân phối N/A
+        // Tính tổng điểm - N/A được trọn điểm
         function calculateTotalScore() {
             let hasAutoFail = false;
-            let naPoints = 0; // Tổng điểm từ các tiêu chí N/A
-            let wowIsY = false;
-
-            // Các tiêu chí có thể phân phối (không bao gồm 7.0)
-            const distributableCriteria = ['1.1', '1.2', '2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '4.1', '4.2', '5.1', '5.2'];
-
-            // Kiểm tra Wow status
-            const wowSelect = document.querySelector('.score-select[data-criteria="6.0"]');
-            if (wowSelect && wowSelect.value === 'Y') {
-                wowIsY = true;
-            }
-
-            // Thu thập thông tin các tiêu chí
-            const criteriaData = [];
+            let total = 0;
 
             document.querySelectorAll('.score-select').forEach(select => {
                 const criteria = select.dataset.criteria;
                 const value = select.value;
                 const points = scorePoints[criteria] || {};
                 const pointValue = points[value];
-                const maxPoints = maxScorePoints[criteria] || 0;
 
                 if (criteria === '7.0' && value === 'Y') {
                     hasAutoFail = true;
                 }
 
-                // Nếu là N/A và có điểm max, tích lũy để phân phối
-                if (value === 'N/A' && maxScorePoints[criteria]) {
-                    naPoints += maxScorePoints[criteria];
-                } else if (criteria !== '7.0') {
-                    // Lưu thông tin tiêu chí để tính phân phối
-                    criteriaData.push({
-                        criteria,
-                        value,
-                        baseScore: typeof pointValue === 'number' ? pointValue : 0,
-                        maxScore: maxPoints,
-                        isWow: criteria === '6.0'
-                    });
+                if (criteria === '7.0') return; // Không cộng điểm cho Auto Fail
+
+                // N/A: lấy trọn điểm max của tiêu chí đó (đã set trong scorePoints)
+                // Các giá trị khác: lấy điểm theo bảng scorePoints
+                if (typeof pointValue === 'number') {
+                    total += pointValue;
                 }
             });
-
-            // Tính danh sách tiêu chí nhận phân phối
-            let receivingCriteria = criteriaData.filter(c => {
-                // Không bao gồm Wow nếu Wow = N
-                if (c.isWow && !wowIsY) return false;
-                return true;
-            });
-
-            // Tính bonus cho mỗi tiêu chí
-            const bonusPerCriteria = receivingCriteria.length > 0 ? naPoints / receivingCriteria.length : 0;
-
-            // Tính tổng điểm với phân phối tỷ lệ
-            let total = 0;
-            receivingCriteria.forEach(c => {
-                // Điểm cơ bản
-                total += c.baseScore;
-
-                // Bonus từ N/A: tính theo tỷ lệ điểm đạt được / điểm max
-                if (bonusPerCriteria > 0 && c.maxScore > 0) {
-                    const ratio = c.baseScore / c.maxScore;
-                    total += bonusPerCriteria * ratio;
-                }
-            });
-
-            // Nếu Wow = N, không đếm Wow vào, nhưng vẫn cộng điểm Wow nếu có
-            if (!wowIsY) {
-                const wowData = criteriaData.find(c => c.isWow);
-                if (wowData) {
-                    total += wowData.baseScore;
-                }
-            }
 
             const totalElement = document.getElementById('total-score');
             if (totalElement) {
@@ -757,22 +705,24 @@
             const infoHTML = `<table class="row-info-table">${headerRow}${dataRow}</table>`;
             document.getElementById('modal-row-info').innerHTML = infoHTML;
 
-            // Reset tất cả các dropdown về giá trị rỗng (mặc định)
+            // Reset tất cả các dropdown về giá trị mặc định
             document.querySelectorAll('.score-select').forEach(select => {
-                // Thêm option rỗng nếu chưa có
-                if (!select.querySelector('option[value=""]')) {
-                    const emptyOption = document.createElement('option');
-                    emptyOption.value = '';
-                    emptyOption.textContent = '--';
-                    select.insertBefore(emptyOption, select.firstChild);
+                const criteria = select.dataset.criteria;
+                // Xóa option rỗng nếu có
+                const emptyOpt = select.querySelector('option[value=""]');
+                if (emptyOpt) emptyOpt.remove();
+
+                // Mặc định: Wow và Auto Fail = N, các tiêu chí khác = Y
+                if (criteria === '6.0' || criteria === '7.0') {
+                    select.value = 'N';
+                } else {
+                    select.value = 'Y';
                 }
-                select.value = '';
             });
 
-            // Ẩn tất cả error-checkboxes và reset
+            // Ẩn tất cả error-checkboxes và reset (vì mặc định là Y)
             document.querySelectorAll('.error-checkboxes').forEach(container => {
                 container.style.display = 'none';
-                // Reset tất cả checkbox
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             });
 
@@ -781,29 +731,17 @@
                 textarea.value = '';
             });
 
-            // Reset wow checkboxes và ẩn container
+            // Reset wow checkboxes và ẩn container (vì mặc định Wow = N)
             document.querySelectorAll('.wow-checkboxes').forEach(container => {
                 container.style.display = 'none';
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             });
 
-            // Reset Wow dropdown về rỗng
-            const wowSelect = document.querySelector('.score-select[data-criteria="6.0"]');
-            if (wowSelect) {
-                wowSelect.value = '';
-            }
-
-            // Reset Auto Fail checkboxes và ẩn container
+            // Reset Auto Fail checkboxes và ẩn container (vì mặc định Auto Fail = N)
             document.querySelectorAll('.autofail-checkboxes').forEach(container => {
                 container.style.display = 'none';
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             });
-
-            // Reset Auto Fail dropdown về rỗng
-            const autoFailSelect = document.querySelector('.score-select[data-criteria="7.0"]');
-            if (autoFailSelect) {
-                autoFailSelect.value = '';
-            }
 
             document.getElementById('scoring-note').value = '';
 
@@ -853,24 +791,7 @@
             cancelSaveScoring();
         }
 
-        // Hiển thị nút xác nhận lưu điểm
-        function showConfirmSave() {
-            document.getElementById('save-initial-buttons').style.display = 'none';
-            document.getElementById('save-confirm-buttons').style.display = 'flex';
-        }
 
-        // Quay lại nút ban đầu
-        function cancelSaveScoring() {
-            document.getElementById('save-confirm-buttons').style.display = 'none';
-            document.getElementById('save-initial-buttons').style.display = 'flex';
-        }
-
-        // Xác nhận và thực sự lưu điểm
-        function confirmSaveScoring() {
-            saveScoring();
-            // Reset về nút ban đầu sau khi lưu
-            cancelSaveScoring();
-        }
 
         // Hàm toggle hiển thị error-checkboxes khi điểm không phải Y hoặc N/A
         function toggleErrorSelect(scoreSelect) {
@@ -921,8 +842,77 @@
             calculateTotalScore();
         }
 
-        // Hiển thị nút xác nhận lưu điểm
+        // Hiển thị nút xác nhận lưu điểm - KIỂM TRA VALIDATION TRƯỚC
         function showConfirmSave() {
+            const criteriaLabelsCheck = {
+                '1.1': 'Chào mở đầu', '1.2': 'Lắng nghe', '2.1': 'Ngôn từ', '2.2': 'Ngữ điệu',
+                '2.3': 'Thấu hiểu', '2.4': 'Xưng hô', '3.1': 'Quản lý cuộc gọi', '3.2': 'Nhập liệu',
+                '4.1': 'Xác minh', '4.2': 'Giải pháp', '5.1': 'Khảo sát', '5.2': 'Chào kết thúc',
+                '6.0': 'Wow Factor', '7.0': 'Auto Fail'
+            };
+
+            const validationErrors = [];
+
+            // 1. Kiểm tra đã chấm đủ điểm chưa
+            const missingCriteria = [];
+            document.querySelectorAll('.score-select').forEach(select => {
+                if (!select.value) {
+                    missingCriteria.push(criteriaLabelsCheck[select.dataset.criteria] || select.dataset.criteria);
+                }
+            });
+            if (missingCriteria.length > 0) {
+                validationErrors.push('❌ Chưa chấm đủ tất cả tiêu chí:\n   • ' + missingCriteria.join('\n   • '));
+            }
+
+            // 2. Kiểm tra tiêu chí N phải có Note Lỗi
+            const missingNotes = [];
+            document.querySelectorAll('.score-select').forEach(select => {
+                const criteria = select.dataset.criteria;
+                const value = select.value;
+                if (value === 'N' && criteria !== '6.0' && criteria !== '7.0') {
+                    const noteInput = document.querySelector(`.note-error-input[data-criteria="${criteria}"]`);
+                    const hasNote = noteInput && noteInput.value.trim() !== '';
+                    if (!hasNote) {
+                        missingNotes.push(criteriaLabelsCheck[criteria] || criteria);
+                    }
+                }
+            });
+            if (missingNotes.length > 0) {
+                validationErrors.push('❌ Tiêu chí chấm N phải có Note Lỗi:\n   • ' + missingNotes.join('\n   • '));
+            }
+
+            // 3. Kiểm tra Wow (6.0) = Y phải có chọn checkbox hoặc note
+            const wowSelect = document.querySelector('.score-select[data-criteria="6.0"]');
+            if (wowSelect && wowSelect.value === 'Y') {
+                const wowContainer = document.querySelector('.wow-checkboxes[data-criteria="6.0"]');
+                const hasWowChecked = wowContainer && wowContainer.querySelector('input[type="checkbox"]:checked') !== null;
+                const wowNote = document.querySelector('.note-error-input[data-criteria="6.0"]');
+                const hasWowNote = wowNote && wowNote.value.trim() !== '';
+                if (!hasWowChecked && !hasWowNote) {
+                    validationErrors.push('❌ Wow Factor = Y phải chọn ít nhất 1 yếu tố hoặc ghi note!');
+                }
+            }
+
+            // 4. Kiểm tra Auto Fail (7.0) = Y phải có chọn checkbox hoặc note
+            const afSelect = document.querySelector('.score-select[data-criteria="7.0"]');
+            if (afSelect && afSelect.value === 'Y') {
+                const afContainer = document.querySelector('.autofail-checkboxes[data-criteria="7.0"]');
+                const hasAfChecked = afContainer && afContainer.querySelector('input[type="checkbox"]:checked') !== null;
+                const afNote = document.querySelector('.note-error-input[data-criteria="7.0"]');
+                const hasAfNote = afNote && afNote.value.trim() !== '';
+                if (!hasAfChecked && !hasAfNote) {
+                    validationErrors.push('❌ Auto Fail = Y phải chọn ít nhất 1 lỗi hoặc ghi note!');
+                }
+            }
+
+
+            // Nếu có lỗi validation → thông báo và KHÔNG cho lưu
+            if (validationErrors.length > 0) {
+                alert('⚠️ Không thể lưu!\n\n' + validationErrors.join('\n\n'));
+                return;
+            }
+
+            // Validation OK → hiển thị nút xác nhận
             document.getElementById('save-initial-buttons').style.display = 'none';
             document.getElementById('save-confirm-buttons').style.display = 'flex';
         }
@@ -947,13 +937,11 @@
             const scores = {};
             const errors = {};
             const errorNotes = {};
-            let allFilled = true;
 
             document.querySelectorAll('.score-select').forEach(select => {
                 const criteria = select.dataset.criteria;
                 const value = select.value;
                 scores[criteria] = value;
-                if (!value) allFilled = false;
 
                 // Thu thập lỗi đã chọn (checkboxes) nếu điểm không phải Y
                 // Bỏ qua các tiêu chí đặc biệt (Wow 6.0 và Auto Fail 7.0)
@@ -974,7 +962,7 @@
                 }
             });
 
-            // Thu thập Wow factors (luôn hiển thị, không phụ thuộc vào điểm)
+            // Thu thập Wow factors
             const wowFactors = [];
             const wowContainer = document.querySelector('.wow-checkboxes');
             if (wowContainer) {
@@ -990,13 +978,6 @@
                 autoFailContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
                     autoFailFactors.push(cb.value);
                 });
-            }
-
-            // Kiểm tra đã chấm đủ điểm chưa
-            if (!allFilled) {
-                if (!confirm('Bạn chưa chấm đủ tất cả các tiêu chí. Vẫn muốn lưu?')) {
-                    return;
-                }
             }
 
             // Lấy ghi chú
@@ -1054,7 +1035,7 @@
             const tbody = document.getElementById('results-body');
 
             if (savedScores.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="no-results">Chưa có kết quả chấm điểm nào</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="no-results">Chưa có kết quả chấm điểm nào</td></tr>';
                 return;
             }
 
@@ -1164,23 +1145,13 @@
                 });
                 if (!diemChiTietHtml) diemChiTietHtml = '<span style="color:#999;">-</span>';
 
-                // Format lỗi
+                // Format lỗi (chỉ hiển thị checkbox lỗi, không hiển thị note lỗi)
                 let errorsHtml = '';
                 Object.entries(item.errors || {}).forEach(([criteria, errs]) => {
                     errs.forEach(err => {
                         const label = errorLabels[err] || err;
                         errorsHtml += `<span class="error-tag">${criteria}: ${label}</span> `;
                     });
-                    // Thêm note lỗi nếu có
-                    if (item.errorNotes && item.errorNotes[criteria]) {
-                        errorsHtml += `<span class="error-note-tag">[${criteria}]: ${item.errorNotes[criteria]}</span> `;
-                    }
-                });
-                // Hiển thị note lỗi cho các tiêu chí không có checkbox được chọn
-                Object.entries(item.errorNotes || {}).forEach(([criteria, note]) => {
-                    if (!item.errors || !item.errors[criteria]) {
-                        errorsHtml += `<span class="error-note-tag">[${criteria}]: ${note}</span> `;
-                    }
                 });
                 if (!errorsHtml) errorsHtml = '<span style="color:#28a745;">Không có lỗi</span>';
 
@@ -1203,6 +1174,14 @@
                     errorsHtml += '<br>🔴 AUTO FAIL: ' + autoFailHtml;
                 }
 
+                // Format Note lỗi
+                let noteLoiHtml = '';
+                Object.entries(item.errorNotes || {}).forEach(([criteria, noteText]) => {
+                    const label = criteriaLabels[criteria] || criteria;
+                    noteLoiHtml += `<span class="error-note-tag">[${criteria} ${label}]: ${noteText}</span> `;
+                });
+                if (!noteLoiHtml) noteLoiHtml = '<span style="color:#999;">-</span>';
+
                 html += `
                     <tr>
                         <td>${index + 1}</td>
@@ -1210,8 +1189,7 @@
                         <td>${callInfo}</td>
                         <td>${totalScoreHtml}</td>
                         <td class="thang-diem-cell">${thangDiemHtml}</td>
-                        <td class="diem-chi-tiet-cell">${diemChiTietHtml}</td>
-                        <td>${errorsHtml}</td>
+                        <td>${noteLoiHtml}</td>
                         <td>${item.note || '-'}</td>
                         <td><button class="btn-delete-row" onclick="deleteResult(${index})">Xóa</button></td>
                     </tr>

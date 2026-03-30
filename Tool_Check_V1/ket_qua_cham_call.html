@@ -776,10 +776,19 @@
             const keys = Object.keys(data[0] || {});
 
             // Tìm cột Team
-            teamColName = keys.find(k => k.toLowerCase().includes('team') || k.toLowerCase().includes('nhóm') || k.toLowerCase().includes('group') || k.toLowerCase().includes('đội') || k.toLowerCase() === 'bộ phận');
+            teamColName = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('team') || lowK.includes('nhóm') || lowK.includes('group') || 
+                       lowK.includes('đội') || lowK === 'bộ phận' || lowK.includes('phòng ban');
+            });
 
             // Tìm cột User / Agent
-            agentColName = keys.find(k => k.toLowerCase().includes('user') || k.toLowerCase().includes('qa') || k.toLowerCase().includes('nhân viên') || k.toLowerCase().includes('csr'));
+            agentColName = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('user') || lowK.includes('qa') || lowK.includes('nhân viên') || 
+                       lowK.includes('csr') || lowK.includes('agent') || lowK.includes('họ tên') || 
+                       lowK.includes('tên nv') || lowK === 'nv';
+            });
 
             // Tự động thêm tùy chọn vào dropdown team
             const teamSelect = document.getElementById('teamFilter');
@@ -845,14 +854,33 @@
             const keys = Object.keys(data[0] || {});
 
             // Tìm cột Điểm
-            const scoreCol = keys.find(k => k.toLowerCase().includes('điểm') || k.toLowerCase() === 'tổng điểm' || k.toLowerCase() === 'score' || k.includes('Tổng Cộng'));
+            const scoreCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' || 
+                       lowK.includes('tổng cộng') || lowK.includes('final score');
+            });
 
-            // Tìm cột Lỗi Zero / Auto Fail (Thông thường có Wow / Lỗi trong Tool_Check)
-            const autoFailCol = keys.find(k => k.toLowerCase().includes('7.0') || k.toLowerCase().includes('auto fail') || k.toLowerCase().includes('zero'));
-            const wowCol = keys.find(k => k.toLowerCase().includes('6.0') || k.toLowerCase().includes('wow'));
+            // Tìm cột Lỗi Zero / Auto Fail
+            const autoFailCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('7.0') || lowK.includes('auto fail') || 
+                       lowK.includes('zero') || lowK.includes('lỗi nghiêm trọng');
+            });
+
+            // Tìm cột Wow Factor
+            const wowCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('6.0') || lowK.includes('wow') || lowK.includes('khen ngợi');
+            });
 
             // Tìm cột Tên Lỗi
-            const errorReasonCol = keys.find(k => k.toLowerCase().includes('tên lỗi') || k.toLowerCase().includes('loại lỗi') || k.toLowerCase().includes('mắc lỗi'));
+            const errorReasonCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') || 
+                       lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') || 
+                       lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') || 
+                       (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
+            });
 
             // Lấy agentCol (để dùng trong render biểu đồ bên dưới)
             const agentCol = agentColName;
@@ -866,7 +894,7 @@
             let wowCount = 0;
 
             data.forEach(row => {
-                if (scoreCol && row[scoreCol]) {
+                if (scoreCol && row[scoreCol] !== undefined && row[scoreCol] !== '') {
                     const score = parseFloat(row[scoreCol]) || 0;
                     totalScore += score;
                     countScoredRows++;
@@ -874,12 +902,12 @@
 
                 if (autoFailCol) {
                     const val = String(row[autoFailCol]).toUpperCase();
-                    if (val === 'Y' || val === 'YES' || val === '1' || val.includes('LỖI')) autoFailCount++;
+                    if (val === 'Y' || val === 'YES' || val === '1' || val === 'X' || val.includes('FAIL') || val.includes('LỖI')) autoFailCount++;
                 }
 
                 if (wowCol) {
                     const val = String(row[wowCol]).toUpperCase();
-                    if (val === 'Y' || val === 'YES' || val === '1') wowCount++;
+                    if (val === 'Y' || val === 'YES' || val === '1' || val === 'X' || val.includes('WOW')) wowCount++;
                 }
             });
 
@@ -1107,13 +1135,30 @@
             }
 
             const keys = Object.keys(data[0] || {});
-            const errorReasonCol = keys.find(k => k.toLowerCase().includes('tên lỗi') || k.toLowerCase().includes('loại lỗi') || k.toLowerCase().includes('mắc lỗi'));
+            
+            // Cải tiến nhận diện cột Lỗi
+            const errorReasonCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') || 
+                       lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') || 
+                       lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') || 
+                       (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
+            });
 
-            // Tìm cột Điểm
-            const scoreCol = keys.find(k => k.toLowerCase().includes('điểm') || k.toLowerCase() === 'tổng điểm' || k.toLowerCase() === 'score' || k.includes('Tổng Cộng'));
+            // Cải tiến nhận diện cột Điểm
+            const scoreCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' || 
+                       lowK.includes('tổng cộng') || lowK.includes('final score');
+            });
 
-            // Tìm cột Ghi chú
-            const noteCol = keys.find(k => k.toLowerCase().includes('ghi chú') || k.toLowerCase().includes('note') || k.toLowerCase().includes('nhận xét'));
+            // Cải tiến nhận diện cột Ghi chú
+            const noteCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('ghi chú') || lowK.includes('note') || 
+                       lowK.includes('nhận xét') || lowK.includes('comment') || 
+                       lowK.includes('phản hồi');
+            });
 
             // Tổng hợp lỗi theo user
             const userErrorMap = {};
@@ -1125,7 +1170,7 @@
                 userErrorMap[user].totalCalls++;
 
                 // Tổng hợp điểm
-                if (scoreCol && row[scoreCol]) {
+                if (scoreCol && row[scoreCol] !== undefined && row[scoreCol] !== '') {
                     const score = parseFloat(row[scoreCol]) || 0;
                     userErrorMap[user].totalScore += score;
                     userErrorMap[user].scoredCount++;
@@ -1139,8 +1184,8 @@
                 if (errorReasonCol) {
                     const errVal = row[errorReasonCol];
                     if (errVal && String(errVal).trim() !== '') {
-                        // Có thể có nhiều lỗi cách nhau bởi ";" hoặc ","
-                        const errList = String(errVal).split(/[;,]/).map(e => e.trim()).filter(e => e);
+                        // Có thể có nhiều lỗi cách nhau bởi ";" hoặc "," hoặc xuống dòng
+                        const errList = String(errVal).split(/[;,\n\r]+/).map(e => e.trim()).filter(e => e);
                         if (errList.length > 0) {
                             userErrorMap[user].errorCallCount++;
                             errList.forEach(err => {
@@ -1208,6 +1253,12 @@
                 'thieu_cam_on': 'Thiếu cảm ơn'
             };
 
+            const criteriaLabels = {
+                '1.1': 'Chào', '1.2': 'Lắng nghe', '2.1': 'Ngôn từ', '2.2': 'Ngữ điệu',
+                '2.3': 'Thấu hiểu', '2.4': 'Xưng hô', '3.1': 'Quản lý cuộc gọi', '3.2': 'Nhập liệu',
+                '4.1': 'Xác minh', '4.2': 'Giải pháp', '5.1': 'Khảo sát', '5.2': 'Chào kết'
+            };
+
             // Tìm cột user trong rowData
             const userErrorMap = {};
             savedScores.forEach(item => {
@@ -1239,7 +1290,8 @@
                 Object.entries(itemErrors).forEach(([criteria, errArr]) => {
                     errArr.forEach(errCode => {
                         const label = errorLabels[errCode] || errCode;
-                        const key = `${criteria}: ${label}`;
+                        const cLabel = criteriaLabels[criteria] || criteria;
+                        const key = `[${cLabel}] ${label}`;
                         userErrorMap[userName].errors[key] = (userErrorMap[userName].errors[key] || 0) + 1;
                         hasError = true;
                     });
@@ -1287,9 +1339,6 @@
                             <th>User / Agent</th>
                             <th>Tổng cuộc <span class="sort-icon">▼</span></th>
                             <th>Điểm TB <span class="sort-icon">▼</span></th>
-                            <th>Cuộc có lỗi <span class="sort-icon">▼</span></th>
-                            <th>Tỷ lệ lỗi <span class="sort-icon">▼</span></th>
-                            <th>Tổng lỗi <span class="sort-icon">▼</span></th>
                             <th>Chi tiết lỗi</th>
                             <th>Ghi chú</th>
                         </tr>
@@ -1373,16 +1422,6 @@
                         <td class="user-name-cell">${user}</td>
                         <td style="text-align:center;">${info.totalCalls}</td>
                         <td style="text-align:center;">${avgScoreHtml}</td>
-                        <td style="text-align:center;"><span class="error-count-badge ${countClass}">${info.errorCallCount}</span></td>
-                        <td>
-                            <div class="error-rate-bar">
-                                <div class="error-rate-track">
-                                    <div class="error-rate-fill ${rateClass}" style="width:${Math.min(errorRate, 100)}%"></div>
-                                </div>
-                                <span class="error-rate-text">${errorRate.toFixed(1)}%</span>
-                            </div>
-                        </td>
-                        <td style="text-align:center;"><span class="error-count-badge ${countClass}">${totalErrors}</span></td>
                         <td>${errorTagsHtml}</td>
                         <td style="max-width:200px;">${notesHtml}</td>
                     </tr>`;
