@@ -698,6 +698,18 @@
                     </div>
                 </div>
 
+                <!-- BẢNG SO SÁNH ĐIỂM THEO TEAM -->
+                <div class="error-detail-section" style="margin-bottom: 2rem;">
+                    <div class="error-detail-card">
+                        <div class="chart-header">
+                            <div class="chart-title">🏆 Bảng So Sánh Theo Team</div>
+                        </div>
+                        <div class="error-detail-table-container" id="teamComparisonContainer">
+                            <!-- Bảng team sẽ được render bởi JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CHART 3: Hiệu năng Agent (Full width) -->
                 <div class="chart-card full-width">
                     <div class="chart-header">
@@ -709,17 +721,12 @@
                 </div>
             </div>
 
+
             <!-- BẢNG LỖI CHI TIẾT THEO USER -->
             <div class="error-detail-section">
                 <div class="error-detail-card">
                     <div class="chart-header">
                         <div class="chart-title">📋 Bảng Lỗi Chi Tiết Theo User</div>
-                        <div class="data-source-tabs">
-                            <button class="data-source-tab active" data-source="excel"
-                                onclick="switchErrorSource('excel')">Dữ liệu Excel</button>
-                            <button class="data-source-tab" data-source="toolcheck"
-                                onclick="switchErrorSource('toolcheck')">Dữ liệu Chấm Call</button>
-                        </div>
                     </div>
                     <div class="error-detail-table-container" id="errorDetailContainer">
                         <!-- Bảng sẽ được render bởi JS -->
@@ -778,16 +785,16 @@
             // Tìm cột Team
             teamColName = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('team') || lowK.includes('nhóm') || lowK.includes('group') || 
-                       lowK.includes('đội') || lowK === 'bộ phận' || lowK.includes('phòng ban');
+                return lowK.includes('team') || lowK.includes('nhóm') || lowK.includes('group') ||
+                    lowK.includes('đội') || lowK === 'bộ phận' || lowK.includes('phòng ban');
             });
 
             // Tìm cột User / Agent
             agentColName = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('user') || lowK.includes('qa') || lowK.includes('nhân viên') || 
-                       lowK.includes('csr') || lowK.includes('agent') || lowK.includes('họ tên') || 
-                       lowK.includes('tên nv') || lowK === 'nv';
+                return lowK.includes('user') || lowK.includes('qa') || lowK.includes('nhân viên') ||
+                    lowK.includes('csr') || lowK.includes('agent') || lowK.includes('họ tên') ||
+                    lowK.includes('tên nv') || lowK === 'nv';
             });
 
             // Tự động thêm tùy chọn vào dropdown team
@@ -856,15 +863,15 @@
             // Tìm cột Điểm
             const scoreCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' || 
-                       lowK.includes('tổng cộng') || lowK.includes('final score');
+                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' ||
+                    lowK.includes('tổng cộng') || lowK.includes('final score');
             });
 
             // Tìm cột Lỗi Zero / Auto Fail
             const autoFailCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('7.0') || lowK.includes('auto fail') || 
-                       lowK.includes('zero') || lowK.includes('lỗi nghiêm trọng');
+                return lowK.includes('7.0') || lowK.includes('auto fail') ||
+                    lowK.includes('zero') || lowK.includes('lỗi nghiêm trọng');
             });
 
             // Tìm cột Wow Factor
@@ -876,10 +883,10 @@
             // Tìm cột Tên Lỗi
             const errorReasonCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') || 
-                       lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') || 
-                       lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') || 
-                       (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
+                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') ||
+                    lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') ||
+                    lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') ||
+                    (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
             });
 
             // Lấy agentCol (để dùng trong render biểu đồ bên dưới)
@@ -1089,29 +1096,11 @@
         }
 
         // ===== BẢNG LỖI CHI TIẾT THEO USER =====
-        let currentErrorSource = 'excel';
-
-        function switchErrorSource(source) {
-            currentErrorSource = source;
-            document.querySelectorAll('.data-source-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.source === source);
-            });
-            renderErrorDetailTable();
-        }
 
         function renderErrorDetailTable() {
             const container = document.getElementById('errorDetailContainer');
             if (!container) return;
 
-            if (currentErrorSource === 'excel') {
-                renderExcelErrorTable(container);
-            } else {
-                renderToolcheckErrorTable(container);
-            }
-        }
-
-        // Render bảng lỗi từ dữ liệu Excel (dashboard_excel_data)
-        function renderExcelErrorTable(container) {
             const selectedTeam = document.getElementById('teamFilter').value;
             const selectedUser = document.getElementById('userFilter').value;
 
@@ -1135,29 +1124,29 @@
             }
 
             const keys = Object.keys(data[0] || {});
-            
+
             // Cải tiến nhận diện cột Lỗi
             const errorReasonCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') || 
-                       lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') || 
-                       lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') || 
-                       (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
+                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') ||
+                    lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') ||
+                    lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') ||
+                    (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
             });
 
             // Cải tiến nhận diện cột Điểm
             const scoreCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' || 
-                       lowK.includes('tổng cộng') || lowK.includes('final score');
+                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' ||
+                    lowK.includes('tổng cộng') || lowK.includes('final score');
             });
 
             // Cải tiến nhận diện cột Ghi chú
             const noteCol = keys.find(k => {
                 const lowK = k.toLowerCase();
-                return lowK.includes('ghi chú') || lowK.includes('note') || 
-                       lowK.includes('nhận xét') || lowK.includes('comment') || 
-                       lowK.includes('phản hồi');
+                return lowK.includes('ghi chú') || lowK.includes('note') ||
+                    lowK.includes('nhận xét') || lowK.includes('comment') ||
+                    lowK.includes('phản hồi');
             });
 
             // Tổng hợp lỗi theo user
@@ -1193,119 +1182,6 @@
                             });
                         }
                     }
-                }
-            });
-
-            buildErrorTable(container, userErrorMap);
-        }
-
-        // Render bảng lỗi từ dữ liệu chấm call (toolcheckScores)
-        function renderToolcheckErrorTable(container) {
-            const savedScores = JSON.parse(localStorage.getItem('toolcheckScores') || '[]');
-            if (savedScores.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-error-table">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586" />
-                        </svg>
-                        <p>Chưa có dữ liệu chấm call. Hãy chấm điểm trên trang Tool Check trước.</p>
-                    </div>`;
-                return;
-            }
-
-            const errorLabels = {
-                'khong_chao': 'Không chào đúng chuẩn',
-                'giong_moi': 'Giọng mệt mỏi',
-                'thieu_than_thien': 'Thiếu thân thiện',
-                'cat_loi': 'Cắt lời KH',
-                'khong_lang_nghe': 'Không lắng nghe',
-                'hieu_sai': 'Hiểu sai ý KH',
-                'ngon_tu_tieu_cuc': 'Ngôn từ tiêu cực',
-                'kho_hieu': 'Khó hiểu',
-                'chuyen_nganh': 'Dùng thuật ngữ CN',
-                'noi_nhanh': 'Nói quá nhanh',
-                'noi_cham': 'Nói quá chậm',
-                'giong_buon': 'Giọng buồn/mệt',
-                'phat_am_sai': 'Phát âm không rõ',
-                'thieu_dong_cam': 'Thiếu đồng cảm',
-                'phan_hoi_may_moc': 'Phản hồi máy móc',
-                'khong_thau_hieu': 'Không thấu hiểu',
-                'khong_goi_ten': 'Không gọi tên KH',
-                'xung_ho_sai': 'Xưng hô sai',
-                'goi_sai_ten': 'Gọi sai tên',
-                'hold_lau': 'Hold quá lâu',
-                'khong_thong_bao': 'Không thông báo hold',
-                'chuyen_nhieu_lan': 'Chuyển máy nhiều lần',
-                'nhap_sai': 'Nhập liệu sai',
-                'thieu_thong_tin': 'Thiếu thông tin',
-                'khong_cap_nhat': 'Không cập nhật',
-                'khong_xac_minh': 'Không xác minh',
-                'xac_minh_sai': 'Xác minh sai',
-                'bo_qua_buoc': 'Bỏ qua xác minh',
-                'giai_phap_sai': 'Giải pháp sai',
-                'khong_ro_rang': 'Không rõ ràng',
-                'khong_day_du': 'Không đầy đủ',
-                'tu_van_sai': 'Tư vấn sai',
-                'khong_khao_sat': 'Không khảo sát',
-                'khao_sat_sai': 'Khảo sát sai',
-                'khong_chao_ket': 'Không chào kết',
-                'ket_thuc_voi': 'Kết thúc vội',
-                'thieu_cam_on': 'Thiếu cảm ơn'
-            };
-
-            const criteriaLabels = {
-                '1.1': 'Chào', '1.2': 'Lắng nghe', '2.1': 'Ngôn từ', '2.2': 'Ngữ điệu',
-                '2.3': 'Thấu hiểu', '2.4': 'Xưng hô', '3.1': 'Quản lý cuộc gọi', '3.2': 'Nhập liệu',
-                '4.1': 'Xác minh', '4.2': 'Giải pháp', '5.1': 'Khảo sát', '5.2': 'Chào kết'
-            };
-
-            // Tìm cột user trong rowData
-            const userErrorMap = {};
-            savedScores.forEach(item => {
-                const rowData = item.rowData || {};
-                const rowKeys = Object.keys(rowData);
-                const userCol = rowKeys.find(k => k.toLowerCase().includes('user') || k.toLowerCase().includes('qa') || k.toLowerCase().includes('nhân viên') || k.toLowerCase().includes('csr'));
-                const userName = userCol ? (rowData[userCol] || 'Unknown') : 'Unknown';
-
-                if (!userErrorMap[userName]) {
-                    userErrorMap[userName] = { totalCalls: 0, errors: {}, errorCallCount: 0, totalScore: 0, scoredCount: 0, notes: [] };
-                }
-                userErrorMap[userName].totalCalls++;
-
-                // Tổng hợp điểm
-                if (item.totalScore !== undefined && item.totalScore !== null) {
-                    const score = typeof item.totalScore === 'number' ? item.totalScore : (parseFloat(item.totalScore) || 0);
-                    userErrorMap[userName].totalScore += score;
-                    userErrorMap[userName].scoredCount++;
-                }
-
-                // Tổng hợp ghi chú
-                if (item.note && String(item.note).trim() !== '') {
-                    userErrorMap[userName].notes.push(String(item.note).trim());
-                }
-
-                // Tổng hợp lỗi từ item.errors
-                const itemErrors = item.errors || {};
-                let hasError = false;
-                Object.entries(itemErrors).forEach(([criteria, errArr]) => {
-                    errArr.forEach(errCode => {
-                        const label = errorLabels[errCode] || errCode;
-                        const cLabel = criteriaLabels[criteria] || criteria;
-                        const key = `[${cLabel}] ${label}`;
-                        userErrorMap[userName].errors[key] = (userErrorMap[userName].errors[key] || 0) + 1;
-                        hasError = true;
-                    });
-                });
-
-                // Auto Fail factors
-                (item.autoFailFactors || []).forEach(factor => {
-                    const key = `Auto Fail: ${factor}`;
-                    userErrorMap[userName].errors[key] = (userErrorMap[userName].errors[key] || 0) + 1;
-                    hasError = true;
-                });
-
-                if (hasError) {
-                    userErrorMap[userName].errorCallCount++;
                 }
             });
 
@@ -1436,17 +1312,169 @@
             if (el) el.classList.toggle('show');
         }
 
+        // ===== BẢNG SO SÁNH THEO TEAM =====
+
+        function renderTeamComparisonTable() {
+            const container = document.getElementById('teamComparisonContainer');
+            if (!container) return;
+
+            let data = allData;
+
+            const selectedTeam = document.getElementById('teamFilter').value;
+            // Nếu muốn áp dụng filter thì bật lên, nhưng thường bảng compare team cần xem tất cả
+            // if (selectedTeam && teamColName) {
+            //     data = data.filter(row => row[teamColName] == selectedTeam);
+            // }
+
+            if (!teamColName || !data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-error-table">
+                        <p style="color:var(--text-muted);font-style:italic;">Không tìm thấy cột 'Team' hoặc không có dữ liệu để hiển thị.</p>
+                    </div>`;
+                return;
+            }
+
+            const keys = Object.keys(data[0] || {});
+
+            const errorReasonCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('tên lỗi') || lowK.includes('loại lỗi') ||
+                    lowK.includes('mắc lỗi') || lowK.includes('nội dung lỗi') ||
+                    lowK.includes('chi tiết lỗi') || lowK.includes('lý do lỗi') ||
+                    (lowK.includes('lỗi') && !lowK.includes('hệ thống') && !lowK.includes('kỹ thuật'));
+            });
+
+            const scoreCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('điểm') || lowK === 'tổng điểm' || lowK === 'score' ||
+                    lowK.includes('tổng cộng') || lowK.includes('final score');
+            });
+
+            const autoFailCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('7.0') || lowK.includes('auto fail') ||
+                    lowK.includes('zero') || lowK.includes('lỗi nghiêm trọng');
+            });
+
+            const wowCol = keys.find(k => {
+                const lowK = k.toLowerCase();
+                return lowK.includes('6.0') || lowK.includes('wow') || lowK.includes('khen ngợi');
+            });
+
+            const teamMap = {};
+            data.forEach(row => {
+                const team = row[teamColName] || 'Unknown';
+                // Lọc theo team nếu đang chọn cụ thể 1 team, nếu không thì hiện hết
+                if (selectedTeam && team !== selectedTeam) return;
+
+                if (!teamMap[team]) {
+                    teamMap[team] = { totalCalls: 0, totalScore: 0, scoredCount: 0, errorCalls: 0, autoFail: 0, wow: 0 };
+                }
+                teamMap[team].totalCalls++;
+
+                if (scoreCol && row[scoreCol] !== undefined && row[scoreCol] !== '') {
+                    const score = parseFloat(row[scoreCol]) || 0;
+                    teamMap[team].totalScore += score;
+                    teamMap[team].scoredCount++;
+                }
+
+                if (errorReasonCol) {
+                    const errVal = row[errorReasonCol];
+                    if (errVal && String(errVal).trim() !== '') {
+                        teamMap[team].errorCalls++;
+                    }
+                }
+
+                if (autoFailCol) {
+                    const val = String(row[autoFailCol]).toUpperCase();
+                    if (val === 'Y' || val === 'YES' || val === '1' || val === 'X' || val.includes('FAIL') || val.includes('LỖI')) {
+                        teamMap[team].autoFail++;
+                    }
+                }
+
+                if (wowCol) {
+                    const val = String(row[wowCol]).toUpperCase();
+                    if (val === 'Y' || val === 'YES' || val === '1' || val === 'X' || val.includes('WOW')) {
+                        teamMap[team].wow++;
+                    }
+                }
+            });
+
+            buildTeamTable(container, teamMap);
+        }
+
+        function buildTeamTable(container, teamMap) {
+            const teamEntries = Object.entries(teamMap).sort((a, b) => {
+                // Sắp xếp theo điểm trung bình (cao xuống thấp)
+                const getAvg = (info) => info.scoredCount > 0 ? (info.totalScore / info.scoredCount) : 0;
+                return getAvg(b[1]) - getAvg(a[1]);
+            });
+
+            if (teamEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-error-table">
+                        <p style="color:var(--text-muted);font-style:italic;">Không có dữ liệu để hiển thị.</p>
+                    </div>`;
+                return;
+            }
+
+            let html = `
+                <table class="error-detail-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">Hạng</th>
+                            <th>Team</th>
+                            <th style="text-align:center;">Tổng Mẫu</th>
+                            <th style="text-align:center;">Mẫu Lỗi</th>
+                            <th style="text-align:center;">Auto Fail</th>
+                            <th style="text-align:center;">Wow Factor</th>
+                            <th style="text-align:center;">Điểm TB</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            teamEntries.forEach(([team, info], idx) => {
+                const avgScore = info.scoredCount > 0 ? (info.totalScore / info.scoredCount) : null;
+                let avgScoreHtml = '<span style="color:#999;">-</span>';
+                if (avgScore !== null) {
+                    const scoreClass = avgScore >= 80 ? 'color:#10b981' : (avgScore >= 60 ? 'color:#f59e0b' : 'color:#ef4444');
+                    avgScoreHtml = `<span style="font-weight:700;${scoreClass};font-size:1.1em;">${(Math.round(avgScore * 100) / 100).toFixed(1)}</span>`;
+                }
+
+                let rankBadge = idx + 1;
+                if (idx === 0) rankBadge = '🥇 1';
+                else if (idx === 1) rankBadge = '🥈 2';
+                else if (idx === 2) rankBadge = '🥉 3';
+
+                html += `
+                    <tr>
+                        <td style="text-align:center; font-weight:700;">${rankBadge}</td>
+                        <td class="user-name-cell" style="font-size:1.05rem; color:var(--primary-color);">${team}</td>
+                        <td style="text-align:center; font-weight:600;">${info.totalCalls}</td>
+                        <td style="text-align:center;">${info.errorCalls}</td>
+                        <td style="text-align:center;">${info.autoFail > 0 ? '<span style="color:#ef4444;font-weight:700;font-size:1rem;background-color:#fee2e2;padding:2px 8px;border-radius:10px;">' + info.autoFail + '</span>' : '0'}</td>
+                        <td style="text-align:center;">${info.wow > 0 ? '<span style="color:#f59e0b;font-weight:700;font-size:1rem;background-color:#fef3c7;padding:2px 8px;border-radius:10px;">' + info.wow + '</span>' : '0'}</td>
+                        <td style="text-align:center; background:#f8fafc;">${avgScoreHtml}</td>
+                    </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
         // Gọi render bảng lỗi khi filter thay đổi (override analyzeAndRender)
         const originalAnalyzeAndRender = analyzeAndRender;
         analyzeAndRender = function (data) {
             originalAnalyzeAndRender(data);
             renderErrorDetailTable();
+            renderTeamComparisonTable();
         };
 
         // Render bảng lỗi lần đầu khi trang load
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 renderErrorDetailTable();
+                renderTeamComparisonTable();
             }, 500);
         });
     </script>
