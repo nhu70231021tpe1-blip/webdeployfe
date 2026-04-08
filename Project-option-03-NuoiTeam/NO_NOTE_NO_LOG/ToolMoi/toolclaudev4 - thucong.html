@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -32,7 +32,8 @@
       padding: 8px;
       border-radius: 4px;
       border: 1px solid #e2e8f0;
-      max-height: 150px;
+      max-height: 200px;
+      width: 100%;
       overflow-y: auto;
     }
 
@@ -60,6 +61,55 @@
       border-left: 4px solid #2563eb;
       color: #1e40af;
       font-weight: 600;
+    }
+
+    /* Sticky Header cho Flowchart Editor */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    /* Thêm margin-top cho phần nội dung bên dưới header */
+    .content-below-header {
+      margin-top: 58px;
+    }
+
+    /* Màu sắc phân biệt các cấp tree */
+    .tree-level-1 {
+      border-color: #3B82F6 !important;
+      background-color: rgba(59, 130, 246, 0.12) !important;
+    }
+
+    .tree-level-2 {
+      border-color: #10B981 !important;
+      background-color: rgba(16, 185, 129, 0.12) !important;
+    }
+
+    .tree-level-3 {
+      border-color: #F59E0B !important;
+      background-color: rgba(245, 158, 11, 0.12) !important;
+    }
+
+    .tree-level-4 {
+      border-color: #8B5CF6 !important;
+      background-color: rgba(139, 92, 246, 0.12) !important;
+    }
+
+    .tree-level-5 {
+      border-color: #EC4899 !important;
+      background-color: rgba(236, 72, 153, 0.12) !important;
+    }
+
+    .tree-root {
+      background: #EEF2FF !important;
+      border-radius: 8px;
+      padding: 8px !important;
+    }
+
+    .tree-branch {
+      border-radius: 4px;
+      padding: 4px 0 4px 8px;
     }
 
     .animate-fade-in {
@@ -228,6 +278,27 @@
           <line x1="9" y1="14" x2="15" y2="14" />
         </>
       ),
+      Copy: (
+        <>
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </>
+      ),
+      Scissors: (
+        <>
+          <circle cx="6" cy="6" r="3"></circle>
+          <circle cx="6" cy="18" r="3"></circle>
+          <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+          <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+          <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+        </>
+      ),
+      ClipboardPaste: (
+        <>
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+        </>
+      ),
     };
     const BtnIcon = ({ name, size }) => (
       <Icon path={Icons[name]} size={size} />
@@ -246,7 +317,7 @@
 
       // First, detect variable references in node fields (xmttib, xmttemail, xmttchat, note, alert, dieukien)
       // These are values without quotes that match a constant name
-      const varFields = ['xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'dieukien'];
+      const varFields = ['xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert', 'dieukien'];
       const detectedVarRefs = {}; // Track which field values are variable references
 
       varFields.forEach(fieldName => {
@@ -370,12 +441,13 @@
         // Init TinyMCE
         tinymce.init({
           selector: `#${textareaId}`,
+          entity_encoding: 'raw',
           license_key: 'gpl',  // GPL license - free to use
           base_url: './tinymce',
           suffix: '.min',
-          height: 600,
+          min_height: 300, max_height: 600, autoresize_bottom_margin: 20,
           menubar: false,
-          plugins: 'lists link code table image media hr charmap fullscreen preview searchreplace emoticons autolink',
+          plugins: 'lists link code table image media hr charmap fullscreen preview searchreplace emoticons autolink autoresize',
           toolbar: [
             'undo redo | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright',
             'bullist numlist | table hr charmap emoticons | image media link createpopup | fullscreen preview code'
@@ -498,7 +570,7 @@
           ) : (
             <textarea
               className="form-control code-input"
-              rows={5}
+              rows={12} style={{ minHeight: "300px" }}
               value={value || ''}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
@@ -527,7 +599,7 @@
               <h5 className="fw-bold mb-0">Soạn thảo nội dung Popup (Rich Text)</h5>
               <button onClick={onClose} className="btn-close"></button>
             </div>
-            <div className="flex-fill p-2 overflow-hidden d-flex flex-column bg-light">
+            <div className="flex-fill p-2  d-flex flex-column bg-light">
               <div className="flex-fill bg-white border rounded">
                 {/* TinyEditor instance for Popup Content */}
                 <TinyEditor
@@ -559,6 +631,14 @@
       nodeQuoteTypes, setNodeQuoteTypes
     }) => {
       const [tempGroups, setTempGroups] = React.useState(() => groupedConstants);
+
+      // Lock body scroll when modal is open
+      React.useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = '';
+        };
+      }, []);
 
       // Sync tempGroups with groupedConstants when it changes
       React.useEffect(() => {
@@ -846,7 +926,7 @@
 
       return (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="bg-white rounded shadow-lg w-100 d-flex flex-column overflow-hidden" style={{ maxWidth: '95vw', height: '85vh' }}>
+          <div className="bg-white rounded shadow-lg w-100 d-flex flex-column " style={{ maxWidth: '95vw', height: '85vh' }}>
             <div className="p-3 border-bottom d-flex justify-content-between bg-light">
               <h5 className="fw-bold d-flex align-items-center gap-2 mb-0">
                 <BtnIcon name="FileText" /> Quản lý Biến
@@ -1038,14 +1118,7 @@
                           }}
                         />
                       )}
-                      {/* FEATURE 3: Preview HTML Button */}
-                      <button
-                        onClick={() => setPreviewHtml({ varName: k, content: v })}
-                        className="btn btn-sm btn-outline-info p-1"
-                        title="Preview HTML"
-                      >
-                        <BtnIcon name="Eye" size={16} />
-                      </button>
+
                       {/* Delete button */}
                       <button
                         onClick={() => deleteVar(k)}
@@ -1105,6 +1178,7 @@
       const [errorInfo, setErrorInfo] = useState(null);
       const [previewHtml, setPreviewHtml] = useState(null); // { varName, content } for HTML preview
       const [originalFileContent, setOriginalFileContent] = useState("");
+      const [clipboard, setClipboard] = useState({ type: null, path: null, node: null });
 
       // State for ConstantsManager - lifted to prevent reset on re-render
       const [activeConstGroup, setActiveConstGroup] = useState("Chưa phân loại");
@@ -1288,37 +1362,68 @@
               content.trim().startsWith('\x3c!DOCTYPE') || content.trim().startsWith('\x3chtml');
 
             if (isHtml) {
-              // Regex with escaped angle brackets
-              const scriptRegex = new RegExp('\x3cscript\\b[^\x3e]*\x3e([\\s\\S]*?)\x3c/script\x3e', 'gi');
-              let match;
               let foundScriptContent = null;
-              let scriptStartIndex = -1;
-              let scriptEndIndex = -1;
 
-              while ((match = scriptRegex.exec(content)) !== null) {
-                const scriptContent = match[1];
-                if (scriptContent.includes('flowchartData') &&
-                  (scriptContent.includes('window.flowchartData') ||
-                    scriptContent.match(/(?:const|let|var)\s+flowchartData/))) {
-                  foundScriptContent = scriptContent;
-                  scriptStartIndex = match.index;
-                  scriptEndIndex = match.index + match[0].length;
-                  break;
+              // === FIX 1: Ưu tiên markers FLOWCHART_DATA_START/END ===
+              const markerStart = '\x3c!-- FLOWCHART_DATA_START --\x3e';
+              const markerEnd = '\x3c!-- FLOWCHART_DATA_END --\x3e';
+              const startIdx = content.indexOf(markerStart);
+              const endIdx = content.indexOf(markerEnd);
+
+              if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                // Tìm nội dung giữa 2 markers
+                const markerRegion = content.substring(
+                  startIdx + markerStart.length,
+                  endIdx
+                );
+                // Tách nội dung script trong vùng markers
+                const innerScriptMatch = markerRegion.match(
+                  new RegExp('\x3cscript[^\x3e]*\x3e([\\s\\S]*?)\x3c/script\x3e', 'i')
+                );
+                if (innerScriptMatch) {
+                  foundScriptContent = innerScriptMatch[1];
+                  setIsHtmlFile(true);
+                  // htmlBefore = content trước marker START + marker + \x3cscript\x3e
+                  setHtmlBefore(content.substring(0, startIdx) + markerStart + '\n  \x3cscript\x3e\n');
+                  // htmlAfter = \x3c/script\x3e + marker END + content sau marker END
+                  setHtmlAfter('\n  \x3c/script\x3e\n  ' + markerEnd + content.substring(endIdx + markerEnd.length));
+                  content = foundScriptContent;
+                  console.log("📄 HTML file detected via markers. Extracted script content.");
                 }
               }
 
-              if (foundScriptContent) {
-                setIsHtmlFile(true);
-                setHtmlBefore(content.substring(0, scriptStartIndex) + '\x3cscript\x3e\n');
-                setHtmlAfter('\n  \x3c/script\x3e' + content.substring(scriptEndIndex));
-                content = foundScriptContent;
-                console.log("📄 HTML file detected. Extracted script content.");
-              } else {
-                setErrorInfo({
-                  title: "❌ Không Tìm Thấy Dữ Liệu",
-                  message: "File HTML không chứa flowchartData."
-                });
-                return;
+              // Fallback: dùng regex script tag cho file không có markers
+              if (!foundScriptContent) {
+                const scriptRegex = new RegExp('\x3cscript\\b[^\x3e]*\x3e([\\s\\S]*?)\x3c/script\x3e', 'gi');
+                let match;
+                let scriptStartIndex = -1;
+                let scriptEndIndex = -1;
+
+                while ((match = scriptRegex.exec(content)) !== null) {
+                  const scriptContent = match[1];
+                  if (scriptContent.includes('flowchartData') &&
+                    (scriptContent.includes('window.flowchartData') ||
+                      scriptContent.match(/(?:const|let|var)\s+flowchartData/))) {
+                    foundScriptContent = scriptContent;
+                    scriptStartIndex = match.index;
+                    scriptEndIndex = match.index + match[0].length;
+                    break;
+                  }
+                }
+
+                if (foundScriptContent) {
+                  setIsHtmlFile(true);
+                  setHtmlBefore(content.substring(0, scriptStartIndex) + '\x3cscript\x3e\n');
+                  setHtmlAfter('\n  \x3c/script\x3e' + content.substring(scriptEndIndex));
+                  content = foundScriptContent;
+                  console.log("📄 HTML file detected via script tag fallback.");
+                } else {
+                  setErrorInfo({
+                    title: "❌ Không Tìm Thấy Dữ Liệu",
+                    message: "File HTML không chứa flowchartData."
+                  });
+                  return;
+                }
               }
             }
 
@@ -1478,27 +1583,60 @@
             console.log("✅ Flat Constants (for replacement):", flatConstants);
 
             // 2. Find ALL data objects
-            const dataRegex = /((?:const|let|var|window\.)\s*(\w+)\s*=\s*)(\{[\s\S]+?\});/g;
+            // === FIX 2: Balanced brace matching thay vì lazy regex ===
+            const findBalancedObjects = (text) => {
+              const results = [];
+              const declRegex = /((?:const|let|var|window\.)\s*(\w+)\s*=\s*)\{/g;
+              let declMatch;
+              while ((declMatch = declRegex.exec(text)) !== null) {
+                const declaration = declMatch[1];
+                const name = declMatch[2];
+                const startBrace = declMatch.index + declaration.length;
+                let depth = 1, i = startBrace + 1;
+                // Bỏ qua nội dung trong strings để tránh đếm sai { } trong chuỗi
+                while (i < text.length && depth > 0) {
+                  const ch = text[i];
+                  if (ch === '\\') { i += 2; continue; }
+                  if (ch === '"' || ch === "'" || ch === '`') {
+                    const quote = ch;
+                    i++;
+                    while (i < text.length && text[i] !== quote) {
+                      if (text[i] === '\\') i++;
+                      i++;
+                    }
+                  } else if (ch === '{') { depth++; }
+                    else if (ch === '}') { depth--; }
+                  i++;
+                }
+                if (depth === 0) {
+                  const objStr = text.substring(startBrace, i);
+                  // Kiểm tra kết thúc bằng ;
+                  const afterObj = text.substring(i).trimStart();
+                  if (afterObj.startsWith(';')) {
+                    results.push({ declaration, name, objectString: objStr });
+                  }
+                }
+              }
+              return results;
+            };
+
             const newAllDataObjectInfo = {};
             const newDataSources = {};
             const newNodeQuoteTypes = {}; // Track variable references in node fields
             let firstDataKey = null;
 
-            for (const match of content.matchAll(dataRegex)) {
-              const declaration = match[1];
-              const name = match[2];
-              const dataObjectString = match[3];
-
-              newAllDataObjectInfo[name] = {
-                name,
-                declaration,
+            const foundObjects = findBalancedObjects(content);
+            for (const obj of foundObjects) {
+              newAllDataObjectInfo[obj.name] = {
+                name: obj.name,
+                declaration: obj.declaration,
               };
 
-              const parsedData = safeEvalFlowchartData(dataObjectString, flatConstants, newVarQuoteTypes, newNodeQuoteTypes);
-              newDataSources[name] = parsedData;
+              const parsedData = safeEvalFlowchartData(obj.objectString, flatConstants, newVarQuoteTypes, newNodeQuoteTypes);
+              newDataSources[obj.name] = parsedData;
 
               if (!firstDataKey) {
-                firstDataKey = name;
+                firstDataKey = obj.name;
               }
             }
 
@@ -1508,16 +1646,28 @@
             }
 
             // 3. Parse HEADER_PRESETS nếu có
+            // === FIX 6: Hỗ trợ cả window.HEADER_PRESETS ===
             let foundHeaderPresets = {};
             let foundHasPresets = false;
-            const presetsRegex = /(?:const|let|var)\s+HEADER_PRESETS\s*=\s*(\{[\s\S]+?\});/;
-            const presetsMatch = content.match(presetsRegex);
-            if (presetsMatch) {
-              try {
-                foundHeaderPresets = safeEvalFlowchartData(presetsMatch[1], flatConstants, newVarQuoteTypes, {});
-                foundHasPresets = true;
-                console.log("📦 HEADER_PRESETS:", Object.keys(foundHeaderPresets).length, "presets");
-              } catch (e) { console.warn("⚠️ Could not parse HEADER_PRESETS"); }
+            // Tìm trong dataSources đã parse (ưu tiên balanced brace result)
+            if (newDataSources['HEADER_PRESETS']) {
+              foundHeaderPresets = newDataSources['HEADER_PRESETS'];
+              foundHasPresets = true;
+              // User muốn edit HEADER_PRESETS như một flowchart bình thường
+              // Do đó KHÔNG xóa nó khỏi newDataSources. Nó sẽ vừa nằm trong dropdown,
+              // vừa có thể (nếu tool hỗ trợ) dùng cho logic Header Presets.
+              console.log("📦 HEADER_PRESETS:", Object.keys(foundHeaderPresets).length, "presets (from balanced parser)");
+            } else {
+              // Fallback: regex riêng
+              const presetsRegex = /(?:const|let|var|window\.)\s*HEADER_PRESETS\s*=\s*(\{[\s\S]+?\});/;
+              const presetsMatch = content.match(presetsRegex);
+              if (presetsMatch) {
+                try {
+                  foundHeaderPresets = safeEvalFlowchartData(presetsMatch[1], flatConstants, newVarQuoteTypes, {});
+                  foundHasPresets = true;
+                  console.log("📦 HEADER_PRESETS:", Object.keys(foundHeaderPresets).length, "presets (from regex)");
+                } catch (e) { console.warn("⚠️ Could not parse HEADER_PRESETS"); }
+              }
             }
             setHeaderPresets(foundHeaderPresets);
             setHasHeaderPresets(foundHasPresets);
@@ -1536,6 +1686,33 @@
             }
             setPageConfig(foundPageConfig);
             setHasPageConfig(foundHasConfig);
+
+            // === FIX 4: Strip folderName prefix khỏi pdf khi import ===
+            const contentFieldsForImport = ['folderName', 'displayName', 'tieudeflow', 'dieukien', 'pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert'];
+            const stripFolderPrefixFromPdf = (obj, folderSegments = []) => {
+              if (!obj || typeof obj !== 'object') return;
+              Object.keys(obj).forEach(key => {
+                const val = obj[key];
+                if (typeof val !== 'object' || val === null) return;
+                if (contentFieldsForImport.includes(key)) return;
+                // Thu thập folderName
+                const newSegments = [...folderSegments];
+                if (val.folderName) newSegments.push(val.folderName);
+                // Strip prefix khỏi pdf
+                if (val.pdf && newSegments.length > 0) {
+                  const prefix = newSegments.join('/') + '/';
+                  if (val.pdf.startsWith(prefix)) {
+                    val.pdf = val.pdf.substring(prefix.length);
+                  }
+                }
+                // Đệ quy
+                stripFolderPrefixFromPdf(val, newSegments);
+              });
+            };
+            // Áp dụng cho mỗi data source sau khi parse
+            Object.values(newDataSources).forEach(data => {
+              stripFolderPrefixFromPdf(data);
+            });
 
             // 5. Update all states
             setAllDataObjectInfo(newAllDataObjectInfo);
@@ -1557,9 +1734,72 @@
         reader.readAsText(file);
       };
 
+      // === VALIDATION: Kiểm tra biến chưa khai báo ===
+      const validateUndeclaredVariables = () => {
+        const undeclaredVars = [];
+
+        // Lấy tất cả tên biến đã khai báo
+        const declaredVars = new Set();
+        Object.values(groupedConstants).forEach(group => {
+          Object.keys(group).forEach(key => {
+            if (key !== '__subgroups__') declaredVars.add(key);
+          });
+          if (group.__subgroups__) {
+            Object.values(group.__subgroups__).forEach(subVars => {
+              Object.keys(subVars).forEach(key => declaredVars.add(key));
+            });
+          }
+        });
+
+        // Quét tất cả dataSources để tìm biến chưa khai báo
+        const scanForVars = (obj, path = []) => {
+          if (!obj || typeof obj !== 'object') return;
+
+          const varFields = ['xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert', 'dieukien'];
+
+          Object.entries(obj).forEach(([key, value]) => {
+            const currentPath = [...path, key].join(' > ');
+
+            if (varFields.includes(key) && typeof value === 'string' && value.trim()) {
+              // Kiểm tra xem có phải variable reference không (nodeQuoteTypes)
+              const pathStr = [...path, key].join('.');
+              if (nodeQuoteTypes[pathStr] === 'var') {
+                // Đây là biến reference - kiểm tra xem có khai báo chưa
+                if (!declaredVars.has(value)) {
+                  undeclaredVars.push({
+                    varName: value,
+                    field: key,
+                    location: currentPath
+                  });
+                }
+              }
+            } else if (typeof value === 'object') {
+              scanForVars(value, [...path, key]);
+            }
+          });
+        };
+
+        Object.entries(dataSources).forEach(([dataName, data]) => {
+          scanForVars(data, [dataName]);
+        });
+
+        return undeclaredVars;
+      };
+
       const handleDownload = () => {
         if (Object.keys(dataSources).length === 0) {
           alert("Lỗi: Không có dữ liệu để lưu.");
+          return;
+        }
+
+        const undeclared = validateUndeclaredVariables();
+        if (undeclared.length > 0) {
+          let message = "❌ Lỗi: Có biến chưa được khai báo trong flowchart của bạn!\n\n";
+          undeclared.forEach(v => {
+            message += `- Biến: "${v.varName}" tại trường "${v.field}" trong "${v.location}"\n`;
+          });
+          message += "\nVui lòng khai báo các biến này trong phần Constants hoặc sửa lại tham chiếu.";
+          setErrorInfo({ title: "❌ Lỗi Validation", message: message });
           return;
         }
 
@@ -1624,7 +1864,8 @@
           const sortedConsts = Object.entries(flatConstants).sort((a, b) => (b[1] || '').length - (a[1] || '').length);
 
           // Content fields that are NOT child nodes
-          const contentFieldsForExport = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
+          // === FIX 5: Thêm xmttecom vào contentFieldsForExport và đưa folderName lên đầu ===
+          const contentFieldsForExport = ['folderName', 'displayName', 'tieudeflow', 'dieukien', 'pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert'];
 
           Object.entries(dataSources).forEach(([name, data]) => {
             const info = allDataObjectInfo[name];
@@ -1634,7 +1875,8 @@
             const exportData = JSON.parse(JSON.stringify(data));
 
             // Helper to traverse and process nodes for export
-            const processExportData = (obj, path = []) => {
+            // Also prepends accumulated folderName paths to leaf pdf values
+            const processExportData = (obj, path = [], folderSegments = []) => {
               if (!obj || typeof obj !== 'object') return;
 
               Object.keys(obj).forEach(key => {
@@ -1646,10 +1888,19 @@
                 if (nodeQuoteTypes[pathStr] === 'var' && typeof val === 'string') {
                   obj[key] = `__VAR_REF__${val}__VAR_REF__`;
                 } else if (typeof val === 'object' && val !== null) {
-                  // Skip content fields - they should not be processed
+                  // Skip content fields - they should not be processed as children
                   if (!contentFieldsForExport.includes(key)) {
+                    // Collect folderName from this node if present
+                    const newFolderSegments = [...folderSegments];
+                    if (val.folderName) {
+                      newFolderSegments.push(val.folderName);
+                    }
+                    // Prepend folder path to pdf if this node has a pdf field
+                    if (val.pdf && newFolderSegments.length > 0) {
+                      val.pdf = newFolderSegments.join('/') + '/' + val.pdf;
+                    }
                     // Recurse into child nodes
-                    processExportData(val, currentPath);
+                    processExportData(val, currentPath, newFolderSegments);
                   }
                 }
               });
@@ -1942,10 +2193,82 @@ ${dataObjectsContent}
         });
       };
 
+      const handleCopy = (path, node) => {
+        setClipboard({ type: 'copy', path, node: JSON.parse(JSON.stringify(node)) });
+      };
+
+      const handleCut = (path, node) => {
+        setClipboard({ type: 'cut', path, node: JSON.parse(JSON.stringify(node)) });
+      };
+
+      const handlePaste = (targetPath) => {
+        if (!clipboard.node) return;
+
+        // determine original name from clipboard path
+        const originalName = clipboard.path.length > 0 ? clipboard.path[clipboard.path.length - 1] : "Pasted_Node";
+        let defaultName = clipboard.type === 'copy' ? originalName + ' - Copy' : originalName;
+
+        const name = prompt("Nhập tên cho nhánh được dán:", defaultName);
+        if (!name) return;
+
+        updateActiveData(currentData => {
+          const parentNode = targetPath.length === 0 ? currentData : getNode(currentData, targetPath);
+          if (parentNode[name]) {
+            alert("Tên này đã tồn tại ở vị trí dán!");
+            return currentData;
+          }
+
+          let newData = JSON.parse(JSON.stringify(currentData));
+
+          // If it's a cut operation, remove original node first
+          if (clipboard.type === 'cut') {
+            const cutParentPath = clipboard.path.slice(0, -1);
+            const cutNodeName = clipboard.path[clipboard.path.length - 1];
+
+            // Anti-recursion or anti-paste-into-self check for Cut
+            let isChildOfCut = true;
+            if (targetPath.length < clipboard.path.length) {
+              isChildOfCut = false;
+            } else {
+              for (let i = 0; i < clipboard.path.length; i++) {
+                if (targetPath[i] !== clipboard.path[i]) {
+                  isChildOfCut = false;
+                  break;
+                }
+              }
+            }
+            if (isChildOfCut) {
+              alert("Lỗi: Không thể cắt và dán một mục vào trong chính nó hoặc mục con của nó!");
+              return currentData;
+            }
+
+            const cutParent = cutParentPath.length === 0 ? newData : getNode(newData, cutParentPath);
+            delete cutParent[cutNodeName];
+          }
+
+          // Add to target
+          const targetParent = targetPath.length === 0 ? newData : getNode(newData, targetPath);
+          targetParent[name] = JSON.parse(JSON.stringify(clipboard.node));
+
+          // Auto Expand
+          const newExpanded = new Set(expandedNodes);
+          if (targetPath.length > 0) newExpanded.add(targetPath.join("."));
+          newExpanded.add([...targetPath, name].join("."));
+          setExpandedNodes(newExpanded);
+
+          // Reset clipboard if Cut
+          if (clipboard.type === 'cut') {
+            setTimeout(() => setClipboard({ type: null, path: null, node: null }), 0);
+          }
+
+          return newData;
+        });
+      };
+
       // Helper to check if a node has any child nodes (non-content fields)
       const hasChildren = (node) => {
         if (!node || typeof node !== "object") return false;
-        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
+        const contentFields = ['folderName', 'displayName', 'tieudeflow', 'dieukien', 'pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert'];
         const keys = Object.keys(node);
         // Check if there are any keys that are NOT content fields
         return keys.some(key => !contentFields.includes(key) && typeof node[key] === 'object');
@@ -1959,6 +2282,9 @@ ${dataObjectsContent}
         // Empty object {} = intermediate/placeholder node, NOT a leaf
         const keys = Object.keys(node);
         if (keys.length === 0) return false;
+
+        // CHFIX: Nếu có folderName hoặc tieudeflow thì chắc chắn là nhánh (tránh việc nhánh bị biến thành leaf khi thêm popup content)
+        if (node.folderName !== undefined || node.tieudeflow !== undefined) return false;
 
         return !hasChildren(node); // Leaf = no children
       };
@@ -1987,8 +2313,14 @@ ${dataObjectsContent}
                     {node.displayName && <div>🏷️ {node.displayName}</div>}
                     {node.pdf && <div>📄 {node.pdf}</div>}
                     {node.contentType && <div>📝 Content: {node.contentType}</div>}
-                    {node.htmlUrl && <div>🔗 URL: {node.htmlUrl}</div>}
                   </div>
+                  {node.folderName && (
+                    <div className="mt-1 mb-1">
+                      <span className="badge" style={{ fontSize: '10.5px', backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                        📁 Thư mục xuất: {node.folderName}
+                      </span>
+                    </div>
+                  )}
                   {node.note && (
                     <div className="mt-2">
                       <label className="small fw-bold text-muted">NOTE</label>
@@ -2038,6 +2370,26 @@ ${dataObjectsContent}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleCopy(path, node);
+                    }}
+                    className="btn btn-sm btn-link text-secondary p-1"
+                    title="Copy (Sao chép)"
+                  >
+                    <BtnIcon name="Copy" size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCut(path, node);
+                    }}
+                    className="btn btn-sm btn-link text-secondary p-1"
+                    title="Cut (Cắt)"
+                  >
+                    <BtnIcon name="Scissors" size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       renameNode(path);
                     }}
                     className="btn btn-sm p-1"
@@ -2052,8 +2404,24 @@ ${dataObjectsContent}
                       setEditingNode({ path, node });
                     }}
                     className="btn btn-sm btn-link text-primary p-1"
+                    title="Thêm/Sửa Nội Dung"
                   >
                     <BtnIcon name="Edit2" size={14} />
+                  </button>
+                  {/* CHFIX: Cho phép thêm con trực tiếp từ Leaf để linh hoạt */}
+                  <button
+                    onClick={() => addNode(path, true)}
+                    className="btn btn-sm btn-success p-1 d-flex align-items-center gap-1 ms-1"
+                    title="Thêm Kết quả PDF (Biến thành nhánh)"
+                  >
+                    <BtnIcon name="Plus" size={14} /> PDF
+                  </button>
+                  <button
+                    onClick={() => addNode(path, false)}
+                    className="btn btn-sm btn-primary p-1 d-flex align-items-center gap-1 ms-1 me-1"
+                    title="Thêm Nhánh (Biến thành nhánh)"
+                  >
+                    <BtnIcon name="Plus" size={14} /> Child
                   </button>
                   <button
                     onClick={(e) => {
@@ -2072,17 +2440,16 @@ ${dataObjectsContent}
         }
 
         // Filter keys to get only CHILD NODES (not content fields)
-        const contentFields = ['pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert', 'displayName', 'dieukien', 'tieudeflow'];
+        const contentFields = ['folderName', 'displayName', 'tieudeflow', 'dieukien', 'pdf', 'contentType', 'htmlContent', 'htmlUrl', 'xmtt', 'xmttib', 'xmttemail', 'xmttchat', 'xmttecom', 'note', 'alert'];
         const allKeys = Object.keys(node || {});
         const keys = allKeys.filter(key => !contentFields.includes(key));
 
         return (
           <div
             key={pathStr}
-            className={`mt-2 ${path.length ? "ms-4 border-start border-2 ps-2" : ""
-              }`}
+            className={`mt-2 ${path.length ? `ms-4 border-start border-2 ps-2 tree-level-${Math.min(path.length, 5)} tree-branch` : "tree-root"}`}
           >
-            <div className="d-flex align-items-center gap-2 py-1 bg-light bg-opacity-50 rounded pe-2">
+            <div className="d-flex align-items-center gap-2 py-1 rounded pe-2">
               <button
                 onClick={() => {
                   const next = new Set(expandedNodes);
@@ -2109,6 +2476,12 @@ ${dataObjectsContent}
                     📦 +Content
                   </span>
                 )}
+                {/* Show folderName badge */}
+                {node.folderName && (
+                  <span className="badge ms-1" style={{ fontSize: '10px', backgroundColor: '#fef3c7', color: '#92400e' }}>
+                    📁 {node.folderName}
+                  </span>
+                )}
               </span>
 
               <div className="d-flex align-items-center gap-1">
@@ -2133,6 +2506,26 @@ ${dataObjectsContent}
                       title="Xuống"
                     >
                       <BtnIcon name="ArrowDown" size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(path, node);
+                      }}
+                      className="btn btn-sm btn-link text-secondary p-1"
+                      title="Copy (Sao chép)"
+                    >
+                      <BtnIcon name="Copy" size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCut(path, node);
+                      }}
+                      className="btn btn-sm btn-link text-secondary p-1 me-2"
+                      title="Cut (Cắt)"
+                    >
+                      <BtnIcon name="Scissors" size={14} />
                     </button>
                     {/* --- NÚT ĐỔI TÊN NHÓM (TÍM) --- */}
                     <button
@@ -2174,6 +2567,19 @@ ${dataObjectsContent}
                 >
                   <BtnIcon name="Plus" size={14} /> Child
                 </button>
+
+                {clipboard.node && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePaste(path);
+                    }}
+                    className="btn btn-sm btn-warning p-1 ms-1 d-flex align-items-center gap-1"
+                    title="Dán mục đã Copy/Cut vào đây"
+                  >
+                    <BtnIcon name="ClipboardPaste" size={14} /> Paste
+                  </button>
+                )}
 
                 {path.length > 0 && (
                   <button
@@ -2500,7 +2906,7 @@ ${dataObjectsContent}
 
         return (
           <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-            <div className="bg-white rounded shadow-lg w-100 d-flex flex-column overflow-hidden" style={{ maxWidth: '95vw', height: '85vh' }}>
+            <div className="bg-white rounded shadow-lg w-100 d-flex flex-column " style={{ maxWidth: '95vw', height: '85vh' }}>
               <div className="p-3 border-bottom d-flex justify-content-between bg-light">
                 <h5 className="fw-bold d-flex align-items-center gap-2 mb-0">
                   <BtnIcon name="FileText" /> Quản lý Biến
@@ -2510,7 +2916,7 @@ ${dataObjectsContent}
                   setShowConstModal(false);
                 }} className="btn-close"></button>
               </div>
-              <div className="d-flex flex-fill overflow-hidden">
+              <div className="d-flex flex-fill ">
                 {/* LEFT PANEL - Groups & Subgroups Tree */}
                 <div className="border-end bg-light d-flex flex-column p-2 gap-1 overflow-auto" style={{ width: '28%' }}>
                   <button
@@ -2744,8 +3150,8 @@ ${dataObjectsContent}
 
       return (
         <div className="min-vh-100 bg-light p-4">
-          <div className="container-fluid bg-white rounded shadow border overflow-hidden" style={{ maxWidth: '1400px' }}>
-            <div className="bg-dark text-white p-3 d-flex align-items-center justify-content-between">
+          <div className="container-fluid bg-white rounded shadow border " style={{ maxWidth: '1400px' }}>
+            <div className="bg-dark text-white p-3 d-flex align-items-center justify-content-between sticky-header">
               <h1 className="h4 fw-bold d-flex align-items-center gap-2 mb-0">
                 Flowchart Editor
               </h1>
@@ -2827,6 +3233,15 @@ ${dataObjectsContent}
                   </select>
                 </div>
                 <div className="p-4">
+                  {clipboard.node && (
+                    <div className="mb-3 p-2 bg-warning bg-opacity-10 border border-warning rounded d-flex align-items-center justify-content-between">
+                      <span className="text-dark fw-bold d-flex align-items-center gap-2">
+                        <BtnIcon name="ClipboardPaste" size={16} />
+                        Đang chờ dán ({clipboard.type === 'copy' ? 'Copy' : 'Cut'}): <span className="text-primary">{clipboard.path.join(" > ")}</span>
+                      </span>
+                      <button onClick={() => setClipboard({ type: null, path: null, node: null })} className="btn btn-sm btn-outline-danger">Hủy bỏ</button>
+                    </div>
+                  )}
                   {!activeData ? (
                     <div className="text-center py-5 text-secondary border border-2 border-dashed rounded">
                       Chưa có dữ liệu. Vui lòng tải file.
@@ -2916,7 +3331,7 @@ ${dataObjectsContent}
                       Chỉnh sửa: {editingNode.path.join(" > ")}
                     </h5>
                     {/* Badge hiển thị loại node */}
-                    {Object.keys(editingNode.node).some(k => !['displayName', 'pdf', 'note', 'xmttib', 'xmttecom', 'dieukien', 'alert', 'contentType', 'htmlContent', 'htmlUrl'].includes(k)) ? (
+                    {Object.keys(editingNode.node).some(k => !['displayName', 'pdf', 'note', 'xmttib', 'xmttecom', 'dieukien', 'alert', 'contentType', 'htmlContent', 'htmlUrl', 'folderName'].includes(k)) ? (
                       <span className="badge bg-success">📦 Hybrid Node</span>
                     ) : (
                       <span className="badge bg-primary">📄 Leaf Node</span>
@@ -2928,6 +3343,48 @@ ${dataObjectsContent}
                   ></button>
                 </div>
                 <div className="p-4 overflow-auto">
+                  {/* Folder Name Section */}
+                  <div className="row g-3 mb-3 p-3 rounded" style={{ backgroundColor: '#fef9ee', border: '1px solid #fde68a' }}>
+                    <div className="col-md-6">
+                      <label className="form-label small fw-bold" style={{ color: '#92400e' }}>
+                        📁 Tên Thư Mục (Folder Name)
+                      </label>
+                      <input
+                        className="form-control"
+                        placeholder="VD: 1_THONG_TIN_CHUNG"
+                        value={editingNode.node.folderName || ""}
+                        onChange={(e) =>
+                          setEditingNode({
+                            ...editingNode,
+                            node: {
+                              ...editingNode.node,
+                              folderName: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                      <small className="text-muted">Để trống nếu level này không cần thư mục riêng</small>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small fw-bold" style={{ color: '#92400e' }}>
+                        📂 Preview đường dẫn tích luỹ
+                      </label>
+                      <div className="form-control bg-light" style={{ fontFamily: 'monospace', fontSize: '13px', minHeight: '38px' }}>
+                        {(() => {
+                          // Build accumulated path from ancestors
+                          const segments = [];
+                          let current = activeData;
+                          for (let i = 0; i < editingNode.path.length - 1; i++) {
+                            current = current[editingNode.path[i]];
+                            if (current && current.folderName) segments.push(current.folderName);
+                          }
+                          // Add current node's folderName
+                          if (editingNode.node.folderName) segments.push(editingNode.node.folderName);
+                          return segments.length > 0 ? segments.join('/') + '/...' : '(không có thư mục)';
+                        })()}
+                      </div>
+                    </div>
+                  </div>
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
                       <label className="form-label small fw-medium">
