@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Note + QC Tool</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+  <link rel="stylesheet" href="qc_panel.css" />
+</head>
+<body>
+<!-- ── Main tab switcher ── -->
+<div class="main-tab-bar">
+  <button class="main-tab-btn active" id="mainTabNote">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Note
+  </button>
+  <button class="main-tab-btn" id="mainTabQc">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>QC Tool
+  </button>
+</div>
+
+<!-- ── NOTE Panel (original) ── -->
+<div id="notePanel" class="main-panel active">
+  <div class="app">
+    <header class="header">
+      <div>
+        <div class="title">Universal Note</div>
+        <div class="subtitle">V2.5.3: marker chạy theo kéo ngang scrollbar</div>
+      </div>
+      <span id="contextKind" class="chip">General</span>
+    </header>
+    <section class="context-box">
+      <div><strong>Nguồn lưu:</strong> <span id="contextLabel">...</span></div>
+      <div id="pendingHint" class="pending-hint"></div>
+    </section>
+    <section class="scope-box">
+      <button id="scopeGlobal" class="scope-btn">Global</button>
+      <button id="scopePage" class="scope-btn">Theo page</button>
+      <button id="scopeExternal" class="scope-btn">Theo externalId</button>
+    </section>
+    <section class="actions"></section>
+    <section id="settingsBox" class="settings-box">
+      <div class="setting-row">
+        <label>Hotkey đơn</label>
+        <input id="singleHotkeyDisplay" type="text" readonly />
+        <button id="captureSingle" class="btn secondary small">Đổi</button>
+        <button id="clearSingle" class="btn danger small">Tắt</button>
+      </div>
+      <div class="setting-row">
+        <label>Hotkey range</label>
+        <input id="rangeHotkeyDisplay" type="text" readonly />
+        <button id="captureRange" class="btn secondary small">Đổi</button>
+        <button id="clearRange" class="btn danger small">Tắt</button>
+      </div>
+      <div class="settings-help">Đã map marker theo viewport của scrollbar handle ngang: kéo handle sang đâu, marker/text sẽ dịch theo đúng cửa sổ nhìn thấy. Label vẫn là time + text. Click mark để đổi màu.</div>
+    </section>
+    <section class="note-panel">
+      <div class="subhead">Note chính</div>
+      <textarea id="note" placeholder="Tất cả note sẽ gom về đây..."></textarea>
+    </section>
+    <footer class="footer"><span id="status">Sẵn sàng</span></footer>
+  </div>
+</div>
+
+<!-- ── QC PANEL ── -->
+<div id="qcPanel" class="main-panel"></div>
+
+<!-- Scripts -->
+<script src="xlsx.full.min.js"></script>
+<script src="qc_panel.js"></script>
+<script src="sidepanel.js"></script>
+<script src="main_tabs.js"></script>
+</body>
+</html>
+
