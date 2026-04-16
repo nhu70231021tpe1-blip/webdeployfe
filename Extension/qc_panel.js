@@ -22,44 +22,120 @@ const QC_ICONS = {
   check: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
   chevron: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
   bar_chart: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  calendar: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
 };
 
-// ── Scoring Criteria (HEART model) ──
 // type: 'yn'   → Y(pts) / N(0)
 // type: 'ynp'  → Y(pts) / P1(pts*0.5) / N(0)
 // type: 'ynpp' → Y / P1(partial1) / P2(partial2) / N(0)
+// type: 'yna'  → Y(pts) / N(0) / NA(không tính vào maxTotal)
 const QC_CRITERIA = [
   {
     group: '1. HEART TOUCHING – Mở lòng đón, Chạm trái tim', items: [
-      { id: 'h1_1', name: '1.1 Chào mở đầu', pts: 5, type: 'yn' },
+      {
+        id: 'h1_1', name: '1.1 Chào mở đầu', pts: 5, type: 'yn',
+        tooltips: {
+          Y: "- Không dùng câu chào chuẩn\n- Chào với giọng điệu uể oải, mệt mỏi",
+          N: "- Không dùng câu chào chuẩn\n- Chào với giọng điệu uể oải, mệt mỏi"
+        }
+      }
     ]
   },
   {
     group: '2. EMPATHY – Nghe từ tâm, Hiểu thấu cảm', items: [
-      { id: 'h2_1', name: '2.1 Lắng nghe', pts: 10, type: 'ynp' },
-      { id: 'h2_2', name: '2.2 Ngôn Từ', pts: 10, type: 'ynp' },
-      { id: 'h2_3', name: '2.3 Ngữ Điệu & Giọng nói', pts: 10, type: 'ynp' },
-      { id: 'h2_4', name: '2.4 Gọi tên khách hàng', pts: 2, type: 'yn' },
+      {
+        id: 'h2_1', name: '2.1 Lắng nghe', pts: 10, type: 'ynp',
+        tooltips: {
+          Y: "- Lắng nghe và tiếp nhận chính xác thông tin khách hàng cung cấp.\n- Nhận biết và thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng.\n- Kiên nhẫn, tạo cơ hội cho khách hàng bày tỏ, chia sẻ",
+          P1: "- Thiếu kiên nhẫn: ngắt lời không phù hợp, nói song song hoặc xen ngang khi khách hàng đang trình bày (1 lần)",
+          N: "- Hỏi lại thông tin khách hàng đã cung cấp hoặc thể hiện sự thiếu tập trung trong quá trình trao đổi.\n- Không nhận biết và thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng (chán nản, thở dài, thờ ơ, bỏ mặc cảm xúc của KH ...)\n- Thiếu kiên nhẫn: ngắt lời không phù hợp, nói song song hoặc xen ngang khi khách hàng đang trình bày (từ 2 lần)"
+        }
+      },
+      {
+        id: 'h2_2', name: '2.2 Ngôn Từ', pts: 10, type: 'ynp',
+        tooltips: {
+          Y: "- Sử dụng từ ngữ tích cực, đơn giản, dễ hiểu, thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng.\n- Khéo léo dẫn dắt, khuyến khích khách hàng thực hiện theo các bước được đề xuất.",
+          P1: "- Lặp từ không cần thiết\n- Không có kính ngữ, chủ ngữ, câu từ mang tính ra lệnh (1 lần)",
+          N: "- Dùng từ ngữ mang tính chất tiêu cực hoặc không thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng\n- Yêu cầu khách hàng thực hiện mà không giải thích lý do rõ ràng\n- Không có kính ngữ, chủ ngữ, câu từ mang tính ra lệnh (từ lần 2)"
+        }
+      },
+      {
+        id: 'h2_3', name: '2.3 Ngữ Điệu & Giọng nói', pts: 10, type: 'ynp',
+        tooltips: {
+          Y: "- Giọng nói chân thành, ấm áp\n- Ngữ điệu nhẹ nhàng, mềm mỏng, tạo cảm giác gần gũi, thân thiện.\n- Phát âm rõ ràng, dễ nghe\n- Tốc độ vừa phải, không quá nhanh hay quá chậm, ngắt nghỉ phù hợp",
+          P1: "- Nói quá nhanh/ quá chậm/ ngắt nghỉ chưa phù hợp\n- Phát âm không rõ, nói khó nghe, nói dính chữ, âm lượng nhỏ",
+          N: "- Sử dụng ngữ điệu đều đều, cứng nhắc hoặc không phù hợp với ngữ cảnh\n- Nhấn giọng, thay đổi tông giọng không phù hợp ngữ cảnh."
+        }
+      },
+      {
+        id: 'h2_4', name: '2.4 Gọi tên khách hàng', pts: 2, type: 'yn',
+        tooltips: {
+          Y: "- Gọi tên khách hàng trong quá trình giao tiếp (ít nhất 2 lần), gọi danh xưng phù hợp theo tình huống.",
+          N: "- Không gọi tên khách hàng phù hợp trong quá trình giao tiếp. Sử dụng danh xưng không phù hợp theo tình huống."
+        }
+      }
     ]
   },
   {
     group: '3. ATTENTIVE ACTIONS – Vững đồng hành, Giúp tận tâm', items: [
-      { id: 'h3_1', name: '3.1 Quản lý cuộc gọi', pts: 10, type: 'ynp' },
-      { id: 'h3_2', name: '3.2 Nhập Liệu', pts: 7, type: 'yn' },
+      {
+        id: 'h3_1', name: '3.1 Quản lý cuộc gọi', pts: 10, type: 'ynp',
+        tooltips: {
+          Y: "- Chủ động tư vấn, giải thích, giải quyết vấn đề một cách tận tâm\n- Đặt câu hỏi chính xác, tập trung vào vấn đề của KH để thu thập thông tin cần thiết\n- Tư vấn ngắn gọn, rõ ràng, súc tích.\n- Tư vấn/ xử lý linh hoạt, phù hợp ngữ cảnh, kiểm soát tình huống một cách hiệu quả.\n- Thao tác trên hệ thống nhanh chóng và lịch sự khi yêu cầu khách hàng chờ máy\n- Kiểm tra lại với khách hàng để đảm bảo vấn đề đã được hỗ trợ.",
+          P1: "- Để tạp âm (của chính agent) trong cuộc gọi.\n- Để khoảng lặng từ 6s 1 lần hoặc để khoảng lặng từ 4s trở lên quá 2 lần.\n- Không xin phép hoặc cảm ơn khi yêu cầu KH chờ máy\n- Chưa chuyển nhạc chờ khi hướng dẫn KH chờ máy\n- Chờ máy để khách hàng kiểm tra thông tin, nhưng quá 60 giây không tương tác lại với khách hàng\n- Thao tác hệ thống chậm, để KH chờ máy lâu từ 60 - 90 giây/ 1 lần (xô lệch 5s)",
+          N: "- Thụ động trong tư vấn: chỉ hỗ trợ khi khách hàng hỏi đến hoặc không giải thích dù khách hàng chưa hiểu.\n- Đặt câu hỏi dư thừa hoặc tư vấn lan man, dài dòng, giải thích/ cung cấp/ khai thác các nội dung không cần thiết (kỹ năng tư vấn)\n- Tư vấn/ xử lý rập khuôn, máy móc theo quy trình/ kịch bản, không phù hợp với ngữ cảnh. Để khách hàng dẫn dắt trong cuộc gọi hoặc chưa kiểm soát tình huống hiệu quả.\n- Thao tác hệ thống chậm, để KH chờ máy lâu:\n  + Để khách hàng chờ máy lâu quá 93 giây/ 1 lần\n  + Để KH chờ từ 3 lần/ 1 vấn đề.\n- Không kiểm tra hoặc xác nhận để đảm bảo các vấn đề của KH đã được hỗ trợ triệt để.\n- Chưa chủ động thông báo không nhận tín hiệu từ KH 2 lần trước khi gác máy\n- Vi phạm từ 2 tiêu chí được quy định tại mục P1"
+        }
+      },
+      {
+        id: 'h3_2', name: '3.2 Nhập Liệu', pts: 7, type: 'yn',
+        tooltips: {
+          Y: "- Ghi nhận và nhập liệu trên hệ thống đúng quy định",
+          N: "- Ghi nhận và nhập liệu trên hệ thống chưa đúng quy định"
+        }
+      }
     ]
   },
   {
     group: '4. RELIABLE RESOLUTION – Trao giải pháp, Nhận niềm tin', items: [
-      { id: 'h4_1', name: '4.1 Xác minh thông tin', pts: 5, type: 'yn' },
-      { id: 'h4_2', name: '4.2 Giải Pháp', pts: 30, type: 'ynpp', partial1: 20, partial2: 15 },
+      {
+        id: 'h4_1', name: '4.1 Xác minh thông tin', pts: 5, type: 'yna',
+        tooltips: {
+          Y: "- Xác minh thông tin đúng quy định",
+          N: "- Xác minh thông tin chưa đúng quy định",
+          NA: "- Không cần XMTT"
+        }
+      },
+      {
+        id: 'h4_2', name: '4.2 Giải Pháp', pts: 30, type: 'ynpp', partial1: 20, partial2: 15,
+        tooltips: {
+          Y: "- Cung cấp phương án tối ưu, rõ ràng, triệt để\n- Kiên trì thuyết phục để đạt được sự đồng thuận của khách hàng.",
+          P1: "Dành cho cuộc gọi có từ 1 vấn đề\n- Cung cấp thiếu 1 thông tin\n- Cung cấp thông tin không rõ ràng và gây nhầm lẫn cho khách hàng\n- Cung cấp thông tin sai khiến KH thắc mắc nhưng có đính chính/ khắc phục\n- Cung cấp phương án hỗ trợ chưa tối ưu, rõ ràng, triệt để",
+          P2: "Dành cho cuộc gọi có từ 2 vấn đề\n- Cung cấp thiếu 1 thông tin\n- Cung cấp thông tin không rõ ràng và gây nhầm lẫn cho khách hàng\n- Cung cấp thông tin sai khiến KH thắc mắc nhưng có đính chính/ khắc phục\n- Cung cấp phương án hỗ trợ chưa tối ưu, rõ ràng, triệt để",
+          N: "- Cung cấp sai thông tin\n- Vi phạm từ 2 lần hoặc từ 2 tiêu chí trên\n- Hỗ trợ sai hướng xử lý, sai quy trình"
+        }
+      }
     ]
   },
   {
     group: '5. THANKFUL CLOSING – Khép vấn đề, Mở kết nối', items: [
-      { id: 'h5_1', name: '5.1 Tư vấn KS / KM / cảnh báo…', pts: 3, type: 'yn' },
-      { id: 'h5_2', name: '5.2 Chào kết thúc', pts: 5, type: 'yn' },
+      {
+        id: 'h5_1', name: '5.1 Tư vấn KS / KM / cảnh báo…', pts: 3, type: 'yna',
+        tooltips: {
+          Y: "- Thực hiện tư vấn khảo sát/ giới thiệu các khuyến mãi/... kèm theo cuộc gọi được quy định theo từng thời kì.",
+          N: "- Không thực hiện hoặc thực hiện chưa chính xác",
+          NA: "- Không cần thực hiện/ chưa có cơ hội thực hiện"
+        }
+      },
+      {
+        id: 'h5_2', name: '5.2 Chào kết thúc', pts: 5, type: 'yna',
+        tooltips: {
+          Y: "- Kết thúc bằng lời cảm ơn/ lời chúc chân thành kèm mong muốn được tiếp tục đồng hành với KH 1 cách cá nhân hóa",
+          N: "- Thực hiện chưa đạt yêu cầu",
+          NA: "- Chưa có cơ hội thực hiện"
+        }
+      }
     ]
-  },
+  }
 ];
 
 const WOW_FACTORS = [
@@ -107,11 +183,123 @@ var qcState = {
   spinData: [],           // Filtered rows (Chấm=QC) hiển thị UI
   scores: {},
   currentRecord: null,
+  pendingBatch: [],       // [{action, recId, record, btn}]
+  batchTimer: null,       // debounce timer
 };
 
 // ── Storage helpers ──
 function qcGet(k) { return new Promise(function (r) { chrome.storage.local.get(k, r); }); }
 function qcSet(o) { return new Promise(function (r) { chrome.storage.local.set(o, r); }); }
+
+// ── Batch write: góm nhiều claim/unclaim trong 600ms → 1 lần đọc + 1 lần ghi ──
+function _scheduleBatch() {
+  if (qcState.batchTimer) clearTimeout(qcState.batchTimer);
+  qcState.batchTimer = setTimeout(_flushBatch, 600);
+}
+
+function _flushBatch() {
+  qcState.batchTimer = null;
+  var batch = qcState.pendingBatch.slice();
+  qcState.pendingBatch = [];
+  if (!batch.length) return;
+  if (!qcState.spinFileHandle) {
+    qcStatus('Chưa liên kết file SPIN', 'err');
+    _resetBatchBtns(batch);
+    return;
+  }
+
+  var qcName = qcState.qcName.trim();
+  qcStatus('Đang xử lý ' + batch.length + ' thao tác...', '');
+
+  qcState.spinFileHandle.getFile()
+    .then(function (file) { return parseSpinFile(file); })
+    .then(function (result) {
+      // Cập nhật state với data tươi nhất
+      qcState.spinRawHeaders = result.headers;
+      qcState.spinAllRows = result.allRows;
+      qcState.spinData = result.rows;
+      _deriveLocksFromData();
+
+      var today = new Date().toISOString().slice(0, 10);
+      var claimed = [], unclaimed = [], conflicts = [], skipped = [];
+
+      batch.forEach(function (op) {
+        var freshRow = result.allRows.find(function (r) {
+          return String(r['RECORDED_ID']).trim() === op.recId;
+        });
+        var takenBy = freshRow ? String(freshRow['QC SP'] || '').trim() : '';
+
+        if (op.action === 'claim') {
+          if (takenBy && takenBy !== qcName) {
+            // Conflict: người khác đã lấy
+            conflicts.push({ recId: op.recId, takenBy: takenBy });
+          } else if (takenBy === qcName) {
+            // Đã là của mình rồi, bỏ qua
+            skipped.push(op.recId);
+          } else {
+            // Trống → claim
+            _syncAllRows(op.recId, { 'QC SP': qcName, 'Date SP1': today });
+            qcState.locks[op.recId] = { qc: qcName, locked_at: new Date().toISOString() };
+            claimed.push(op.recId);
+          }
+        } else if (op.action === 'unclaim') {
+          // Chỉ trả nếu hiện tại là của mình
+          if (!takenBy || takenBy === qcName) {
+            _syncAllRows(op.recId, { 'QC SP': '', 'Date SP1': '' });
+            delete qcState.locks[op.recId];
+            unclaimed.push(op.recId);
+          } else {
+            skipped.push(op.recId);
+          }
+        }
+      });
+
+      var hasChanges = claimed.length > 0 || unclaimed.length > 0;
+      var writePromise = hasChanges ? writeBackToSpinFile() : Promise.resolve(true);
+
+      return writePromise.then(function (ok) {
+        _resetBatchBtns(batch);
+        renderImportTable();
+
+        // Toast tổng kết
+        var msgs = [];
+        if (claimed.length) msgs.push('<span style="vertical-align:-2px">' + QC_ICONS.check + '</span> Nhận ' + claimed.length + ' call');
+        if (unclaimed.length) msgs.push('<span style="vertical-align:-2px">' + QC_ICONS.undo + '</span> Trả ' + unclaimed.length + ' call');
+        if (msgs.length) {
+          showQcToast(
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>' +
+            msgs.join(' &nbsp;|&nbsp; ')
+          );
+          qcStatus(msgs.join(' | '), 'ok');
+        }
+
+        // Toast riêng cho từng conflict
+        conflicts.forEach(function (c) {
+          showQcToast(
+            QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#fff"').replace('margin-right:5px', 'margin-right:4px') +
+            '<b>' + c.takenBy + '</b>&nbsp;đã lấy ' + c.recId.slice(0, 14) + '…',
+            'err'
+          );
+        });
+        if (!hasChanges && !conflicts.length) qcStatus('Không có thay đổi', '');
+      });
+    })
+    .catch(function (e) {
+      qcStatus('Lỗi batch: ' + e.message, 'err');
+      _resetBatchBtns(batch);
+      renderImportTable();
+    });
+}
+
+function _resetBatchBtns(batch) {
+  batch.forEach(function (op) {
+    if (op.btn && op.btn.parentNode) {
+      op.btn.disabled = false;
+      op.btn.style.opacity = '';
+      op.btn.style.cursor = '';
+    }
+  });
+}
 
 // ── IndexedDB: persist FileSystemDirectoryHandle across sessions ──
 function _idbOpen() {
@@ -147,7 +335,7 @@ function idbGetHandle(key) {
 function qcStatus(msg, type) {
   var el = document.getElementById('qcStatus');
   if (!el) return;
-  el.textContent = msg;
+  el.innerHTML = msg;
   el.className = 'qc-status' + (type ? ' ' + type : '');
 }
 
@@ -214,8 +402,8 @@ function _deriveLocksFromData() {
 // ── Áp kết quả parse vào state ──
 function _applyParsedResult(result, fileName) {
   qcState.spinRawHeaders = result.headers;
-  qcState.spinAllRows    = result.allRows;
-  qcState.spinData       = result.rows;
+  qcState.spinAllRows = result.allRows;
+  qcState.spinData = result.rows;
   _deriveLocksFromData();
   _updateFolderStatus('qcSpinFileStatus', fileName);
   renderImportTable();
@@ -256,15 +444,15 @@ function writeBackToSpinFile() {
   if (!qcState.spinFileHandle) { qcStatus('Chưa liên kết file SPIN', 'err'); return Promise.resolve(false); }
   try {
     var headers = qcState.spinRawHeaders;
-    var wsData  = [headers];
+    var wsData = [headers];
     qcState.spinAllRows.forEach(function (r) {
       wsData.push(headers.map(function (h) { return r[h] !== undefined ? r[h] : ''; }));
     });
-    var ws  = XLSX.utils.aoa_to_sheet(wsData);
-    var wb  = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(wsData);
+    var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
     var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    var blob  = new Blob([wbout], { type: 'application/octet-stream' });
+    var blob = new Blob([wbout], { type: 'application/octet-stream' });
     return qcState.spinFileHandle.createWritable()
       .then(function (w) { return w.write(blob).then(function () { return w.close(); }); })
       .then(function () { return true; })
@@ -421,8 +609,8 @@ function claimRecord(record) {
     .then(function (result) {
       // Cập nhật state với data tươi nhất
       qcState.spinRawHeaders = result.headers;
-      qcState.spinAllRows    = result.allRows;
-      qcState.spinData       = result.rows;
+      qcState.spinAllRows = result.allRows;
+      qcState.spinData = result.rows;
       _deriveLocksFromData();
       renderImportTable();
 
@@ -434,7 +622,7 @@ function claimRecord(record) {
 
       if (takenBy && takenBy !== qcName) {
         // Đã bị người khác lấy
-        qcStatus('⛔ Đã có ' + takenBy + ' lấy record này!', 'err');
+        qcStatus('<span style="vertical-align:-2px">' + QC_ICONS.alert + '</span> Đã có ' + takenBy + ' lấy record này!', 'err');
         showQcToast(
           QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#fff"').replace('margin-right:5px', 'margin-right:0') +
           '<b>' + takenBy + '</b>&nbsp;đã lấy record này rồi!', 'err');
@@ -454,12 +642,23 @@ function claimRecord(record) {
 
 // ── Unclaim record ──
 function unclaimRecord(recId) {
-  if (!qcState.spinFileHandle) { qcStatus('Chưa liên kết file SPIN', 'err'); return; }
-  _syncAllRows(recId, { 'QC SP': '', 'Date SP1': '' });
-  delete qcState.locks[recId];
-  writeBackToSpinFile().then(function (ok) {
-    if (ok) { qcStatus('Đã bỏ call: ' + recId.slice(0, 20), 'ok'); renderImportTable(); }
-  });
+  if (!qcState.spinFileHandle) { qcStatus('Chưa liên kết file SPIN', 'err'); return Promise.resolve(false); }
+  qcStatus('Đang trả call...', '');
+  return qcState.spinFileHandle.getFile()
+    .then(function (file) { return parseSpinFile(file); })
+    .then(function (result) {
+      qcState.spinRawHeaders = result.headers;
+      qcState.spinAllRows = result.allRows;
+      qcState.spinData = result.rows;
+      _deriveLocksFromData();
+      _syncAllRows(recId, { 'QC SP': '', 'Date SP1': '' });
+      delete qcState.locks[recId];
+      return writeBackToSpinFile().then(function (ok) {
+        if (ok) { qcStatus('Đã trả: ' + recId.slice(0, 20), 'ok'); renderImportTable(); }
+        return ok;
+      });
+    })
+    .catch(function (e) { qcStatus('Lỗi trả call: ' + e.message, 'err'); return false; });
 }
 
 // ── Render import table ──
@@ -493,8 +692,8 @@ function renderImportTable() {
         : '<span class="badge badge-free">Trống</span>';
     var btn = isMine
       ? '<div style="display:flex;gap:2px">' +
-        '<button class="qc-btn sm primary" data-action="score" data-recid="' + recId + '" title="Chấm điểm">' + QC_ICONS.play + '</button>' +
-        '<button class="qc-btn sm danger" data-action="unclaim" data-recid="' + recId + '" title="Bỏ call">' + QC_ICONS.undo + '</button></div>'
+      '<button class="qc-btn sm primary" data-action="score" data-recid="' + recId + '" title="Chấm điểm">' + QC_ICONS.play + '</button>' +
+      '<button class="qc-btn sm danger" data-action="unclaim" data-recid="' + recId + '" title="Bỏ call">' + QC_ICONS.undo + '</button></div>'
       : isClaimed ? '<span style="font-size:9px;color:#94a3b8">—</span>'
         : '<button class="qc-btn sm success" data-action="claim" data-recid="' + recId + '" title="Nhận call">' + QC_ICONS.check + ' Nhận</button>';
     html += '<tr class="' + rowClass + '">' +
@@ -513,65 +712,116 @@ function renderScoringForm(record) {
   var recId = String(record['RECORDED_ID'] || '').trim();
   var scores = qcState.scores[recId] || {};
 
+  var todayStr = new Date().toISOString().slice(0, 10);
+  var savedDate = scores.scoringDate || todayStr;
+
   var infoEl = document.getElementById('qcCallInfo');
   if (infoEl) {
     infoEl.innerHTML =
-      '<div class="call-id">' + (recId ? recId.slice(0, 40) : 'Chưa chọn call') + '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+      '<div class="call-id" style="flex:1">' + (recId ? recId.slice(0, 40) : 'Chưa chọn call') + '</div>' +
+      '<span class="call-meta-item" style="font-weight:700;flex-shrink:0">' + QC_ICONS.clock + ' ' + (record['DURATION'] || '—') + '</span>' +
+      '</div>' +
       '<div class="call-meta">' +
       '<span class="call-meta-item">' + QC_ICONS.user + ' ' + (record['USER'] || '—') + '</span>' +
       '<span class="call-meta-item">' + QC_ICONS.building + ' ' + (record['Team'] || '—') + '</span>' +
-      '<span class="call-meta-item">' + QC_ICONS.clock + ' ' + (record['DURATION'] || '—') + '</span>' +
+      (record['INTERACTION_ID'] ? '<span class="call-meta-item" id="qcCopyIntId" title="Click để copy INTERACTION_ID" style="cursor:pointer;border-bottom:1px dashed #60a5fa;color:#93c5fd;user-select:none">' +
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+        String(record['INTERACTION_ID']).trim() + '</span>' : '') +
+      '<span class="call-meta-item" style="margin-left:auto"><input type="date" id="qcScoringDate" class="scoring-date-input" value="' + savedDate + '" title="Đổi ngày chấm"></span>' +
       '</div>';
-  }
-
-  var injectEl = document.getElementById('qcInjectBar');
-  if (injectEl) {
-    if (recId) {
-      injectEl.innerHTML =
-        '<button class="inject-btn" id="qcInjectBtn">' + QC_ICONS.search + ' Tìm SpeechMiner</button>' +
-        '<span class="inject-id">' + recId.slice(0, 22) + '…</span>';
-      var ib = document.getElementById('qcInjectBtn');
-      if (ib) ib.addEventListener('click', function () { injectExternalId(recId); });
-    } else {
-      injectEl.innerHTML = '';
+    var copyIntEl = document.getElementById('qcCopyIntId');
+    if (copyIntEl) {
+      copyIntEl.addEventListener('click', function () {
+        var txt = String(record['INTERACTION_ID']).trim();
+        navigator.clipboard.writeText(txt).then(function () {
+          showQcToast(
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg>' +
+            'Đã copy'
+          );
+        }).catch(function () {
+          showQcToast('Không copy được!', 'err');
+        });
+      });
+    }
+    var dateInp = document.getElementById('qcScoringDate');
+    if (dateInp) {
+      dateInp.addEventListener('change', function () {
+        var rid = qcState.currentRecord ? String(qcState.currentRecord['RECORDED_ID']).trim() : '';
+        if (!rid) return;
+        if (!qcState.scores[rid]) qcState.scores[rid] = { criteria: {}, itemNotes: {}, wowNotes: {}, afNotes: {}, wow: [], autofail: [], note: '' };
+        qcState.scores[rid].scoringDate = dateInp.value;
+      });
     }
   }
 
-  var formEl = document.getElementById('qcCriteriaForm');
-  if (!formEl) return;
-  var criteria = scores.criteria || {};
-  var itemNotes = scores.itemNotes || {};
-  var html = '';
+  var injectBar = document.getElementById('qcInjectBar');
+  if (injectBar) {
+    if (recId) {
+      injectBar.innerHTML = '<button class="inject-btn" id="qcInjectBtn" title="Tìm mã RECORDED_ID trong tab SpeechMiner">' +
+        QC_ICONS.search + ' Tìm SpeechMiner</button>' +
+        '<div class="inject-id">ID: ' + recId.slice(0, 16) + '…</div>';
+      var injBtn = document.getElementById('qcInjectBtn');
+      if (injBtn) injBtn.addEventListener('click', function () { injectExternalId(recId); });
+    } else {
+      injectBar.innerHTML = '';
+    }
+  }
 
+  var html = '';
+  var currentCriteria = scores.criteria || {};
   QC_CRITERIA.forEach(function (group) {
     html += '<div class="criteria-group"><div class="criteria-group-title">' + group.group + '</div>';
     group.items.forEach(function (item) {
-      var val = criteria[item.id] || '';
-      var note = itemNotes[item.id] || '';
+      var val = currentCriteria[item.id] || '';
+      var note = (scores.itemNotes || {})[item.id] || '';
       var hasP1 = (item.type === 'ynp' || item.type === 'ynpp');
       var hasP2 = (item.type === 'ynpp');
-      var showNote = (val === 'N' || val === 'P1' || val === 'P2'); // show note for N, P1, P2
+      var hasNA = (item.type === 'yna');
+      var showNote = (val === 'N' || val === 'P1' || val === 'P2');
+
+      var ptsHint = '';
+      if (hasP2) ptsHint = ' <span class="pts-hint">P1·' + item.partial1 + ' / P2·' + item.partial2 + '</span>';
+      else if (hasP1) ptsHint = ' <span class="pts-hint">P1·' + Math.round(item.pts * 0.5) + '</span>';
+
+      var mkBtn = function (bval, cls, lbl) {
+        var ttip = '';
+        if (item.tooltips && item.tooltips[bval]) {
+          ttip = ' title="' + item.tooltips[bval].replace(/"/g, '&quot;') + '"';
+        }
+        return '<button class="opt-btn ' + cls + (val === bval ? ' active' : '') +
+          '" data-cid="' + item.id + '" data-val="' + bval + '"' + ttip + '>' + lbl + '</button>';
+      };
+
+      var chevLeft = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><polyline points="15 18 9 12 15 6"/></svg>';
+      var chevRight = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><polyline points="9 18 15 12 9 6"/></svg>';
 
       html +=
         '<div class="criteria-row">' +
-        '<div class="criteria-name">' + item.name + ' <span class="criteria-pts">' + item.pts + 'đ' +
-        (hasP2 ? '<span class="pts-hint"> / P1·' + item.partial1 + 'đ / P2·' + item.partial2 + 'đ</span>' :
-          hasP1 ? '<span class="pts-hint"> / P1·' + Math.round(item.pts * 0.5) + 'đ</span>' : '') +
-        '</span></div>' +
-        '<div class="criteria-radios">' +
-        '<label class="y-lbl"><input type="radio" name="c_' + item.id + '" data-cid="' + item.id + '" data-val="Y" ' + (val === 'Y' ? 'checked' : '') + '> Y</label>' +
-        (hasP1 ? '<label class="p1-lbl"><input type="radio" name="c_' + item.id + '" data-cid="' + item.id + '" data-val="P1" ' + (val === 'P1' ? 'checked' : '') + '> P1</label>' : '') +
-        (hasP2 ? '<label class="p2-lbl"><input type="radio" name="c_' + item.id + '" data-cid="' + item.id + '" data-val="P2" ' + (val === 'P2' ? 'checked' : '') + '> P2</label>' : '') +
-        '<label class="n-lbl"><input type="radio" name="c_' + item.id + '" data-cid="' + item.id + '" data-val="N" ' + (val === 'N' ? 'checked' : '') + '> N</label>' +
+        '<div class="criteria-name">' + item.name + ' <span class="criteria-pts">' + item.pts + 'đ' + ptsHint + '</span></div>' +
+        '<div class="criteria-opts">' +
+        '<div class="opts-preview">' +
+        '<span class="opts-curr-val" data-preview-cid="' + item.id + '">' + val + '</span>' +
+        '<span class="opts-icon">' + chevLeft + '</span>' +
+        '</div>' +
+        '<div class="opts-full">' +
+        mkBtn('Y', 'y-btn', 'Y') +
+        (hasP1 ? mkBtn('P1', 'p1-btn', 'P1') : '') +
+        (hasP2 ? mkBtn('P2', 'p2-btn', 'P2') : '') +
+        mkBtn('N', 'n-btn', 'N') +
+        (hasNA ? mkBtn('NA', 'na-btn', 'N/A') : '') +
+        '<span class="opts-icon" style="padding:0 4px">' + chevRight + '</span>' +
+        '</div>' +
         '</div>' +
         '</div>' +
         '<div class="n-note-wrap' + (showNote ? ' n-note-visible' : '') + '" data-noteid="' + item.id + '">' +
-        '<textarea class="n-note-input" data-cid="' + item.id + '" placeholder="Mô tả: ' + item.name + '..." rows="2">' + note + '</textarea>' +
+        '<textarea class="n-note-input" data-cid="' + item.id + '" placeholder="Bắt buộc ghi chú: ' + item.name + '..." rows="2">' + note + '</textarea>' +
         '</div>';
     });
     html += '</div>';
   });
-  formEl.innerHTML = html;
+  var formEl = document.getElementById('qcCriteriaForm');
+  if (formEl) formEl.innerHTML = html;
 
   // WOW
   var wowEl = document.getElementById('qcWowList');
@@ -674,6 +924,12 @@ function calcScore(recId) {
   QC_CRITERIA.forEach(function (group) {
     group.items.forEach(function (item) {
       var val = criteria[item.id];
+      if (val === 'NA') {
+        // N/A: không áp dụng được nhưng không mất điểm → tính như Y (đủ điểm)
+        maxTotal += item.pts;
+        total += item.pts;
+        return;
+      }
       maxTotal += item.pts;
       if (val === 'Y') { total += item.pts; }
       else if (val === 'P1') { total += (item.partial1 !== undefined ? item.partial1 : Math.round(item.pts * 0.5)); }
@@ -773,15 +1029,15 @@ function showQcAlert(title, bodyHtml) {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;animation:qcFadeIn .18s ease';
   overlay.innerHTML =
     '<div style="background:#fff;border-radius:14px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden">' +
-      '<div style="background:linear-gradient(135deg,#b45309,#d97706);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">' +
-        QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#fff"').replace('margin-right:5px', 'margin-right:0') + title +
-      '</div>' +
-      '<div style="padding:14px 16px;font-size:12px;color:#334155;max-height:280px;overflow-y:auto">' + bodyHtml + '</div>' +
-      '<div style="padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc">' +
-        '<button id="qcAlertClose" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">' +
-          QC_SVG.back.replace('margin-right:5px', 'margin-right:0') + 'Quay lại chấm tiếp' +
-        '</button>' +
-      '</div>' +
+    '<div style="background:linear-gradient(135deg,#b45309,#d97706);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">' +
+    QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#fff"').replace('margin-right:5px', 'margin-right:0') + title +
+    '</div>' +
+    '<div style="padding:14px 16px;font-size:12px;color:#334155;max-height:280px;overflow-y:auto">' + bodyHtml + '</div>' +
+    '<div style="padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc">' +
+    '<button id="qcAlertClose" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">' +
+    QC_SVG.back.replace('margin-right:5px', 'margin-right:0') + 'Quay lại chấm tiếp' +
+    '</button>' +
+    '</div>' +
     '</div>';
   document.body.appendChild(overlay);
   if (!document.getElementById('qcKeyframes')) {
@@ -809,12 +1065,23 @@ function saveCurrentScore() {
     });
   });
 
-  // Có mục chưa chấm → chỉ cảnh báo, chặn lưu
+  // Kiểm tra các mục chọn N/P1/P2 nhưng chưa note
+  var missingNote = [];
+  QC_CRITERIA.forEach(function (group) {
+    group.items.forEach(function (item) {
+      var v = criteria[item.id];
+      if ((v === 'N' || v === 'P1' || v === 'P2') && !((sc.itemNotes || {})[item.id] || '').trim()) {
+        missingNote.push(item.name + ' (' + v + ')');
+      }
+    });
+  });
+
+  // Có mục chưa chấm
   if (unchecked.length > 0) {
     var warnBody =
       '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px 10px;margin-bottom:10px;color:#92400e;font-size:12px;font-weight:700;display:flex;align-items:flex-start;gap:6px">' +
-        QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#92400e"').replace('margin-right:5px', 'margin-right:0;flex-shrink:0;margin-top:1px') +
-        '<span>Chưa chấm tại ' + unchecked.length + ' mục mà đã đòi lưu rồi, vội thế!</span>' +
+      QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#92400e"').replace('margin-right:5px', 'margin-right:0;flex-shrink:0;margin-top:1px') +
+      '<span>Chưa chấm tại ' + unchecked.length + ' mục mà đã đòi lưu rồi, vội thế!</span>' +
       '</div>' +
       '<ul style="margin:0;padding-left:18px;font-size:11px;color:#475569;line-height:1.9">' +
       unchecked.map(function (n) { return '<li>' + n + '</li>'; }).join('') +
@@ -823,11 +1090,25 @@ function saveCurrentScore() {
     return;
   }
 
+  // Có mục chọn N/P1/P2 nhưng chưa note
+  if (missingNote.length > 0) {
+    var noteWarnBody =
+      '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;margin-bottom:10px;color:#991b1b;font-size:12px;font-weight:700;display:flex;align-items:flex-start;gap:6px">' +
+      QC_SVG.warn.replace('stroke="currentColor"', 'stroke="#991b1b"').replace('margin-right:5px', 'margin-right:0;flex-shrink:0;margin-top:1px') +
+      '<span>Các mục sau bắt buộc phải ghi chú khi chọn N / P1 / P2:</span>' +
+      '</div>' +
+      '<ul style="margin:0;padding-left:18px;font-size:11px;color:#475569;line-height:1.9">' +
+      missingNote.map(function (n) { return '<li>' + n + '</li>'; }).join('') +
+      '</ul>';
+    showQcAlert('Cảnh báo — Chưa ghi chú', noteWarnBody);
+    return;
+  }
+
   // Đã chấm đủ → mời xác nhận lưu
   var bodyHtml =
     '<div style="color:#16a34a;font-size:12px;display:flex;align-items:center;gap:5px;margin-bottom:6px">' +
-      QC_SVG.check.replace('stroke="currentColor"', 'stroke="#16a34a"').replace('margin-right:5px', 'margin-right:0') +
-      'Tất cả mục đã được chấm đầy đủ.' +
+    QC_SVG.check.replace('stroke="currentColor"', 'stroke="#16a34a"').replace('margin-right:5px', 'margin-right:0') +
+    'Tất cả mục đã được chấm đầy đủ.' +
     '</div>' +
     '<div style="font-size:12px;color:#64748b">Xác nhận lưu điểm cho call này?</div>';
 
@@ -836,6 +1117,9 @@ function saveCurrentScore() {
     var ne = document.getElementById('qcNoteError');
     qcState.scores[recId].note = ne ? ne.value : '';
     qcState.scores[recId].qcName = qcState.qcName;
+    // Lưu ngày chấm
+    var di = document.getElementById('qcScoringDate');
+    qcState.scores[recId].scoringDate = di ? di.value : new Date().toISOString().slice(0, 10);
     qcSet({ 'qc.scores': qcState.scores });
     qcStatus('Đã lưu: ' + recId.slice(0, 20), 'ok');
     showQcToast(QC_SVG.check.replace('margin-right:5px', 'margin-right:0') + 'Đã lưu điểm thành công!');
@@ -872,16 +1156,46 @@ function renderExportSummary() {
     var sc = qcState.scores[recId];
     var r = calcScore(recId);
     var rec = qcState.spinData.find(function (x) { return String(x['RECORDED_ID']).trim() === recId; }) || {};
-    html += '<div class="export-summary-row">' +
-      '<div><div class="agent">' + (rec['USER'] || recId.slice(0, 16)) + '</div>' +
-      '<div style="font-size:10px;color:#64748b">' + recId.slice(0, 24) + '…</div></div>' +
-      '<div style="text-align:right">' +
+    // Lấy ngày chấm, fallback sang Date SP1 hoặc ngày hôm nay nếu call cũ
+    var sDate = sc.scoringDate || rec['Date SP1'];
+    if (!sDate) {
+      if (sc.criteria && Object.keys(sc.criteria).length > 0) sDate = new Date().toISOString().slice(0, 10);
+    }
+    var scoringDate = sDate ? sDate.replace(/-/g, '/').split('/').reverse().join('/') : '';
+    html += '<div class="export-summary-row" style="align-items:center">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div class="agent">' + (rec['USER'] || recId.slice(0, 16)) + '</div>' +
+      '<div style="font-size:10px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + recId.slice(0, 24) + '…</div>' +
+      (scoringDate ? '<div style="font-size:10px;color:#7c3aed">' + QC_ICONS.calendar + scoringDate + '</div>' : '') +
+      '</div>' +
+      '<div style="text-align:right;margin-right:8px">' +
       '<div style="font-weight:700">' + r.total + '/' + r.maxTotal + 'đ</div>' +
       (r.hasAutofail ? '<div style="font-size:10px;color:#dc2626">' + QC_ICONS.alert + ' AUTO FAIL</div>' : '') +
       ((sc.wow || []).length ? '<div style="font-size:10px;color:#16a34a">' + QC_ICONS.star + ' WOW</div>' : '') +
-      '</div></div>';
+      '</div>' +
+      '<button class="qc-btn sm primary" data-action="edit-score" data-recid="' + recId + '" title="Sửa điểm">' +
+      QC_ICONS.note + ' Sửa' +
+      '</button>' +
+      '</div>';
   });
   el.innerHTML = html;
+
+  // Event delegation cho nút Sửa
+  el.addEventListener('click', function handler(e) {
+    var btn = e.target.closest('[data-action="edit-score"]');
+    if (!btn) return;
+    var recId = btn.dataset.recid;
+    var rec = qcState.spinData.find(function (x) { return String(x['RECORDED_ID']).trim() === recId; });
+    if (!rec) {
+      // Nếu không tìm thấy trong spinData (ví dụ chưa import file), vẫn cho sửa
+      rec = { RECORDED_ID: recId, USER: '', Team: '', DURATION: '' };
+    }
+    qcState.currentRecord = rec;
+    renderScoringForm(rec);
+    switchQcTab('qcTabScore');
+    // Chỉ bắt sự kiện một lần
+    el.removeEventListener('click', handler);
+  });
 }
 
 // ── Format date helpers ──
@@ -937,7 +1251,7 @@ function exportResults() {
         cv.push(pts);
       });
       return [stt + 1,
-      formatDateToDMY(rec['Date SP1'] || new Date().toISOString().slice(0, 10)),
+      formatDateToDMY(sc.scoringDate || rec['Date SP1'] || new Date().toISOString().slice(0, 10)),
       rec['Team'] || '', rec['ACCOUNTNUMBER'] || '', rec['USER'] || '',
       rec['CREATE_TIME'] || '', rec['SUB_CATEGORY'] || '', rec['SUB_CODE'] || '',
       rec['DURATION'] || '', recId, rec['INTERACTION_ID'] || '',
@@ -1142,14 +1456,26 @@ function wireQcEvents() {
       if (!btn) return;
       var action = btn.dataset.action, recId = btn.dataset.recid;
       if (!recId) return;
-      if (action === 'claim') {
-        var record = qcState.spinData.find(function (r) { return String(r['RECORDED_ID']).trim() === recId; });
-        if (record) claimRecord(record);
-      } else if (action === 'unclaim') {
-        unclaimRecord(recId);
-      } else if (action === 'score') {
+
+      if (action === 'score') {
         var rec = qcState.spinData.find(function (r) { return String(r['RECORDED_ID']).trim() === recId; });
         if (rec) { qcState.currentRecord = rec; renderScoringForm(rec); switchQcTab('qcTabScore'); }
+        return;
+      }
+
+      // claim / unclaim: thêm vào batch, debounce 600ms
+      if (action === 'claim' || action === 'unclaim') {
+        // Tránh đờ trung lập (recId đã có trong batch thì gè lại)
+        var existIdx = qcState.pendingBatch.findIndex(function (op) { return op.recId === recId; });
+        if (existIdx >= 0) qcState.pendingBatch.splice(existIdx, 1);
+
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'wait';
+
+        qcState.pendingBatch.push({ action: action, recId: recId, btn: btn });
+        qcStatus('...chờ ' + qcState.pendingBatch.length + ' thao tác', '');
+        _scheduleBatch();
       }
     });
   }
@@ -1158,19 +1484,46 @@ function wireQcEvents() {
   var saveBtn = document.getElementById('qcSaveScoreBtn');
   if (saveBtn) saveBtn.addEventListener('click', saveCurrentScore);
 
-  // Criteria: radio + N-note (event delegation)
+  // Criteria: opt-btn click handler (table-based, no radio)
   var criteriaForm = document.getElementById('qcCriteriaForm');
   if (criteriaForm) {
-    criteriaForm.addEventListener('change', function (e) {
-      var input = e.target;
-      if (input.type !== 'radio') return;
+    criteriaForm.addEventListener('click', function (e) {
+      var btn = e.target.closest('.opt-btn[data-cid]');
+      if (!btn) return;
+      var cid = btn.dataset.cid, val = btn.dataset.val;
+      if (!cid || !val) return;
       var recId = qcState.currentRecord ? String(qcState.currentRecord['RECORDED_ID']).trim() : '';
       if (!recId) return;
-      if (!qcState.scores[recId]) qcState.scores[recId] = { criteria: {}, itemNotes: {}, wow: [], autofail: [], note: '', ghichu: '' };
+      if (!qcState.scores[recId]) qcState.scores[recId] = { criteria: {}, itemNotes: {}, wow: [], autofail: [], note: '' };
       var sc = qcState.scores[recId];
-      var cid = input.dataset.cid, val = input.dataset.val;
-      if (!cid) return;
+
+      if ((sc.criteria || {})[cid] === val) {
+        // Bấm lại đúng nút đang chọn → bỏ chọn
+        delete sc.criteria[cid];
+        // Xóa active khỏi tất cả nút cùng nhóm
+        criteriaForm.querySelectorAll('.opt-btn[data-cid="' + cid + '"]').forEach(function (b) {
+          b.classList.remove('active');
+        });
+        // Cập nhật text preview
+        var preview = criteriaForm.querySelector('.opts-curr-val[data-preview-cid="' + cid + '"]');
+        if (preview) preview.textContent = '';
+        // Ẩn note row
+        if (sc.itemNotes) sc.itemNotes[cid] = '';
+        var noteWrap = criteriaForm.querySelector('[data-noteid="' + cid + '"]');
+        if (noteWrap) noteWrap.classList.remove('n-note-visible');
+        rebuildCombinedNote(recId);
+        updateScoreBar(recId);
+        return;
+      }
+
+      // Chọn bình thường: cập nhật state
       sc.criteria[cid] = val;
+      criteriaForm.querySelectorAll('.opt-btn[data-cid="' + cid + '"]').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+      // Cập nhật text preview
+      var preview = criteriaForm.querySelector('.opts-curr-val[data-preview-cid="' + cid + '"]');
+      if (preview) preview.textContent = val;
       // Show/hide note for N, P1, P2
       var noteWrap = criteriaForm.querySelector('[data-noteid="' + cid + '"]');
       var showNote = (val === 'N' || val === 'P1' || val === 'P2');

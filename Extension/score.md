@@ -4,8 +4,15 @@
 
 ### 🔹 1.1 Chào mở đầu
 
-* **Y** : 5 điểm
-* **N** : 0 điểm
+**Y** : 5 điểm
+
+- Không dùng câu chào chuẩn
+- Chào với giọng điệu uể oải, mệt mỏi
+
+**N** : 0 điểm
+
+- Không dùng câu chào chuẩn
+- Chào với giọng điệu uể oải, mệt mỏi
 
 ---
 
@@ -15,26 +22,68 @@
 
 ### 🔹 2.1 Lắng nghe
 
-* **Y** : 10 điểm
-* **P1** : 5 điểm
-* **N** : 0 điểm
+**Y** : 10 điểm
+
+- Lắng nghe và tiếp nhận chính xác thông tin khách hàng cung cấp.
+- Nhận biết và thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng.
+- Kiên nhẫn, tạo cơ hội cho khách hàng bày tỏ, chia sẻ
+
+**P1** : 5 điểm
+
+Thiếu kiên nhẫn: ngắt lời không phù hợp, nói song song hoặc xen ngang khi khách hàng đang trình bày (1 lần)
+
+**N** : 0 điểm
+
+- Hỏi lại thông tin khách hàng đã cung cấp hoặc thể hiện sự thiếu tập trung trong quá trình trao đổi.
+- Không nhận biết và thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng (chán nản, thở dài, thờ ơ, bỏ mặc cảm xúc của KH ...)
+- Thiếu kiên nhẫn: ngắt lời không phù hợp, nói song song hoặc xen ngang khi khách hàng đang trình bày (từ 2 lần)
 
 ### 🔹 2.2 Ngôn Từ
 
-* **Y** : 10 điểm
-* **P1** : 5 điểm
-* **N** : 0 điểm
+**Y** : 10 điểm
+
+- Sử dụng từ ngữ tích cực, đơn giản, dễ hiểu, thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng.
+- Khéo léo dẫn dắt, khuyến khích khách hàng thực hiện theo các bước được đề xuất.
+
+**P1** : 5 điểm
+
+- Lặp từ không cần thiết
+- Không có kính ngữ, chủ ngữ, câu từ mang tính ra lệnh (1 lần)
+
+**N** : 0 điểm
+
+- Dùng từ ngữ mang tính chất tiêu cực hoặc không thể hiện sự kết nối phù hợp với tình huống, cảm xúc của khách hàng
+- Yêu cầu khách hàng thực hiện mà không giải thích lý do rõ ràng
+- Không có kính ngữ, chủ ngữ, câu từ mang tính ra lệnh (từ lần 2)
 
 ### 🔹 2.3 Ngữ Điệu & Giọng nói
 
-* **Y** : 10 điểm
-* **P1** : 5 điểm
-* **N** : 0 điểm
+**Y** : 10 điểm
+
+- Giọng nói chân thành, ấm áp
+- Ngữ điệu nhẹ nhàng, mềm mỏng, tạo cảm giác gần gũi, thân thiện.
+- Phát âm rõ ràng, dễ nghe
+- Tốc độ vừa phải, không quá nhanh hay quá chậm, ngắt nghỉ phù hợp
+
+**P1** : 5 điểm
+
+- Nói quá nhanh/ quá chậm/ ngắt nghỉ chưa phù hợp
+- Phát âm không rõ, nói khó nghe, nói dính chữ, âm lượng nhỏ
+
+**N** : 0 điểm
+
+- Sử dụng ngữ điệu đều đều, cứng nhắc hoặc không phù hợp với ngữ cảnh
+- Nhấn giọng, thay đổi tông giọng không phù hợp ngữ cảnh.
 
 ### 🔹 2.4 Gọi tên khách hàng
 
-* **Y** : 2 điểm
-* **N** : 0 điểm
+**Y** : 2 điểm
+
+- Gọi tên khách hàng trong quá trình giao tiếp (ít nhất 2 lần), gọi danh xưng phù hợp theo tình huống.
+
+**N** : 0 điểm
+
+- Không gọi tên khách hàng phù hợp trong quá trình giao tiếp. Sử dụng danh xưng không phù hợp theo tình huống.
 
 ---
 
@@ -44,14 +93,45 @@
 
 ### 🔹 3.1 Quản lý cuộc gọi
 
-* **Y** : 10 điểm
-* **P1** : 5 điểm
-* **N** : 0 điểm
+**Y** : 10 điểm
+
+- Chủ động tư vấn, giải thích, giải quyết vấn đề một cách tận tâm
+- Đặt câu hỏi chính xác, tập trung vào vấn đề của KH để thu thập thông tin cần thiết
+- Tư vấn ngắn gọn, rõ ràng, súc tích.
+- Tư vấn/ xử lý linh hoạt, phù hợp ngữ cảnh, kiểm soát tình huống một cách hiệu quả.
+- Thao tác trên hệ thống nhanh chóng và lịch sự khi yêu cầu khách hàng chờ máy
+- Kiểm tra lại với khách hàng để đảm bảo vấn đề đã được hỗ trợ.
+
+**P1** : 5 điểm
+
+- Để tạp âm (của chính agent) trong cuộc gọi.
+- Để khoảng lặng từ 6s 1 lần hoặc để khoảng lặng từ 4s trở lên quá 2 lần.
+- Không xin phép hoặc cảm ơn khi yêu cầu KH chờ máy
+- Chưa chuyển nhạc chờ khi hướng dẫn KH chờ máy
+- Chờ máy để khách hàng kiểm tra thông tin, nhưng quá 60 giây không tương tác lại với khách hàng
+- Thao tác hệ thống chậm, để KH chờ máy lâu từ 60 - 90 giây/ 1 lần (xô lệch 5s)
+
+**N** : 0 điểm
+
+- Thụ động trong tư vấn: chỉ hỗ trợ khi khách hàng hỏi đến hoặc không giải thích dù khách hàng chưa hiểu.
+- Đặt câu hỏi dư thừa hoặc tư vấn lan man, dài dòng, giải thích/ cung cấp/ khai thác các nội dung không cần thiết (kỹ năng tư vấn)
+- Tư vấn/ xử lý rập khuôn, máy móc theo quy trình/ kịch bản, không phù hợp với ngữ cảnh. Để khách hàng dẫn dắt trong cuộc gọi hoặc chưa kiểm soát tình huống hiệu quả.
+- Thao tác hệ thống chậm, để KH chờ máy lâu:
+  + Để khách hàng chờ máy lâu quá 93 giây/ 1 lần
+  + Để KH chờ từ 3 lần/ 1 vấn đề.
+- Không kiểm tra hoặc xác nhận để đảm bảo các vấn đề của KH đã được hỗ trợ triệt để.
+- Chưa chủ động thông báo không nhận tín hiệu từ KH 2 lần trước khi gác máy
+- Vi phạm từ 2 tiêu chí được quy định tại mục P1
 
 ### 🔹 3.2 Nhập Liệu
 
-* **Y** : 7 điểm
-* **N** : 0 điểm
+**Y** : 7 điểm
+
+- Ghi nhận và nhập liệu trên hệ thống đúng quy định
+
+**N** : 0 điểm
+
+- Ghi nhận và nhập liệu trên hệ thống chưa đúng quy định
 
 ---
 
@@ -61,15 +141,44 @@
 
 ### 🔹 4.1 Xác minh thông tin
 
-* **Y** : 5 điểm
-* **N** : 0 điểm
+**Y** : 5 điểm
+
+- Xác minh thông tin đúng quy định
+
+**N** : 0 điểm
+
+- Xác minh thông tin chưa đúng quy định
+
+N/A: (không tính điểm)
+
+- Không cần XMTT
 
 ### 🔹 Giải Pháp
 
-* Y: 30 điểm
-* P1: 20 điểm
-* P2: 15 điểm
-* N: 0 điểm
+Y: 30 điểm
+
+- Cung cấp phương án tối ưu, rõ ràng, triệt để
+- Kiên trì thuyết phục để đạt được sự đồng thuận của khách hàng.
+
+P1: 20 điểm
+
+- Cung cấp thiếu 1 thông tin
+- Cung cấp thông tin không rõ ràng và gây nhầm lẫn cho khách hàng
+- Cung cấp thông tin sai khiến KH thắc mắc nhưng có đính chính/ khắc phục
+- Cung cấp phương án hỗ trợ chưa tối ưu, rõ ràng, triệt để
+
+P2: 15 điểm
+
+- Cung cấp thiếu 1 thông tin
+- Cung cấp thông tin không rõ ràng và gây nhầm lẫn cho khách hàng
+- Cung cấp thông tin sai khiến KH thắc mắc nhưng có đính chính/ khắc phục
+- Cung cấp phương án hỗ trợ chưa tối ưu, rõ ràng, triệt để
+
+N: 0 điểm
+
+- Cung cấp sai thông tin
+- Vi phạm từ 2 lần hoặc từ 2 tiêu chí trên
+- Hỗ trợ sai hướng xử lý, sai quy trình
 
 ---
 
@@ -79,13 +188,31 @@
 
 ### 🔹 5.1 Tư vấn khảo sát/ khuyến mãi / cảnh báo/…
 
-* **Y** : 3 điểm
-* **N** : 0 điểm
+**Y** : 3 điểm
+
+- Thực hiện tư vấn khảo sát/ giới thiệu các khuyến mãi/... kèm theo cuộc gọi được quy định theo từng thời kì.
+
+**N** : 0 điểm
+
+- Không thực hiện hoặc thực hiện chưa chính xác
+
+N/A: (không tính điểm)
+
+- Không cần thực hiện/ chưa có cơ hội thực hiện
 
 ### 🔹 5.2 Chào kết thúc
 
-* **Y** : 5 điểm
-* **N** : 0 điểm
+**Y** : 5 điểm
+
+- Kết thúc bằng lời cảm ơn/ lời chúc chân thành kèm mong muốn được tiếp tục đồng hành với KH 1 cách cá nhân hóa
+
+**N** : 0 điểm
+
+- Thực hiện chưa đạt yêu cầu
+
+N/A: (không tính điểm)
+
+- Chưa có cơ hội thực hiện
 
 ---
 
